@@ -1,0 +1,75 @@
+- generic [ref=e80]:
+  - complementary [ref=e81]:
+    - generic [ref=e82]:
+      - img "apartment" [ref=e84]:
+        - img [ref=e85]
+      - generic [ref=e87]:
+        - generic [ref=e88]: QL Cơ sở dữ liệu
+        - generic [ref=e89]: UBND cấp xã
+    - navigation [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]: Tổng quan
+        - link "home Trang chủ" [ref=e93] [cursor=pointer]:
+          - /url: /
+      - generic [ref=e99]:
+        - generic [ref=e100]: Quản lý
+        - link "apartment Hộ khẩu" [ref=e101] [cursor=pointer]:
+          - /url: /households
+        - link "team Nhân khẩu" [ref=e107] [cursor=pointer]:
+          - /url: /persons
+        - link "home Tạm trú" [ref=e113] [cursor=pointer]:
+          - /url: /temporary-residence
+        - link "apartment Tạm vắng" [ref=e119] [cursor=pointer]:
+          - /url: /temporary-absence
+      - generic [ref=e125]:
+        - generic [ref=e126]: Báo cáo
+        - link "bar-chart Báo cáo" [active] [ref=e127] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=e133]:
+        - generic [ref=e134]: Hệ thống
+        - link "user Người dùng" [ref=e135] [cursor=pointer]:
+          - /url: /users
+        - link "file-text Nhật ký" [ref=e141] [cursor=pointer]:
+          - /url: /logs
+        - link "database Sao lưu" [ref=e147] [cursor=pointer]:
+          - /url: /backup
+    - generic [ref=e153]:
+      - button "logout Đăng xuất" [ref=e154] [cursor=pointer]:
+        - img "logout" [ref=e155]
+        - text: Đăng xuất
+      - button "menu-fold Thu gọn" [ref=e158] [cursor=pointer]:
+        - img "menu-fold" [ref=e159]
+        - text: Thu gọn
+  - main [ref=e162]:
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - button "Mở menu điều hướng" [ref=e288] [cursor=pointer]
+        - generic [ref=e166]: Quản lý dân cư
+      - generic [ref=e169]: "N"
+    - generic [ref=e293]:
+      - generic [ref=e294]:
+        - heading "Báo cáo & Thống kê" [level=1] [ref=e295]
+        - paragraph [ref=e296]: Dữ liệu cập nhật theo thời gian thực
+      - button "download Xuất JSON" [ref=e297] [cursor=pointer]:
+        - img "download" [ref=e299]
+        - generic [ref=e302]: Xuất JSON
+    - generic [ref=e303]:
+      - generic [ref=e306]:
+        - generic [ref=e307]: "8"
+        - generic [ref=e308]: Tổng dân số
+      - generic [ref=e311]:
+        - generic [ref=e312]: "3"
+        - generic [ref=e313]: Hộ khẩu
+      - generic [ref=e316]:
+        - generic [ref=e317]: "1"
+        - generic [ref=e318]: Tạm trú
+      - generic [ref=e321]:
+        - generic [ref=e322]: "1"
+        - generic [ref=e323]: Tạm vắng
+    - generic [ref=e325]:
+      - generic [ref=e326]:
+        - tablist [ref=e327]
+        - tabpanel "🏘️ DS Hộ khẩu" [ref=e340]
+      - button "reload Làm mới" [ref=e400] [cursor=pointer]:
+        - img "reload" [ref=e402]
+        - generic [ref=e405]: Làm mới

@@ -1,0 +1,8 @@
+[POST] http://127.0.0.1:5178/api/auth/login => [401] Unauthorized
+[POST] http://127.0.0.1:5178/api/auth/login => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/statistics => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/statistics => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/statistics => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/households => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/statistics => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/households => [200] OK

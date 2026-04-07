@@ -1,0 +1,45 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: 🏘️
+      - heading "Hệ Thống Quản Lý" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Cơ sở dữ liệu dân cư UBND cấp xã
+    - generic [ref=e10]:
+      - generic [ref=e12]:
+        - generic [ref=e14]:
+          - text: "*"
+          - generic [ref=e15]: Tài khoản
+        - generic [ref=e19]:
+          - img "user" [ref=e21]:
+            - img [ref=e22]
+          - textbox "* Tài khoản" [ref=e24]:
+            - /placeholder: Nhập tài khoản...
+            - text: admin
+      - generic [ref=e26]:
+        - generic [ref=e28]:
+          - text: "*"
+          - generic [ref=e29]: Mật khẩu
+        - generic [ref=e33]:
+          - img "lock" [ref=e35]:
+            - img [ref=e36]
+          - textbox "* Mật khẩu" [ref=e38]:
+            - /placeholder: Nhập mật khẩu...
+            - text: "123"
+          - img "eye-invisible" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+      - button "login Đăng nhập" [active] [ref=e49] [cursor=pointer]:
+        - img "login" [ref=e71]:
+          - img [ref=e72]
+        - generic [ref=e54]: Đăng nhập
+  - generic [ref=e55]:
+    - generic [ref=e56]: Tài khoản demo — nhấp để điền
+    - generic [ref=e57]:
+      - generic [ref=e58] [cursor=pointer]:
+        - generic [ref=e60]: admin
+        - generic [ref=e61]: Quản trị viên
+      - generic [ref=e62] [cursor=pointer]:
+        - generic [ref=e64]: nhankhau
+        - generic [ref=e65]: Cán bộ NK
+      - generic [ref=e66] [cursor=pointer]:
+        - generic [ref=e68]: hokhau
+        - generic [ref=e69]: Cán bộ HK

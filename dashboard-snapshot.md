@@ -1,0 +1,122 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 🏘️
+      - generic [ref=e7]:
+        - generic [ref=e8]: QL Cơ sở Dữ liệu
+        - generic [ref=e9]: UBND cấp xã
+    - navigation [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: Tổng quan
+        - link "🏠 Trang chủ" [ref=e13] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e14]: 🏠
+          - generic [ref=e15]: Trang chủ
+      - generic [ref=e16]:
+        - generic [ref=e17]: Quản lý
+        - link "🏘️ Hộ khẩu" [ref=e18] [cursor=pointer]:
+          - /url: /households
+          - generic [ref=e19]: 🏘️
+          - generic [ref=e20]: Hộ khẩu
+        - link "👥 Nhân khẩu" [ref=e21] [cursor=pointer]:
+          - /url: /persons
+          - generic [ref=e22]: 👥
+          - generic [ref=e23]: Nhân khẩu
+        - link "📍 Tạm trú" [ref=e24] [cursor=pointer]:
+          - /url: /temporary-residence
+          - generic [ref=e25]: 📍
+          - generic [ref=e26]: Tạm trú
+        - link "✈️ Tạm vắng" [ref=e27] [cursor=pointer]:
+          - /url: /temporary-absence
+          - generic [ref=e28]: ✈️
+          - generic [ref=e29]: Tạm vắng
+      - generic [ref=e30]:
+        - generic [ref=e31]: Báo cáo
+        - link "📊 Báo cáo" [ref=e32] [cursor=pointer]:
+          - /url: /reports
+          - generic [ref=e33]: 📊
+          - generic [ref=e34]: Báo cáo
+      - generic [ref=e35]:
+        - generic [ref=e36]: Hệ thống
+        - link "👤 Người dùng" [ref=e37] [cursor=pointer]:
+          - /url: /users
+          - generic [ref=e38]: 👤
+          - generic [ref=e39]: Người dùng
+        - link "📋 Nhật ký" [ref=e40] [cursor=pointer]:
+          - /url: /logs
+          - generic [ref=e41]: 📋
+          - generic [ref=e42]: Nhật ký
+        - link "💾 Sao lưu" [ref=e43] [cursor=pointer]:
+          - /url: /backup
+          - generic [ref=e44]: 💾
+          - generic [ref=e45]: Sao lưu
+    - generic [ref=e46]:
+      - button "🚪 Đăng xuất" [ref=e47] [cursor=pointer]
+      - button "← Thu gọn" [ref=e48] [cursor=pointer]
+  - main [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e52]: "N"
+      - generic [ref=e53]:
+        - generic [ref=e54]: Nguyễn Văn A
+        - generic [ref=e55]: Quản trị viên
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "Tổng quan hệ thống" [level=1] [ref=e59]
+          - paragraph [ref=e60]: Thứ Ba, 7 tháng 4, 2026
+        - generic [ref=e63]: Hệ thống hoạt động
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e67]: 👥
+          - generic [ref=e68]: "8"
+          - generic [ref=e69]: Tổng dân số
+        - generic [ref=e70]:
+          - generic [ref=e72]: 🏘️
+          - generic [ref=e73]: "3"
+          - generic [ref=e74]: Tổng hộ khẩu
+        - generic [ref=e75]:
+          - generic [ref=e77]: 💚
+          - generic [ref=e78]: "7"
+          - generic [ref=e79]: Đang sống
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - generic [ref=e83]: ♂️
+          - generic [ref=e84]: "5"
+          - generic [ref=e85]: Nam giới
+        - generic [ref=e86]:
+          - generic [ref=e88]: ♀️
+          - generic [ref=e89]: "3"
+          - generic [ref=e90]: Nữ giới
+        - generic [ref=e91]:
+          - generic [ref=e93]: ⚰️
+          - generic [ref=e94]: "0"
+          - generic [ref=e95]: Đã mất
+        - generic [ref=e96]:
+          - generic [ref=e98]: 🚚
+          - generic [ref=e99]: "0"
+          - generic [ref=e100]: Đã chuyển đi
+        - generic [ref=e101]:
+          - generic [ref=e103]: 📍
+          - generic [ref=e104]: "1"
+          - generic [ref=e105]: Tạm trú
+        - generic [ref=e106]:
+          - generic [ref=e108]: ✈️
+          - generic [ref=e109]: "1"
+          - generic [ref=e110]: Tạm vắng
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - generic [ref=e113]: 🏘️ Thống kê hộ khẩu
+          - generic [ref=e114]
+          - generic [ref=e117]
+          - generic [ref=e120]
+        - generic [ref=e123]:
+          - generic [ref=e124]: 👥 Thống kê nhân khẩu
+          - generic [ref=e125]
+          - generic [ref=e128]
+          - generic [ref=e131]
+          - generic [ref=e134]
+          - generic [ref=e137]
+        - generic [ref=e140]:
+          - generic [ref=e141]: ⚧️ Giới tính
+          - generic [ref=e143]
+          - generic [ref=e150]

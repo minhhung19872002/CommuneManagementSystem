@@ -1,0 +1,6 @@
+[POST] http://127.0.0.1:5178/api/auth/login => [401] Unauthorized
+  Request body: {"username":"admin","password":"123"}
+[POST] http://127.0.0.1:5178/api/auth/login => [200] OK
+  Request body: {"username":"admin","password":"123"}
+[GET] http://127.0.0.1:5178/api/reports/statistics => [200] OK
+[GET] http://127.0.0.1:5178/api/reports/statistics => [200] OK

@@ -1,0 +1,166 @@
+- generic [ref=e80]:
+  - complementary [ref=e81]:
+    - generic [ref=e82]:
+      - img "apartment" [ref=e84]:
+        - img [ref=e85]
+      - generic [ref=e87]:
+        - generic [ref=e88]: QL Cơ sở dữ liệu
+        - generic [ref=e89]: UBND cấp xã
+    - navigation [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]: Tổng quan
+        - link "home Trang chủ" [ref=e93] [cursor=pointer]:
+          - /url: /
+          - img "home" [ref=e95]:
+            - img [ref=e96]
+          - generic [ref=e98]: Trang chủ
+      - generic [ref=e99]:
+        - generic [ref=e100]: Quản lý
+        - link "apartment Hộ khẩu" [ref=e101] [cursor=pointer]:
+          - /url: /households
+          - img "apartment" [ref=e103]:
+            - img [ref=e104]
+          - generic [ref=e106]: Hộ khẩu
+        - link "team Nhân khẩu" [ref=e107] [cursor=pointer]:
+          - /url: /persons
+          - img "team" [ref=e109]:
+            - img [ref=e110]
+          - generic [ref=e112]: Nhân khẩu
+        - link "home Tạm trú" [ref=e113] [cursor=pointer]:
+          - /url: /temporary-residence
+          - img "home" [ref=e115]:
+            - img [ref=e116]
+          - generic [ref=e118]: Tạm trú
+        - link "apartment Tạm vắng" [ref=e119] [cursor=pointer]:
+          - /url: /temporary-absence
+          - img "apartment" [ref=e121]:
+            - img [ref=e122]
+          - generic [ref=e124]: Tạm vắng
+      - generic [ref=e125]:
+        - generic [ref=e126]: Báo cáo
+        - link "bar-chart Báo cáo" [active] [ref=e127] [cursor=pointer]:
+          - /url: /reports
+          - img "bar-chart" [ref=e129]:
+            - img [ref=e130]
+          - generic [ref=e132]: Báo cáo
+      - generic [ref=e133]:
+        - generic [ref=e134]: Hệ thống
+        - link "user Người dùng" [ref=e135] [cursor=pointer]:
+          - /url: /users
+          - img "user" [ref=e137]:
+            - img [ref=e138]
+          - generic [ref=e140]: Người dùng
+        - link "file-text Nhật ký" [ref=e141] [cursor=pointer]:
+          - /url: /logs
+          - img "file-text" [ref=e143]:
+            - img [ref=e144]
+          - generic [ref=e146]: Nhật ký
+        - link "database Sao lưu" [ref=e147] [cursor=pointer]:
+          - /url: /backup
+          - img "database" [ref=e149]:
+            - img [ref=e150]
+          - generic [ref=e152]: Sao lưu
+    - generic [ref=e153]:
+      - button "logout Đăng xuất" [ref=e154] [cursor=pointer]:
+        - img "logout" [ref=e155]:
+          - img [ref=e156]
+        - text: Đăng xuất
+      - button "menu-fold Thu gọn" [ref=e158] [cursor=pointer]:
+        - img "menu-fold" [ref=e159]:
+          - img [ref=e160]
+        - text: Thu gọn
+  - main [ref=e162]:
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - button "Mở menu điều hướng" [ref=e288] [cursor=pointer]:
+          - img "menu" [ref=e289]:
+            - img [ref=e290]
+        - generic [ref=e166]: Quản lý dân cư
+      - generic [ref=e169]: "N"
+    - generic [ref=e293]:
+      - generic [ref=e294]:
+        - heading "Báo cáo & Thống kê" [level=1] [ref=e295]
+        - paragraph [ref=e296]: Dữ liệu cập nhật theo thời gian thực
+      - button "download Xuất JSON" [ref=e297] [cursor=pointer]:
+        - img "download" [ref=e299]:
+          - img [ref=e300]
+        - generic [ref=e302]: Xuất JSON
+    - generic [ref=e303]:
+      - generic [ref=e306]:
+        - generic [ref=e307]: "8"
+        - generic [ref=e308]: Tổng dân số
+      - generic [ref=e311]:
+        - generic [ref=e312]: "3"
+        - generic [ref=e313]: Hộ khẩu
+      - generic [ref=e316]:
+        - generic [ref=e317]: "1"
+        - generic [ref=e318]: Tạm trú
+      - generic [ref=e321]:
+        - generic [ref=e322]: "1"
+        - generic [ref=e323]: Tạm vắng
+    - generic [ref=e325]:
+      - generic [ref=e326]:
+        - tablist [ref=e327]:
+          - generic [ref=e329]:
+            - tab "🏘️ DS Hộ khẩu" [selected] [ref=e331] [cursor=pointer]
+            - tab "👥 DS Nhân khẩu" [ref=e333] [cursor=pointer]
+            - tab "📍 Tạm trú" [ref=e335] [cursor=pointer]
+            - tab "✈️ Tạm vắng" [ref=e337] [cursor=pointer]
+        - tabpanel "🏘️ DS Hộ khẩu" [ref=e340]:
+          - generic [ref=e341]:
+            - paragraph [ref=e342]:
+              - text: "Xuất lúc:"
+              - strong [ref=e343]: 23:17:04 7/4/2026
+            - generic [ref=e346]:
+              - table [ref=e350]:
+                - rowgroup [ref=e351]:
+                  - row "Số hộ Địa chỉ Chủ hộ Số thành viên Trạng thái" [ref=e352]:
+                    - columnheader "Số hộ" [ref=e353]
+                    - columnheader "Địa chỉ" [ref=e354]
+                    - columnheader "Chủ hộ" [ref=e355]
+                    - columnheader "Số thành viên" [ref=e356]
+                    - columnheader "Trạng thái" [ref=e357]
+                - rowgroup [ref=e358]:
+                  - row [ref=e359]:
+                    - cell [ref=e360]
+                    - cell [ref=e361]
+                    - cell [ref=e362]
+                    - cell [ref=e363]
+                    - cell [ref=e364]
+                  - row "HK-001 Thôn 1, Xã An Thành Nguyễn Văn Minh 2 Active" [ref=e365]:
+                    - cell "HK-001" [ref=e366]
+                    - cell "Thôn 1, Xã An Thành" [ref=e367]
+                    - cell "Nguyễn Văn Minh" [ref=e368]
+                    - cell "2" [ref=e369]
+                    - cell "Active" [ref=e370]:
+                      - generic [ref=e371]: Active
+                  - row "HK-002 Thôn 2, Xã An Thành Trần Văn Hùng 3 Active" [ref=e372]:
+                    - cell "HK-002" [ref=e373]
+                    - cell "Thôn 2, Xã An Thành" [ref=e374]
+                    - cell "Trần Văn Hùng" [ref=e375]
+                    - cell "3" [ref=e376]
+                    - cell "Active" [ref=e377]:
+                      - generic [ref=e378]: Active
+                  - row "HK-003 Thôn 1, Xã An Thành Lê Thị Hà 2 Active" [ref=e379]:
+                    - cell "HK-003" [ref=e380]
+                    - cell "Thôn 1, Xã An Thành" [ref=e381]
+                    - cell "Lê Thị Hà" [ref=e382]
+                    - cell "2" [ref=e383]
+                    - cell "Active" [ref=e384]:
+                      - generic [ref=e385]: Active
+              - list [ref=e386]:
+                - listitem [ref=e387]: 3 hộ khẩu
+                - listitem "Previous Page" [ref=e388]:
+                  - button "left" [disabled] [ref=e389]:
+                    - img "left" [ref=e390]:
+                      - img [ref=e391]
+                - listitem "1" [ref=e393] [cursor=pointer]:
+                  - generic [ref=e394]: "1"
+                - listitem "Next Page" [ref=e395]:
+                  - button "right" [disabled] [ref=e396]:
+                    - img "right" [ref=e397]:
+                      - img [ref=e398]
+      - button "reload Làm mới" [ref=e400] [cursor=pointer]:
+        - img "reload" [ref=e402]:
+          - img [ref=e403]
+        - generic [ref=e405]: Làm mới

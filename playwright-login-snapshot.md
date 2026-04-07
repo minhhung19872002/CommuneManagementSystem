@@ -1,0 +1,16 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: 🏘️
+      - heading "Hệ Thống Quản Lý" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Cơ sở dữ liệu dân cư UBND cấp xã
+    - generic [ref=e10]:
+      - generic [ref=e12]
+      - generic [ref=e26]
+      - button "login Đăng nhập" [ref=e49] [cursor=pointer]
+  - generic [ref=e55]:
+    - generic [ref=e56]: Tài khoản demo — nhấp để điền
+    - generic [ref=e57]:
+      - generic [ref=e58] [cursor=pointer]
+      - generic [ref=e62] [cursor=pointer]
+      - generic [ref=e66] [cursor=pointer]

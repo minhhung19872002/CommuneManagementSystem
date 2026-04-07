@@ -1,0 +1,171 @@
+- generic [ref=e80]:
+  - complementary [ref=e81]:
+    - generic [ref=e82]:
+      - img "apartment" [ref=e84]:
+        - img [ref=e85]
+      - generic [ref=e87]:
+        - generic [ref=e88]: QL Cơ sở dữ liệu
+        - generic [ref=e89]: UBND cấp xã
+    - navigation [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]: Tổng quan
+        - link "home Trang chủ" [ref=e93] [cursor=pointer]:
+          - /url: /
+          - img "home" [ref=e95]:
+            - img [ref=e96]
+          - generic [ref=e98]: Trang chủ
+      - generic [ref=e99]:
+        - generic [ref=e100]: Quản lý
+        - link "apartment Hộ khẩu" [ref=e101] [cursor=pointer]:
+          - /url: /households
+          - img "apartment" [ref=e103]:
+            - img [ref=e104]
+          - generic [ref=e106]: Hộ khẩu
+        - link "team Nhân khẩu" [ref=e107] [cursor=pointer]:
+          - /url: /persons
+          - img "team" [ref=e109]:
+            - img [ref=e110]
+          - generic [ref=e112]: Nhân khẩu
+        - link "home Tạm trú" [ref=e113] [cursor=pointer]:
+          - /url: /temporary-residence
+          - img "home" [ref=e115]:
+            - img [ref=e116]
+          - generic [ref=e118]: Tạm trú
+        - link "apartment Tạm vắng" [ref=e119] [cursor=pointer]:
+          - /url: /temporary-absence
+          - img "apartment" [ref=e121]:
+            - img [ref=e122]
+          - generic [ref=e124]: Tạm vắng
+      - generic [ref=e125]:
+        - generic [ref=e126]: Báo cáo
+        - link "bar-chart Báo cáo" [ref=e127] [cursor=pointer]:
+          - /url: /reports
+          - img "bar-chart" [ref=e129]:
+            - img [ref=e130]
+          - generic [ref=e132]: Báo cáo
+      - generic [ref=e133]:
+        - generic [ref=e134]: Hệ thống
+        - link "user Người dùng" [ref=e135] [cursor=pointer]:
+          - /url: /users
+          - img "user" [ref=e137]:
+            - img [ref=e138]
+          - generic [ref=e140]: Người dùng
+        - link "file-text Nhật ký" [ref=e141] [cursor=pointer]:
+          - /url: /logs
+          - img "file-text" [ref=e143]:
+            - img [ref=e144]
+          - generic [ref=e146]: Nhật ký
+        - link "database Sao lưu" [ref=e147] [cursor=pointer]:
+          - /url: /backup
+          - img "database" [ref=e149]:
+            - img [ref=e150]
+          - generic [ref=e152]: Sao lưu
+    - generic [ref=e153]:
+      - button "logout Đăng xuất" [ref=e154] [cursor=pointer]:
+        - img "logout" [ref=e155]:
+          - img [ref=e156]
+        - text: Đăng xuất
+      - button "menu-fold Thu gọn" [ref=e158] [cursor=pointer]:
+        - img "menu-fold" [ref=e159]:
+          - img [ref=e160]
+        - text: Thu gọn
+  - button "Đóng menu" [ref=e292]
+  - main [ref=e162]:
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - button "Mở menu điều hướng" [active] [ref=e288] [cursor=pointer]:
+          - img "menu" [ref=e289]:
+            - img [ref=e290]
+        - generic [ref=e166]: Quản lý dân cư
+      - generic [ref=e169]: "N"
+    - generic [ref=e173]:
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - heading "Tổng quan hệ thống" [level=1] [ref=e176]
+          - paragraph [ref=e177]: Thứ Ba, 7 tháng 4, 2026
+        - generic [ref=e180]: Hệ thống hoạt động
+      - generic [ref=e181]:
+        - generic [ref=e184]:
+          - generic [ref=e185]:
+            - paragraph [ref=e186]: Tổng dân số
+            - paragraph [ref=e187]: "8"
+          - generic [ref=e188]: 👥
+        - generic [ref=e191]:
+          - generic [ref=e192]:
+            - paragraph [ref=e193]: Tổng hộ khẩu
+            - paragraph [ref=e194]: "3"
+          - generic [ref=e195]: 🏘️
+        - generic [ref=e198]:
+          - generic [ref=e199]:
+            - paragraph [ref=e200]: Đang sống
+            - paragraph [ref=e201]: "7"
+          - generic [ref=e202]: 💚
+      - generic [ref=e203]:
+        - generic [ref=e205]:
+          - generic [ref=e206]: ♂️
+          - paragraph [ref=e207]: "5"
+          - paragraph [ref=e208]: Nam giới
+        - generic [ref=e210]:
+          - generic [ref=e211]: ♀️
+          - paragraph [ref=e212]: "3"
+          - paragraph [ref=e213]: Nữ giới
+        - generic [ref=e215]:
+          - generic [ref=e216]: ⚰️
+          - paragraph [ref=e217]: "0"
+          - paragraph [ref=e218]: Đã mất
+        - generic [ref=e220]:
+          - generic [ref=e221]: 🚚
+          - paragraph [ref=e222]: "0"
+          - paragraph [ref=e223]: Đã chuyển đi
+        - generic [ref=e225]:
+          - generic [ref=e226]: 📍
+          - paragraph [ref=e227]: "1"
+          - paragraph [ref=e228]: Tạm trú
+        - generic [ref=e230]:
+          - generic [ref=e231]: ✈️
+          - paragraph [ref=e232]: "1"
+          - paragraph [ref=e233]: Tạm vắng
+      - generic [ref=e234]:
+        - generic [ref=e235]:
+          - generic [ref=e238]: 🏘️ Thống kê hộ khẩu
+          - generic [ref=e239]:
+            - generic [ref=e240]:
+              - generic [ref=e241]: Tổng số hộ
+              - generic [ref=e242]: "3"
+            - generic [ref=e243]:
+              - generic [ref=e244]: Hộ hoạt động
+              - generic [ref=e245]: "3"
+            - generic [ref=e246]:
+              - generic [ref=e247]: Hộ đã chuyển đi
+              - generic [ref=e248]: "0"
+        - generic [ref=e249]:
+          - generic [ref=e252]: 👥 Thống kê nhân khẩu
+          - generic [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]: Đang sống
+              - generic [ref=e256]: "7"
+            - generic [ref=e257]:
+              - generic [ref=e258]: Đã mất
+              - generic [ref=e259]: "0"
+            - generic [ref=e260]:
+              - generic [ref=e261]: Đã chuyển đi
+              - generic [ref=e262]: "0"
+            - generic [ref=e263]:
+              - generic [ref=e264]: Tạm trú
+              - generic [ref=e265]: "1"
+            - generic [ref=e266]:
+              - generic [ref=e267]: Tạm vắng
+              - generic [ref=e268]: "1"
+        - generic [ref=e269]:
+          - generic [ref=e272]: ⚧️ Giới tính
+          - generic [ref=e273]:
+            - generic [ref=e275]:
+              - generic [ref=e276]: ♂️ Nam giới
+              - generic [ref=e277]:
+                - text: "5"
+                - generic [ref=e278]: (63%)
+            - generic [ref=e282]:
+              - generic [ref=e283]: ♀️ Nữ giới
+              - generic [ref=e284]:
+                - text: "3"
+                - generic [ref=e285]: (38%)

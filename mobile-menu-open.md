@@ -1,0 +1,68 @@
+- generic [ref=e80]:
+  - complementary [ref=e81]:
+    - generic [ref=e82]:
+      - img "apartment" [ref=e84]:
+        - img [ref=e85]
+      - generic [ref=e87]:
+        - generic [ref=e88]: QL Cơ sở dữ liệu
+        - generic [ref=e89]: UBND cấp xã
+    - navigation [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]: Tổng quan
+        - link "home Trang chủ" [ref=e93] [cursor=pointer]:
+          - /url: /
+      - generic [ref=e99]:
+        - generic [ref=e100]: Quản lý
+        - link "apartment Hộ khẩu" [ref=e101] [cursor=pointer]:
+          - /url: /households
+        - link "team Nhân khẩu" [ref=e107] [cursor=pointer]:
+          - /url: /persons
+        - link "home Tạm trú" [ref=e113] [cursor=pointer]:
+          - /url: /temporary-residence
+        - link "apartment Tạm vắng" [ref=e119] [cursor=pointer]:
+          - /url: /temporary-absence
+      - generic [ref=e125]:
+        - generic [ref=e126]: Báo cáo
+        - link "bar-chart Báo cáo" [ref=e127] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=e133]:
+        - generic [ref=e134]: Hệ thống
+        - link "user Người dùng" [ref=e135] [cursor=pointer]:
+          - /url: /users
+        - link "file-text Nhật ký" [ref=e141] [cursor=pointer]:
+          - /url: /logs
+        - link "database Sao lưu" [ref=e147] [cursor=pointer]:
+          - /url: /backup
+    - generic [ref=e153]:
+      - button "logout Đăng xuất" [ref=e154] [cursor=pointer]:
+        - img "logout" [ref=e155]
+        - text: Đăng xuất
+      - button "menu-fold Thu gọn" [ref=e158] [cursor=pointer]:
+        - img "menu-fold" [ref=e159]
+        - text: Thu gọn
+  - button "Đóng menu" [ref=e292]
+  - main [ref=e162]:
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - button "Mở menu điều hướng" [active] [ref=e288] [cursor=pointer]
+        - generic [ref=e166]: Quản lý dân cư
+      - generic [ref=e169]: "N"
+    - generic [ref=e173]:
+      - generic [ref=e174]:
+        - generic [ref=e175]
+        - generic [ref=e180]: Hệ thống hoạt động
+      - generic [ref=e181]:
+        - generic [ref=e184]
+        - generic [ref=e191]
+        - generic [ref=e198]
+      - generic [ref=e203]:
+        - generic [ref=e205]
+        - generic [ref=e210]
+        - generic [ref=e215]
+        - generic [ref=e220]
+        - generic [ref=e225]
+        - generic [ref=e230]
+      - generic [ref=e234]:
+        - generic [ref=e235]
+        - generic [ref=e249]
+        - generic [ref=e269]
