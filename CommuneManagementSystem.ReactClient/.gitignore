@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+playwright-report
+test-results
+cypress/screenshots
+cypress/videos
+cypress/downloads
 
 # Editor directories and files
 .vscode/*

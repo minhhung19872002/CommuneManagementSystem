@@ -1,4 +1,6 @@
 import React from 'react';
+import { ConfigProvider } from 'antd';
+import viVN from 'antd/locale/vi_VN';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
@@ -42,11 +44,33 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ConfigProvider
+      locale={viVN}
+      theme={{
+        token: {
+          colorPrimary: '#034AA0',
+          colorInfo: '#034AA0',
+          colorSuccess: '#10B981',
+          colorWarning: '#F59E0B',
+          colorError: '#EF2726',
+          colorText: '#32373C',
+          colorTextSecondary: '#6B7280',
+          colorBgBase: '#F5F7FB',
+          colorBgLayout: '#F5F7FB',
+          colorBgContainer: '#FFFFFF',
+          colorBorder: '#DCE4F0',
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          borderRadius: 14,
+          wireframe: false,
+        },
+      }}
+    >
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ConfigProvider>
   );
 };
 

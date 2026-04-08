@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# Commune Management System React Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend for the commune management app. The repo now includes runnable E2E smoke coverage for the main UI flows with both Playwright and Cypress.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js `22.12+` is recommended. The current repo still builds on `22.11.0`, but Vite warns about that version.
+- .NET SDK `9.x`
+- Playwright browser binaries: run `npm run playwright:install` once after installing dependencies
 
-## React Compiler
+## Local Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `npm run dev`
+  Starts the .NET API on `http://127.0.0.1:5068` and the Vite frontend on `http://127.0.0.1:5178`.
 
-## Expanding the ESLint configuration
+- `npm run dev:frontend`
+  Starts only the Vite frontend. Use this only when the backend is already running on `http://127.0.0.1:5068`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Demo login: `admin / 123`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## UI Test Commands
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- `npm run playwright:test`
+  Starts the .NET API and Vite dev server, then runs the Playwright smoke suite on desktop and mobile Chrome profiles.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `npm run playwright:test:headed`
+  Same stack bootstrapping, but runs Playwright headed for debugging.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- `npm run cypress:run`
+  Starts the same local stack, then runs the Cypress smoke suite.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run cypress:open`
+  Opens Cypress interactively. Use `npm run e2e:serve` in another terminal first if the app stack is not already running.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Environment Overrides
+
+These defaults are baked into the test setup:
+
+- Frontend dev server: `http://127.0.0.1:4173`
+- API bind URL: `http://127.0.0.1:5068`
+- Demo login: `admin / 123`
+
+You can override them with:
+
+- `E2E_BASE_URL`
+- `E2E_FRONTEND_PORT`
+- `E2E_API_BIND_URL`
+- `E2E_API_READY_URL`
+- `E2E_USERNAME`
+- `E2E_PASSWORD`
