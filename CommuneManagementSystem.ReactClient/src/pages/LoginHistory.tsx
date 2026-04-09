@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Input, Select, Space, Table, Tag, message } from 'antd';
+import { Button, Card, Input, Select, Space, Table, Tag, message, Modal, Descriptions } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { authService } from '../services/authService';
@@ -15,6 +15,7 @@ export default function LoginHistory() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: SystemLog }>({ open: false });
 
   useEffect(() => {
     void load();
@@ -143,9 +144,36 @@ export default function LoginHistory() {
             columns={columns}
             pagination={{ pageSize: 10 }}
             scroll={{ x: 900 }}
+            onRow={(record) => ({
+              onDoubleClick: () => setDetailModal({ open: true, item: record }),
+            })}
           />
         </Card>
       </div>
+
+      <Modal
+        title="Chi tiết đăng nhập"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={null}
+        width={640}
+      >
+        {detailModal.item && (
+          <Descriptions column={1} style={{ marginTop: 8 }} bordered size="small">
+            <Descriptions.Item label="Thời gian">
+              {new Date(detailModal.item.createdAt).toLocaleString('vi-VN')}
+            </Descriptions.Item>
+            <Descriptions.Item label="Tài khoản">{detailModal.item.username}</Descriptions.Item>
+            <Descriptions.Item label="Kết quả">
+              <Tag color={detailModal.item.action === 'Đăng nhập' ? 'success' : 'error'}>
+                {detailModal.item.action === 'Đăng nhập' ? 'Thành công' : 'Thất bại'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Chi tiết">{detailModal.item.detail || '—'}</Descriptions.Item>
+            <Descriptions.Item label="Địa chỉ IP">{detailModal.item.ipAddress}</Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </>
   );
 }

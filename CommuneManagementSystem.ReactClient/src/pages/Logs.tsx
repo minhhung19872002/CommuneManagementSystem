@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Input, Select, Tag, message } from 'antd';
+import { Table, Button, Input, Select, Tag, message, Modal, Descriptions } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { userService } from '../services/userService';
@@ -20,6 +20,7 @@ export default function Logs() {
   const [moduleFilter, setModuleFilter] = useState<string>('');
   const [search, setSearch] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: SystemLog }>({ open: false });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -115,9 +116,37 @@ export default function Logs() {
             loading={loading}
             pagination={{ pageSize: 15, showSizeChanger: true, showTotal: (t) => `${t} bản ghi` }}
             size="middle"
+            onRow={(record) => ({
+              onDoubleClick: () => setDetailModal({ open: true, item: record }),
+            })}
           />
         </div>
       </div>
+
+      <Modal
+        title="Chi tiết nhật ký"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={null}
+        width={640}
+      >
+        {detailModal.item && (
+          <Descriptions column={1} style={{ marginTop: 8 }} bordered size="small">
+            <Descriptions.Item label="Thời gian">
+              {new Date(detailModal.item.createdAt).toLocaleString('vi-VN')}
+            </Descriptions.Item>
+            <Descriptions.Item label="Người dùng">{detailModal.item.username}</Descriptions.Item>
+            <Descriptions.Item label="Hành động">{detailModal.item.action}</Descriptions.Item>
+            <Descriptions.Item label="Module">
+              <Tag color={moduleConfig[detailModal.item.module]?.tagColor ?? 'default'}>
+                {detailModal.item.module}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Chi tiết">{detailModal.item.detail || '—'}</Descriptions.Item>
+            <Descriptions.Item label="Địa chỉ IP">{detailModal.item.ipAddress}</Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </>
   );
 }

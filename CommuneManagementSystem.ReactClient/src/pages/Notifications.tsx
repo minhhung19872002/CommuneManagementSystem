@@ -9,6 +9,7 @@ import {
 import {
   Button,
   Card,
+  Descriptions,
   Form,
   Input,
   Modal,
@@ -68,6 +69,7 @@ export default function Notifications() {
   const [form] = Form.useForm<NotificationFormValues>();
   const [reviewForm] = Form.useForm<ReviewFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: NotificationItem }>({ open: false });
 
   useEffect(() => {
     void load();
@@ -323,6 +325,9 @@ export default function Notifications() {
             dataSource={items}
             pagination={{ pageSize: 8 }}
             scroll={{ x: 1100 }}
+            onRow={(record) => ({
+              onDoubleClick: () => setDetailModal({ open: true, item: record }),
+            })}
           />
         </Card>
       </div>
@@ -386,6 +391,43 @@ export default function Notifications() {
             <Input.TextArea rows={4} placeholder="Lý do phê duyệt hoặc từ chối" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết thông báo"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={null}
+        width={640}
+      >
+        {detailModal.item && (
+          <Descriptions column={1} style={{ marginTop: 8 }} bordered size="small">
+            <Descriptions.Item label="Tiêu đề">{detailModal.item.title}</Descriptions.Item>
+            <Descriptions.Item label="Tóm tắt">{detailModal.item.summary}</Descriptions.Item>
+            <Descriptions.Item label="Nội dung">
+              <div style={{ whiteSpace: 'pre-wrap' }}>{detailModal.item.content}</div>
+            </Descriptions.Item>
+            <Descriptions.Item label="Đối tượng">
+              <Tag color="blue">
+                {detailModal.item.audienceRole ? audienceConfig[detailModal.item.audienceRole] || detailModal.item.audienceRole : 'Tất cả'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Trạng thái">
+              <Tag color={statusConfig[detailModal.item.status]?.color ?? 'default'}>
+                {statusConfig[detailModal.item.status]?.label ?? detailModal.item.status}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Người tạo">{detailModal.item.createdByName}</Descriptions.Item>
+            <Descriptions.Item label="Thời gian tạo">
+              {new Date(detailModal.item.createdAt).toLocaleString('vi-VN')}
+            </Descriptions.Item>
+            <Descriptions.Item label="Người duyệt">{detailModal.item.reviewedByName || '—'}</Descriptions.Item>
+            <Descriptions.Item label="Thời gian duyệt">
+              {detailModal.item.reviewedAt ? new Date(detailModal.item.reviewedAt).toLocaleString('vi-VN') : '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Ghi chú duyệt">{detailModal.item.reviewNote || '—'}</Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </>
   );
