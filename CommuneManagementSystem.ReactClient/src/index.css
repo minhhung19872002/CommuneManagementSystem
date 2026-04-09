@@ -70,7 +70,221 @@ a {
   text-decoration: none;
 }
 
-/* Scrollbar */
+/* ============================================
+   Responsive Design — Mobile First
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .page-wrapper {
+    padding: 20px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .management-page {
+    padding: 20px;
+  }
+
+  .management-page__hero {
+    padding: 16px 20px;
+  }
+
+  .management-page__title {
+    font-size: 22px;
+  }
+
+  .form-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .management-members-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .page-wrapper {
+    padding: 12px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .kpi-card {
+    padding: 14px;
+  }
+
+  .kpi-card__value {
+    font-size: 22px;
+  }
+
+  .kpi-card__label {
+    font-size: 11px;
+  }
+
+  .kpi-card__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .page-header__title {
+    font-size: 20px;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .quick-link {
+    padding: 10px 12px;
+  }
+
+  .card__header {
+    flex-wrap: wrap;
+  }
+
+  .card__body {
+    padding: 14px;
+  }
+
+  .dashboard-grid {
+    gap: 12px;
+  }
+
+  .management-page {
+    padding: 12px;
+  }
+
+  .management-page__hero {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .management-page__title {
+    font-size: 20px;
+  }
+
+  .management-page__subtitle {
+    display: none;
+  }
+
+  .management-page__stat {
+    min-width: 72px;
+    padding: 8px 10px;
+  }
+
+  .management-page__stat-value {
+    font-size: 18px;
+  }
+
+  .management-page__stat-label {
+    font-size: 10px;
+  }
+
+  .management-toolbar {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .management-toolbar__grow {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .form-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .management-members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ant Design table responsive */
+  .ant-table-wrapper .ant-table {
+    font-size: 12px !important;
+  }
+
+  .ant-table-wrapper .ant-table-thead > tr > th {
+    font-size: 11px !important;
+    padding: 8px 4px !important;
+  }
+
+  .ant-table-wrapper .ant-table-tbody > tr > td {
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .ant-modal {
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  .ant-modal-content {
+    border-radius: 12px !important;
+  }
+
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  /* Page sections */
+  .backup-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .backup-side-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 479px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .kpi-card__trend {
+    display: none;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ant-tabs-nav {
+    font-size: 12px !important;
+  }
+
+  .ant-tabs-tab {
+    padding: 8px 10px !important;
+  }
+
+  .card__title {
+    font-size: 13px;
+  }
+
+  .backup-card__body {
+    padding: 12px;
+  }
+}
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }

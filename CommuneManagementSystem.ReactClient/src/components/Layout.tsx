@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, CalendarDays, ChevronDown, KeyRound, LogOut, Users } from 'lucide-react';
+import { Bell, CalendarDays, ChevronDown, KeyRound, LogOut, MenuOutlined, Users } from 'lucide-react';
 import { Badge, Button, Dropdown, Form, Input, List, message, Modal, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import Sidebar from './Sidebar';
@@ -48,6 +48,7 @@ type ProfileValues = {
 
 export default function Layout() {
   const { user, logout, updateUser } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -177,7 +178,12 @@ export default function Layout() {
 
       {/* Sidebar */}
       <div style={{ flexShrink: 0 }}>
-        <Sidebar onNavigate={() => {}} userRole={user?.role} />
+        <Sidebar
+          onNavigate={() => {}}
+          userRole={user?.role}
+          mobileOpen={mobileMenuOpen}
+          onMobileClose={() => setMobileMenuOpen(false)}
+        />
       </div>
 
       {/* Main */}
@@ -195,6 +201,15 @@ export default function Layout() {
             flexShrink: 0,
           }}
         >
+          {/* Mobile hamburger */}
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={() => setMobileMenuOpen(v => !v)}
+            className="mobile-menu-btn"
+            style={{ fontSize: 18, marginRight: 12 }}
+          />
+
           {/* Page info */}
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, color: 'var(--color-text-muted)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -208,7 +223,10 @@ export default function Layout() {
           {/* Right controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {/* Date */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: 'var(--color-surface-secondary)', border: '1px solid var(--color-border)', fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: 'var(--color-surface-secondary)', border: '1px solid var(--color-border)', fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}
+              className="topbar-date-badge"
+            >
               <CalendarDays size={14} />
               <span>{today}</span>
             </div>
