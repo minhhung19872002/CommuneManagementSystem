@@ -86,8 +86,8 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
           style={{
             position: 'fixed',
             inset: 0,
+            zIndex: 49,
             background: 'rgba(0,0,0,0.5)',
-            zIndex: 40,
           }}
         />
       )}
