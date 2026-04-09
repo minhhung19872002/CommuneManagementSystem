@@ -1,40 +1,47 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Activity,
   ArrowLeftRight,
-  ArrowRight,
   BarChart3,
   Bell,
   BookOpen,
   Building2,
   CalendarClock,
-  CheckCircle,
+  CheckCircle2,
+  CheckSquare,
+  ChevronRight,
   ClipboardList,
+  Clock,
+  Database,
   FolderOpen,
+  Globe,
   HardDrive,
   House,
+  LayoutDashboard,
+  ListChecks,
   MessageSquare,
+  Server,
+  Shield,
   TrendingUp,
+  TrendingDown,
   Users,
+  Zap,
 } from 'lucide-react';
-import { Card, Progress, Skeleton, Tag, Typography } from 'antd';
+import { PopulationStats, SystemOverview } from '../types';
 import { reportService } from '../services/reportService';
 import { useAuth } from '../context/AuthContext';
-import { hasRouteAccess } from '../utils/permissions';
-import { PopulationStats, SystemOverview } from '../types';
-
-const { Text, Title } = Typography;
+import './Dashboard.css';
 
 const formatNumber = (value: number) => value.toLocaleString('vi-VN');
 
-// KPI data — replace with real API calls
 const kpiCards = [
-  { label: 'Tổng hộ khẩu', value: 248, icon: House, color: 'blue', trend: '+3 tháng này', trendUp: true },
-  { label: 'Nhân khẩu', value: 1_247, icon: Users, color: 'cyan', trend: '+12 tháng này', trendUp: true },
+  { label: 'Hộ khẩu', value: 248, icon: House, color: 'blue', trend: '+3 tháng này', trendUp: true },
+  { label: 'Nhân khẩu', value: 1247, icon: Users, color: 'green', trend: '+12 tháng này', trendUp: true },
   { label: 'Tạm trú', value: 34, icon: ArrowLeftRight, color: 'amber', trend: '+5 tháng này', trendUp: true },
-  { label: 'Tạm vắng', value: 8, icon: ArrowLeftRight, color: 'red', trend: '-2 tháng này', trendUp: false },
+  { label: 'Tạm vắng', value: 8, icon: Clock, color: 'red', trend: '-2 tháng này', trendUp: false },
   { label: 'Nhiệm vụ', value: 18, icon: ClipboardList, color: 'purple', trend: '8 đang xử lý', trendUp: true },
-  { label: 'Dự án', value: 4, icon: Building2, color: 'green', trend: '2 đang triển khai', trendUp: true },
+  { label: 'Dự án', value: 4, icon: Building2, color: 'cyan', trend: '2 đang triển khai', trendUp: true },
 ];
 
 const recentActivities = [
@@ -54,14 +61,21 @@ const taskProgress = [
 ];
 
 const quickLinks = [
-  { label: 'Hộ khẩu', desc: '248 hộ', icon: House, path: '/households', bg: '#eff6ff', color: '#2563eb' },
-  { label: 'Nhân khẩu', desc: '1,247 người', icon: Users, path: '/persons', bg: '#ecfeff', color: '#0891b2' },
-  { label: 'Báo cáo', desc: 'Xem thống kê', icon: BarChart3, path: '/reports', bg: '#f5f3ff', color: '#7c3aed' },
-  { label: 'Nhiệm vụ', desc: '8 đang xử lý', icon: ClipboardList, path: '/tasks', bg: '#fff7ed', color: '#ea580c' },
-  { label: 'Thông báo', desc: 'Phát hành thông báo', icon: Bell, path: '/notifications', bg: '#fff1f2', color: '#e11d48' },
-  { label: 'Lịch họp', desc: 'Quản lý cuộc họp', icon: CalendarClock, path: '/meetings', bg: '#f0fdf4', color: '#16a34a' },
-  { label: 'Kho tài liệu', desc: 'Văn bản & mẫu', icon: FolderOpen, path: '/library', bg: '#fefce8', color: '#ca8a04' },
-  { label: 'Phản ánh', desc: 'Tiếp nhận ý kiến', icon: MessageSquare, path: '/feedback', bg: '#fdf4ff', color: '#9333ea' },
+  { label: 'Hộ khẩu', desc: '248 hộ', icon: House, bg: '#eff6ff', color: '#2563eb' },
+  { label: 'Nhân khẩu', desc: '1,247 người', icon: Users, bg: '#f0fdf4', color: '#16a34a' },
+  { label: 'Báo cáo', desc: 'Thống kê', icon: BarChart3, bg: '#faf5ff', color: '#9333ea' },
+  { label: 'Nhiệm vụ', desc: '8 đang xử lý', icon: ListChecks, bg: '#fff7ed', color: '#ea580c' },
+  { label: 'Thông báo', desc: 'Phát hành', icon: Bell, bg: '#fff1f2', color: '#e11d48' },
+  { label: 'Lịch họp', desc: 'Quản lý', icon: CalendarClock, bg: '#f0fdf4', color: '#16a34a' },
+  { label: 'Kho tài liệu', desc: 'Văn bản & mẫu', icon: FolderOpen, bg: '#fefce8', color: '#ca8a04' },
+  { label: 'Phản ánh', desc: 'Tiếp nhận', icon: MessageSquare, bg: '#fdf4ff', color: '#9333ea' },
+];
+
+const systemStatus = [
+  { label: 'Kết nối cơ sở dữ liệu', status: 'Hoạt động', color: 'online' },
+  { label: 'Dịch vụ API', status: 'Hoạt động', color: 'online' },
+  { label: 'Sao lưu tự động', status: 'Hàng ngày 02:00', color: 'pending' },
+  { label: 'Người dùng online', status: '2 người', color: 'online' },
 ];
 
 export default function Dashboard() {
@@ -83,59 +97,60 @@ export default function Dashboard() {
   const roleLabel = user?.role === 'Admin' ? 'Quản trị viên' : user?.role === 'NhanKhau' ? 'Cán bộ nhân khẩu' : 'Cán bộ hộ khẩu';
 
   return (
-    <div className="page-wrapper">
-      {/* Welcome banner */}
-      <Card
-        style={{
-          background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 60%, #3b82f6 100%)',
-          border: 'none',
-          borderRadius: 16,
-          marginBottom: 20,
-        }}
-        styles={{ body: { padding: '24px 28px' } }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-          <div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: 4 }}>
-              {greeting}
+    <div className="page-wrapper civic-dashboard">
+
+      {/* ── Welcome Banner ─────────────────────────────── */}
+      <div className="civic-welcome">
+        <div className="civic-welcome__inner">
+          <div className="civic-welcome__left">
+            <div className="civic-welcome__greeting">{greeting}</div>
+            <div className="civic-welcome__name">{user?.fullName ?? 'Người dùng'}</div>
+            <div className="civic-welcome__role">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Shield size={13} strokeWidth={2.5} />
+                {roleLabel}
+              </span>
+              <span style={{ margin: '0 8px', opacity: 0.4 }}>·</span>
+              {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
-            <Title level={4} style={{ color: '#fff', margin: 0, fontWeight: 800, letterSpacing: '-0.02em' }}>
-              {user?.fullName ?? 'Người dùng'}
-            </Title>
-            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
-              {roleLabel} · {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </Text>
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div className="civic-welcome__stats">
             {[
               { v: loading ? '...' : formatNumber(stats?.totalHouseholds ?? 0), l: 'Hộ khẩu' },
               { v: loading ? '...' : formatNumber(stats?.totalPopulation ?? 0), l: 'Nhân khẩu' },
               { v: loading ? '...' : (overview?.activeTasks ?? 0).toString(), l: 'Nhiệm vụ' },
             ].map(item => (
-              <div key={item.l} style={{ textAlign: 'center', padding: '12px 20px', background: 'rgba(255,255,255,0.12)', borderRadius: 12, backdropFilter: 'blur(8px)' }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{item.v}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{item.l}</div>
+              <div key={item.l} className="civic-welcome__stat">
+                <div className="civic-welcome__stat-value">{item.v}</div>
+                <div className="civic-welcome__stat-label">{item.l}</div>
               </div>
             ))}
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* KPI Cards */}
-      <div className="kpi-grid">
-        {kpiCards.map((kpi) => {
+      {/* ── KPI Row ───────────────────────────────────── */}
+      <div className="civic-kpi-row">
+        {kpiCards.map((kpi, idx) => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} className="kpi-card">
-              <div className={`kpi-card__icon kpi-card__icon--${kpi.color}`}>
-                <Icon size={20} strokeWidth={2.2} />
+            <div
+              key={kpi.label}
+              className={`civic-kpi-card civic-kpi-card--${kpi.color}`}
+              style={{ animationDelay: `${idx * 0.06}s` }}
+            >
+              <div className="civic-kpi-card__icon">
+                <Icon size={18} strokeWidth={2.2} />
               </div>
-              <div className="kpi-card__content">
-                <div className="kpi-card__value">
-                  {loading ? '...' : kpi.value.toLocaleString('vi-VN')}
+              <div className="civic-kpi-card__body">
+                <div className="civic-kpi-card__value">
+                  {loading ? '—' : kpi.value.toLocaleString('vi-VN')}
                 </div>
-                <div className="kpi-card__label">{kpi.label}</div>
-                <div className={`kpi-card__trend kpi-card__trend--${kpi.trendUp ? 'up' : 'down'}`}>
+                <div className="civic-kpi-card__label">{kpi.label}</div>
+                <div className={`civic-kpi-card__trend civic-kpi-card__trend--${kpi.trendUp ? 'up' : 'down'}`}>
+                  {kpi.trendUp
+                    ? <TrendingUp size={11} strokeWidth={2.5} />
+                    : <TrendingDown size={11} strokeWidth={2.5} />}
                   {kpi.trend}
                 </div>
               </div>
@@ -144,28 +159,36 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* Main grid */}
-      <div className="dashboard-grid">
-        {/* Left */}
-        <div>
-          {/* Quick links */}
-          <div className="card" style={{ marginBottom: 16 }}>
-            <div className="card__header">
-              <h3 className="card__title">Truy cập nhanh</h3>
+      {/* ── Main Grid ─────────────────────────────────── */}
+      <div className="civic-main">
+
+        {/* Left column */}
+        <div className="civic-left">
+
+          {/* Quick Access */}
+          <div className="civic-section">
+            <div className="civic-section__header">
+              <div className="civic-section__title">
+                <div className="civic-section__title-icon civic-section__title-icon--blue">
+                  <Zap size={14} strokeWidth={2.5} />
+                </div>
+                Truy cập nhanh
+              </div>
+              <Link to="/" style={{ fontSize: 11, fontWeight: 700, color: '#166534', display: 'flex', alignItems: 'center', gap: 4 }}>
+                Tất cả <ChevronRight size={13} />
+              </Link>
             </div>
-            <div className="card__body" style={{ padding: '12px 16px' }}>
-              <div className="quick-links-grid">
+            <div className="civic-section__body" style={{ padding: '12px 20px' }}>
+              <div className="civic-links-grid">
                 {quickLinks.map((link) => {
                   const Icon = link.icon;
                   return (
-                    <Link key={link.path} to={link.path} className="quick-link">
-                      <div style={{ width: 36, height: 36, borderRadius: 9, background: link.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Icon size={17} color={link.color} strokeWidth={2.2} />
+                    <Link key={link.path ?? link.label} to={link.path ?? '/'} className="civic-link">
+                      <div className="civic-link__icon" style={{ background: link.bg }}>
+                        <Icon size={18} color={link.color} strokeWidth={2.2} />
                       </div>
-                      <div>
-                        <div className="quick-link__label">{link.label}</div>
-                        <div className="quick-link__desc">{link.desc}</div>
-                      </div>
+                      <div className="civic-link__label">{link.label}</div>
+                      <div className="civic-link__desc">{link.desc}</div>
                     </Link>
                   );
                 })}
@@ -173,50 +196,73 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Task progress */}
-          <div className="card">
-            <div className="card__header">
-              <h3 className="card__title">Tiến độ nhiệm vụ</h3>
-              <Link to="/tasks" style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 600 }}>Xem tất cả</Link>
+          {/* Task Progress */}
+          <div className="civic-section">
+            <div className="civic-section__header">
+              <div className="civic-section__title">
+                <div className="civic-section__title-icon civic-section__title-icon--amber">
+                  <CheckSquare size={14} strokeWidth={2.5} />
+                </div>
+                Tiến độ nhiệm vụ
+              </div>
+              <Link to="/tasks" style={{ fontSize: 11, fontWeight: 700, color: '#166534', display: 'flex', alignItems: 'center', gap: 4 }}>
+                Chi tiết <ChevronRight size={13} />
+              </Link>
             </div>
-            <div className="card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="civic-section__body" style={{ padding: '16px 20px' }}>
               {taskProgress.map((task) => (
-                <div key={task.name}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{task.name}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: task.progress === 100 ? 'var(--color-success)' : 'var(--color-primary)' }}>
-                      {task.progress === 100 ? '✓ Hoàn thành' : `${task.progress}%`}
+                <div key={task.name} className="civic-task-item">
+                  <div className="civic-task-item__header">
+                    <span className="civic-task-item__name">{task.name}</span>
+                    <span className={`civic-task-item__pct civic-task-item__pct--${task.progress === 100 ? 'done' : 'active'}`}>
+                      {task.progress === 100
+                        ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><CheckCircle2 size={13} strokeWidth={2.5} /> Hoàn thành</span>
+                        : `${task.progress}%`}
                     </span>
                   </div>
-                  <Progress
-                    percent={task.progress}
-                    showInfo={false}
-                    strokeColor={task.progress === 100 ? 'var(--color-success)' : 'var(--color-primary)'}
-                    trailColor="var(--color-border)"
-                    size="small"
-                  />
+                  <div className="civic-task-item__bar">
+                    <div
+                      className="civic-task-item__fill"
+                      style={{
+                        width: `${task.progress}%`,
+                        background: task.progress === 100
+                          ? '#16a34a'
+                          : task.progress > 60
+                            ? '#2563eb'
+                            : task.progress > 30
+                              ? '#d97706'
+                              : '#dc2626',
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right */}
-        <div>
-          {/* Recent activity */}
-          <div className="card">
-            <div className="card__header">
-              <h3 className="card__title">Hoạt động gần đây</h3>
-              <Tag color="blue" style={{ fontSize: 11 }}>Mới nhất</Tag>
+        {/* Right column */}
+        <div className="civic-right">
+
+          {/* Recent Activity */}
+          <div className="civic-section">
+            <div className="civic-section__header">
+              <div className="civic-section__title">
+                <div className="civic-section__title-icon civic-section__title-icon--purple">
+                  <Activity size={14} strokeWidth={2.5} />
+                </div>
+                Hoạt động gần đây
+              </div>
+              <div className="civic-section__badge">Mới nhất</div>
             </div>
-            <div className="card__body" style={{ padding: '8px 16px' }}>
-              <ul className="activity-list">
+            <div className="civic-section__body" style={{ padding: '8px 0' }}>
+              <ul className="civic-activity-list">
                 {recentActivities.map((item) => (
-                  <li key={item.id} className="activity-item">
-                    <div className={`activity-item__dot activity-item__dot--${item.type === 'success' ? 'success' : item.type === 'warning' ? 'warning' : 'info'}`} />
-                    <div className="activity-item__content">
-                      <div className="activity-item__text">{item.text}</div>
-                      <div className="activity-item__time">{item.time}</div>
+                  <li key={item.id} className="civic-activity-item">
+                    <div className={`civic-activity-item__dot civic-activity-item__dot--${item.type}`} />
+                    <div className="civic-activity-item__content">
+                      <div className="civic-activity-item__text">{item.text}</div>
+                      <div className="civic-activity-item__time">{item.time}</div>
                     </div>
                   </li>
                 ))}
@@ -224,25 +270,41 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* System status */}
-          <div className="card" style={{ marginTop: 16 }}>
-            <div className="card__header">
-              <h3 className="card__title">Trạng thái hệ thống</h3>
-            </div>
-            <div className="card__body">
-              {[
-                { label: 'Kết nối cơ sở dữ liệu', status: 'Hoạt động', color: 'success' },
-                { label: 'Dịch vụ API', status: 'Hoạt động', color: 'success' },
-                { label: 'Sao lưu tự động', status: 'Hàng ngày 02:00', color: 'blue' },
-                { label: 'Người dùng đang online', status: '2 người', color: 'blue' },
-              ].map((item) => (
-                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
-                  <span style={{ fontSize: 13 }}>{item.label}</span>
-                  <Tag color={item.color} style={{ fontSize: 11 }}>{item.status}</Tag>
+          {/* System Status */}
+          <div className="civic-section">
+            <div className="civic-section__header">
+              <div className="civic-section__title">
+                <div className="civic-section__title-icon civic-section__title-icon--gray">
+                  <Server size={14} strokeWidth={2.5} />
                 </div>
-              ))}
+                Trạng thái hệ thống
+              </div>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', animation: 'civicPulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="civic-section__body" style={{ padding: '4px 0' }}>
+              <div className="civic-status-list">
+                {systemStatus.map((item) => (
+                  <div key={item.label} className="civic-status-item">
+                    <span className="civic-status-item__label">
+                      <div className={`civic-status-item__dot civic-status-item__dot--${item.color}`} />
+                      {item.label}
+                    </span>
+                    <span style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: item.color === 'online' ? '#16a34a' : item.color === 'pending' ? '#d97706' : '#dc2626',
+                      background: item.color === 'online' ? '#f0fdf4' : item.color === 'pending' ? '#fffbeb' : '#fef2f2',
+                      padding: '2px 8px',
+                      borderRadius: 20,
+                    }}>
+                      {item.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
