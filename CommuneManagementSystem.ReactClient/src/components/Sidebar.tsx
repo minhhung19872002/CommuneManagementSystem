@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   ArrowLeftRight,
@@ -18,6 +18,7 @@ import {
   Settings2,
   Shield,
   Users,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { hasRouteAccess } from '../utils/permissions';
@@ -74,10 +75,153 @@ const menuGroups: Array<{ label: string; items: Array<{ label: string; path: str
   },
 ];
 
-export default function Sidebar({ onNavigate, userRole, collapsed = false, onToggle, mobileOpen = false, onMobileClose }: SidebarProps) {
+function NavContent({ onMobileClose }: { onMobileClose?: () => void }) {
+  const { user } = useAuth();
+
   return (
     <>
-      {/* Mobile backdrop — only when open */}
+      {/* Brand */}
+      <div
+        style={{
+          padding: '20px 16px 16px',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: 'var(--color-primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <Building2 size={18} color="#fff" strokeWidth={2.2} />
+        </div>
+        <div style={{ overflow: 'hidden' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+            CommuneHub
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
+            Quản lý cấp xã
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav
+        style={{
+          flex: 1,
+          padding: '12px 8px',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        {menuGroups.map((group) => {
+          const visible = group.items.filter(item => hasRouteAccess(user?.role, item.path));
+          if (visible.length === 0) return null;
+
+          return (
+            <div key={group.label} style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: 'var(--color-text-muted)',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  padding: '0 8px',
+                  marginBottom: 6,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {group.label}
+              </div>
+              {visible.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.path === '/'}
+                    onClick={onMobileClose}
+                    style={({ isActive }) => ({
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '9px 10px',
+                      borderRadius: 10,
+                      marginBottom: 2,
+                      fontSize: 15,
+                      fontWeight: 600,
+                      color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                      background: isActive ? 'var(--color-primary-light)' : 'transparent',
+                      textDecoration: 'none',
+                      transition: 'all 0.15s',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                    })}
+                  >
+                    <Icon size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+          );
+        })}
+      </nav>
+    </>
+  );
+}
+
+export default function Sidebar({ onNavigate, userRole, collapsed = false, onToggle, mobileOpen = false, onMobileClose }: SidebarProps) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler, { passive: true });
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  // Desktop: sticky sidebar
+  if (!isMobile) {
+    return (
+      <div
+        ref={navRef as any}
+        className="sidebar-desktop"
+        style={{
+          width: 240,
+          height: '100vh',
+          position: 'sticky',
+          top: 0,
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'var(--color-surface)',
+          borderRight: '1px solid var(--color-border)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        <NavContent onMobileClose={undefined} />
+      </div>
+    );
+  }
+
+  // Mobile: fixed drawer
+  return (
+    <>
+      {/* Backdrop */}
       {mobileOpen && (
         <div
           onClick={onMobileClose}
@@ -85,113 +229,86 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.5)',
-            zIndex: 49,
+            zIndex: 50,
           }}
         />
       )}
 
-      {/* Sidebar shell */}
+      {/* Drawer */}
       <div
-        className="app-sidebar"
-        style={mobileOpen ? { transform: 'translateX(0)' } : undefined}
+        className="sidebar-mobile"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: 260,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'var(--color-surface)',
+          zIndex: 100,
+          // Always render at left:-260 when closed, left:0 when open
+          left: mobileOpen ? 0 : -260,
+          transition: 'left 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: mobileOpen ? '8px 0 32px rgba(0,0,0,0.2)' : 'none',
+        }}
       >
-        {/* Brand */}
+        {/* Mobile header with close button */}
         <div
           style={{
-            padding: '20px 16px 16px',
+            padding: '16px 16px 14px',
             borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            overflow: 'hidden',
+            justifyContent: 'space-between',
+            flexShrink: 0,
           }}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'var(--color-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Building2 size={18} color="#fff" strokeWidth={2.2} />
-          </div>
-          {!collapsed && (
-            <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: 'var(--color-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Building2 size={18} color="#fff" strokeWidth={2.2} />
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2 }}>
                 CommuneHub
               </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 Quản lý cấp xã
               </div>
             </div>
-          )}
+          </div>
+          <button
+            onClick={onMobileClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 6,
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
-          {menuGroups.map((group) => {
-            const visible = group.items.filter(item => hasRouteAccess(userRole, item.path));
-            if (visible.length === 0) return null;
-
-            return (
-              <div key={group.label} style={{ marginBottom: 20 }}>
-                {!collapsed && (
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: 'var(--color-text-muted)',
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      padding: '0 8px',
-                      marginBottom: 6,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {group.label}
-                  </div>
-                )}
-                {visible.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      end={item.path === '/'}
-                      onClick={() => { onNavigate?.(); onMobileClose?.(); }}
-                      style={({ isActive }) => ({
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: collapsed ? 0 : 10,
-                        padding: collapsed ? '9px 0' : '9px 10px',
-                        justifyContent: collapsed ? 'center' : 'flex-start',
-                        borderRadius: 10,
-                        marginBottom: 2,
-                        fontSize: 15,
-                        fontWeight: 600,
-                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                        background: isActive ? 'var(--color-primary-light)' : 'transparent',
-                        textDecoration: 'none',
-                        transition: 'all 0.15s',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                      })}
-                      title={collapsed ? item.label : undefined}
-                    >
-                      <Icon size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-                      {!collapsed && item.label}
-                    </NavLink>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </nav>
+        {/* Nav content */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <NavContent onMobileClose={onMobileClose} />
+        </div>
       </div>
     </>
   );
