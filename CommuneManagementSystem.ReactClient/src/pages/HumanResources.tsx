@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tabs, Tag, message } from 'antd';
+import { Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Select, Space, Table, Tabs, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { hrService } from '../services/hrService';
 import { authService } from '../services/authService';
@@ -64,6 +64,10 @@ export default function HumanResources() {
   const [salaryModal, setSalaryModal] = useState<{ open: boolean; item?: BaseSalaryRate }>({ open: false });
   const [payrollModal, setPayrollModal] = useState<{ open: boolean; item?: PayrollEntry }>({ open: false });
   const [transferModal, setTransferModal] = useState<{ open: boolean; item?: SalaryTransfer }>({ open: false });
+  const [staffDetailModal, setStaffDetailModal] = useState<StaffProfile | null>(null);
+  const [salaryDetailModal, setSalaryDetailModal] = useState<BaseSalaryRate | null>(null);
+  const [payrollDetailModal, setPayrollDetailModal] = useState<PayrollEntry | null>(null);
+  const [transferDetailModal, setTransferDetailModal] = useState<SalaryTransfer | null>(null);
   const [staffForm] = Form.useForm<StaffFormValues>();
   const [salaryForm] = Form.useForm<BaseSalaryFormValues>();
   const [payrollForm] = Form.useForm<PayrollFormValues>();
@@ -490,7 +494,7 @@ export default function HumanResources() {
                         Thêm cán bộ
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={staffs} columns={staffColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1350 }} />
+                    <Table rowKey="id" loading={loading} dataSource={staffs} columns={staffColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1350 }} onRow={(record) => ({ onDoubleClick: () => setStaffDetailModal(record) })} />
                   </>
                 ),
               },
@@ -504,7 +508,7 @@ export default function HumanResources() {
                         Thêm mức lương
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={baseSalaries} columns={salaryColumns} pagination={{ pageSize: 8 }} scroll={{ x: 900 }} />
+                    <Table rowKey="id" loading={loading} dataSource={baseSalaries} columns={salaryColumns} pagination={{ pageSize: 8 }} scroll={{ x: 900 }} onRow={(record) => ({ onDoubleClick: () => setSalaryDetailModal(record) })} />
                   </>
                 ),
               },
@@ -535,7 +539,7 @@ export default function HumanResources() {
                         Thêm bảng lương
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={payrolls} columns={payrollColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1600 }} />
+                    <Table rowKey="id" loading={loading} dataSource={payrolls} columns={payrollColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1600 }} onRow={(record) => ({ onDoubleClick: () => setPayrollDetailModal(record) })} />
                   </>
                 ),
               },
@@ -559,7 +563,7 @@ export default function HumanResources() {
                         Thêm lệnh chuyển
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={transfers} columns={transferColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1500 }} />
+                    <Table rowKey="id" loading={loading} dataSource={transfers} columns={transferColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1500 }} onRow={(record) => ({ onDoubleClick: () => setTransferDetailModal(record) })} />
                   </>
                 ),
               },
@@ -692,6 +696,96 @@ export default function HumanResources() {
             </Form.Item>
           </div>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết cán bộ"
+        open={!!staffDetailModal}
+        onCancel={() => setStaffDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setStaffDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (staffDetailModal) openStaffModal(staffDetailModal); setStaffDetailModal(null); }}>Chỉnh sửa</Button>,
+        ]}
+      >
+        {staffDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Họ tên"><strong>{staffDetailModal.fullName}</strong></Descriptions.Item>
+            <Descriptions.Item label="Chức vụ">{staffDetailModal.position}</Descriptions.Item>
+            <Descriptions.Item label="Phòng ban">{staffDetailModal.department}</Descriptions.Item>
+            <Descriptions.Item label="Hệ số lương">{staffDetailModal.salaryCoefficient}</Descriptions.Item>
+            <Descriptions.Item label="Ngân hàng">{staffDetailModal.bankName}</Descriptions.Item>
+            <Descriptions.Item label="Số tài khoản">{staffDetailModal.bankAccount}</Descriptions.Item>
+            <Descriptions.Item label="Email">{staffDetailModal.email}</Descriptions.Item>
+            <Descriptions.Item label="Số điện thoại">{staffDetailModal.phoneNumber}</Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={staffDetailModal.status === 'Active' ? 'success' : 'default'}>{staffDetailModal.status}</Tag></Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
+      <Modal
+        title="Chi tiết lương cơ sở"
+        open={!!salaryDetailModal}
+        onCancel={() => setSalaryDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setSalaryDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (salaryDetailModal) openSalaryModal(salaryDetailModal); setSalaryDetailModal(null); }}>Chỉnh sửa</Button>,
+        ]}
+      >
+        {salaryDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Mức lương"><strong>{formatCurrency(salaryDetailModal.amount)}</strong></Descriptions.Item>
+            <Descriptions.Item label="Hiệu lực từ">{new Date(salaryDetailModal.effectiveDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Ghi chú">{salaryDetailModal.note || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={salaryDetailModal.isActive ? 'success' : 'default'}>{salaryDetailModal.isActive ? 'Active' : 'Inactive'}</Tag></Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
+      <Modal
+        title="Chi tiết bảng lương"
+        open={!!payrollDetailModal}
+        onCancel={() => setPayrollDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setPayrollDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (payrollDetailModal) openPayrollModal(payrollDetailModal); setPayrollDetailModal(null); }}>Chỉnh sửa</Button>,
+        ]}
+      >
+        {payrollDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Cán bộ"><strong>{payrollDetailModal.staffName}</strong></Descriptions.Item>
+            <Descriptions.Item label="Kỳ lương">{payrollDetailModal.month}</Descriptions.Item>
+            <Descriptions.Item label="Lương cơ sở">{formatCurrency(payrollDetailModal.baseSalaryAmount)}</Descriptions.Item>
+            <Descriptions.Item label="Hệ số lương">{payrollDetailModal.salaryCoefficient}</Descriptions.Item>
+            <Descriptions.Item label="Phụ cấp">{formatCurrency(payrollDetailModal.allowance)}</Descriptions.Item>
+            <Descriptions.Item label="Thưởng">{formatCurrency(payrollDetailModal.bonus)}</Descriptions.Item>
+            <Descriptions.Item label="Khấu trừ">{formatCurrency(payrollDetailModal.deduction)}</Descriptions.Item>
+            <Descriptions.Item label="Thực lĩnh"><strong>{formatCurrency(payrollDetailModal.totalAmount)}</strong></Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={payrollDetailModal.status === 'Transferred' ? 'success' : payrollDetailModal.status === 'Approved' ? 'processing' : 'default'}>{payrollDetailModal.status}</Tag></Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
+      <Modal
+        title="Chi tiết chuyển lương"
+        open={!!transferDetailModal}
+        onCancel={() => setTransferDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setTransferDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (transferDetailModal) openTransferModal(transferDetailModal); setTransferDetailModal(null); }}>Chỉnh sửa</Button>,
+        ]}
+      >
+        {transferDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Cán bộ"><strong>{transferDetailModal.staffName}</strong></Descriptions.Item>
+            <Descriptions.Item label="Ngân hàng">{transferDetailModal.bankName}</Descriptions.Item>
+            <Descriptions.Item label="Số tài khoản">{transferDetailModal.bankAccount}</Descriptions.Item>
+            <Descriptions.Item label="Số tiền"><strong>{formatCurrency(transferDetailModal.amount)}</strong></Descriptions.Item>
+            <Descriptions.Item label="Ngày chuyển">{new Date(transferDetailModal.transferDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={transferDetailModal.status === 'Completed' ? 'success' : transferDetailModal.status === 'Failed' ? 'error' : 'processing'}>{transferDetailModal.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Mã tham chiếu">{transferDetailModal.referenceCode || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Ghi chú">{transferDetailModal.note || '-'}</Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </>
   );

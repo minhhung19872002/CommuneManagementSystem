@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Form, Input, Modal, Popconfirm, Progress, Select, Space, Table, Tabs, Tag, message } from 'antd';
+import { Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Progress, Select, Space, Table, Tabs, Tag, message } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { taskService } from '../services/taskService';
@@ -38,6 +38,8 @@ export default function Tasks() {
   const [workFilter, setWorkFilter] = useState({ search: '', status: '', priority: '', fieldCode: '', unitCode: '' });
   const [taskModal, setTaskModal] = useState<{ open: boolean; item?: TaskItem }>({ open: false });
   const [workModal, setWorkModal] = useState<{ open: boolean; item?: WorkItem }>({ open: false });
+  const [taskDetailModal, setTaskDetailModal] = useState<TaskItem | null>(null);
+  const [workDetailModal, setWorkDetailModal] = useState<WorkItem | null>(null);
   const [taskForm] = Form.useForm<TaskFormValues>();
   const [workForm] = Form.useForm<WorkFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
@@ -197,7 +199,7 @@ export default function Tasks() {
                       </Space>
                       <Button type="primary" icon={<PlusOutlined />} onClick={() => openTaskModal()}>Thêm nhiệm vụ</Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={tasks} columns={taskColumns} pagination={{ pageSize: 8 }} scroll={{ x: 960 }} />
+                    <Table rowKey="id" loading={loading} dataSource={tasks} columns={taskColumns} pagination={{ pageSize: 8 }} scroll={{ x: 960 }} onRow={(record) => ({ onDoubleClick: () => setTaskDetailModal(record) })} />
                   </>
                 ),
               },
@@ -216,7 +218,7 @@ export default function Tasks() {
                       </Space>
                       <Button type="primary" icon={<PlusOutlined />} onClick={() => openWorkModal()}>Thêm công việc</Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={works} columns={workColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1100 }} />
+                    <Table rowKey="id" loading={loading} dataSource={works} columns={workColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1100 }} onRow={(record) => ({ onDoubleClick: () => setWorkDetailModal(record) })} />
                   </>
                 ),
               },
@@ -274,6 +276,58 @@ export default function Tasks() {
             <Form.Item name="dueDate" label="Hạn xử lý" rules={[{ required: true }]}><Input type="date" /></Form.Item>
           </div>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết nhiệm vụ"
+        open={!!taskDetailModal}
+        onCancel={() => setTaskDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setTaskDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (taskDetailModal) openTaskModal(taskDetailModal); setTaskDetailModal(null); }}>Chỉnh sửa</Button>,
+        ]}
+      >
+        {taskDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Tiêu đề"><strong>{taskDetailModal.title}</strong></Descriptions.Item>
+            <Descriptions.Item label="Mô tả">{taskDetailModal.description}</Descriptions.Item>
+            <Descriptions.Item label="Ưu tiên"><Tag color={taskDetailModal.priority === 'High' ? 'error' : taskDetailModal.priority === 'Medium' ? 'warning' : 'default'}>{taskDetailModal.priority}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={taskDetailModal.status === 'Completed' ? 'success' : taskDetailModal.status === 'InProgress' ? 'processing' : 'default'}>{taskDetailModal.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Tiến độ"><Progress percent={taskDetailModal.progress} /></Descriptions.Item>
+            <Descriptions.Item label="Ngày bắt đầu">{new Date(taskDetailModal.startDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Hạn xử lý">{new Date(taskDetailModal.dueDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Phụ trách">{taskDetailModal.assignedUserName || 'Chưa gán'}</Descriptions.Item>
+            <Descriptions.Item label="Người tạo">{taskDetailModal.createdByName}</Descriptions.Item>
+            <Descriptions.Item label="Ngày tạo">{new Date(taskDetailModal.createdAt).toLocaleString('vi-VN')}</Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
+      <Modal
+        title="Chi tiết công việc"
+        open={!!workDetailModal}
+        onCancel={() => setWorkDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setWorkDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (workDetailModal) openWorkModal(workDetailModal); setWorkDetailModal(null); }}>Chỉnh sửa</Button>,
+        ]}
+      >
+        {workDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Tiêu đề"><strong>{workDetailModal.title}</strong></Descriptions.Item>
+            <Descriptions.Item label="Mô tả">{workDetailModal.description}</Descriptions.Item>
+            <Descriptions.Item label="Lĩnh vực"><Tag color="blue">{workDetailModal.fieldCode}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Đơn vị"><Tag color="purple">{workDetailModal.unitCode}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Ưu tiên"><Tag color={workDetailModal.priority === 'High' ? 'error' : workDetailModal.priority === 'Medium' ? 'warning' : 'default'}>{workDetailModal.priority}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={workDetailModal.status === 'Completed' ? 'success' : workDetailModal.status === 'InProgress' ? 'processing' : 'default'}>{workDetailModal.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Tiến độ"><Progress percent={workDetailModal.progress} /></Descriptions.Item>
+            <Descriptions.Item label="Ngày bắt đầu">{new Date(workDetailModal.startDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Hạn xử lý">{new Date(workDetailModal.dueDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Phụ trách">{workDetailModal.assignedUserName || 'Chưa gán'}</Descriptions.Item>
+            <Descriptions.Item label="Người tạo">{workDetailModal.createdByName}</Descriptions.Item>
+            <Descriptions.Item label="Ngày tạo">{new Date(workDetailModal.createdAt).toLocaleString('vi-VN')}</Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </>
   );

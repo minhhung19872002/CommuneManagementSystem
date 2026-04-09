@@ -9,10 +9,12 @@ import {
 import {
   Button,
   Card,
+  Descriptions,
   Form,
   Input,
   Modal,
   Popconfirm,
+  Progress,
   Select,
   Space,
   Table,
@@ -76,6 +78,8 @@ export default function Meetings() {
     open: false,
     mode: 'create',
   });
+  const [meetingDetailModal, setMeetingDetailModal] = useState<MeetingEvent | null>(null);
+  const [scheduleDetailModal, setScheduleDetailModal] = useState<WorkScheduleEntry | null>(null);
   const [meetingForm] = Form.useForm<MeetingFormValues>();
   const [registerForm] = Form.useForm<RegisterFormValues>();
   const [scheduleForm] = Form.useForm<ScheduleFormValues>();
@@ -437,6 +441,7 @@ export default function Meetings() {
                       columns={meetingColumns}
                       pagination={{ pageSize: 8 }}
                       scroll={{ x: 1100 }}
+                      onRow={(record) => ({ onDoubleClick: () => setMeetingDetailModal(record) })}
                     />
                   </>
                 ),
@@ -481,6 +486,7 @@ export default function Meetings() {
                       columns={scheduleColumns}
                       pagination={{ pageSize: 8 }}
                       scroll={{ x: 980 }}
+                      onRow={(record) => ({ onDoubleClick: () => setScheduleDetailModal(record) })}
                     />
                   </>
                 ),
@@ -592,6 +598,52 @@ export default function Meetings() {
             </Form.Item>
           </div>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết lịch họp"
+        open={!!meetingDetailModal}
+        onCancel={() => setMeetingDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setMeetingDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (meetingDetailModal) openMeetingEdit(meetingDetailModal); setMeetingDetailModal(null); }}>Sửa</Button>,
+        ]}
+      >
+        {meetingDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Tiêu đề"><strong>{meetingDetailModal.title}</strong></Descriptions.Item>
+            <Descriptions.Item label="Nội dung">{meetingDetailModal.agenda}</Descriptions.Item>
+            <Descriptions.Item label="Địa điểm">{meetingDetailModal.location}</Descriptions.Item>
+            <Descriptions.Item label="Bắt đầu">{new Date(meetingDetailModal.startsAt).toLocaleString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Kết thúc">{new Date(meetingDetailModal.endsAt).toLocaleString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Trạng thái"><Tag color={meetingStatusConfig[meetingDetailModal.status]?.color ?? 'default'}>{meetingStatusConfig[meetingDetailModal.status]?.label ?? meetingDetailModal.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Số người đăng ký">{meetingDetailModal.registrationCount}</Descriptions.Item>
+            <Descriptions.Item label="Người tạo">{meetingDetailModal.createdByName}</Descriptions.Item>
+            <Descriptions.Item label="Ngày tạo">{new Date(meetingDetailModal.createdAt).toLocaleString('vi-VN')}</Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
+      <Modal
+        title="Chi tiết lịch làm việc"
+        open={!!scheduleDetailModal}
+        onCancel={() => setScheduleDetailModal(null)}
+        footer={[
+          <Button key="close" onClick={() => setScheduleDetailModal(null)}>Đóng</Button>,
+          <Button key="edit" type="primary" icon={<EditOutlined />} onClick={() => { if (scheduleDetailModal) openScheduleEdit(scheduleDetailModal); setScheduleDetailModal(null); }}>Sửa</Button>,
+        ]}
+      >
+        {scheduleDetailModal && (
+          <Descriptions column={1} style={{ marginTop: 16 }} bordered>
+            <Descriptions.Item label="Tiêu đề"><strong>{scheduleDetailModal.title}</strong></Descriptions.Item>
+            <Descriptions.Item label="Nội dung">{scheduleDetailModal.content}</Descriptions.Item>
+            <Descriptions.Item label="Ngày làm">{new Date(scheduleDetailModal.workDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
+            <Descriptions.Item label="Buổi"><Tag color="purple">{sessionConfig[scheduleDetailModal.session] || scheduleDetailModal.session}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Phân công">{scheduleDetailModal.assignedUserName || 'Chưa gán'}</Descriptions.Item>
+            <Descriptions.Item label="Người tạo">{scheduleDetailModal.createdByName}</Descriptions.Item>
+            <Descriptions.Item label="Ngày tạo">{new Date(scheduleDetailModal.createdAt).toLocaleString('vi-VN')}</Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </>
   );
