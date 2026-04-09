@@ -176,15 +176,13 @@ export default function Layout() {
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {contextHolder}
 
-      {/* Sidebar */}
-      <div style={{ flexShrink: 0 }}>
-        <Sidebar
-          onNavigate={() => {}}
-          userRole={user?.role}
-          mobileOpen={mobileMenuOpen}
-          onMobileClose={() => setMobileMenuOpen(false)}
-        />
-      </div>
+      {/* Sidebar — no wrapper div so position:fixed works cleanly */}
+      <Sidebar
+        onNavigate={() => {}}
+        userRole={user?.role}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
