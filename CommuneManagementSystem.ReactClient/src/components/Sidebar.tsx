@@ -158,7 +158,7 @@ export default function Sidebar({ onNavigate, userRole }: SidebarProps) {
                       padding: '9px 10px',
                       borderRadius: 10,
                       marginBottom: 2,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: 600,
                       color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                       background: isActive ? 'var(--color-primary-light)' : 'transparent',
