@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, CalendarDays, ChevronDown, KeyRound, LogOut, MenuOutlined, Users } from 'lucide-react';
+import { Bell, CalendarDays, ChevronDown, KeyRound, LogOut, Menu, Users } from 'lucide-react';
 import { Badge, Button, Dropdown, Form, Input, List, message, Modal, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import Sidebar from './Sidebar';
@@ -204,7 +204,7 @@ export default function Layout() {
           {/* Mobile hamburger */}
           <Button
             type="text"
-            icon={<MenuOutlined />}
+            icon={<Menu size={18} />}
             onClick={() => setMobileMenuOpen(v => !v)}
             className="mobile-menu-btn"
             style={{ fontSize: 18, marginRight: 12 }}
