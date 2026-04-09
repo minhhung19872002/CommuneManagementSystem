@@ -160,7 +160,7 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
                 CommuneHub
               </div>
-              <div style={{ fontSize: 11.5, color: 'var(--color-text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
                 Quản lý cấp xã
               </div>
             </div>
