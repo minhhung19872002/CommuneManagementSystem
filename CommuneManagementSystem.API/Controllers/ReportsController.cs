@@ -28,8 +28,9 @@ public class ReportsController : ControllerBase
         var activeProjects = await _db.ProjectItems.CountAsync(item => item.Status == "Active");
         var pendingProposals = await _db.ProposalItems.CountAsync(item => item.Status == "Pending");
         var staffCount = await _db.StaffProfiles.CountAsync(item => item.Status == "Active");
+        var currentMonth = DateTime.Now.ToString("yyyy-MM");
         var monthlyPayrollTotal = await _db.PayrollEntries
-            .Where(item => item.Month == DateTime.Now.ToString("yyyy-MM"))
+            .Where(item => item.Month == currentMonth)
             .SumAsync(item => (decimal?)item.TotalAmount) ?? 0;
 
         var totalTasks = await _db.TaskItems.CountAsync();

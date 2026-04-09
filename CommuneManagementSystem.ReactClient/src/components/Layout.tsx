@@ -235,7 +235,7 @@ export default function Layout() {
             <Dropdown
               trigger={['click']}
               placement="bottomRight"
-              dropdownRender={() => (
+              popupRender={() => (
                 <div style={{
                   width: 360,
                   background: 'var(--color-surface)',
