@@ -88,29 +88,13 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
             inset: 0,
             background: 'rgba(0,0,0,0.5)',
             zIndex: 40,
-            display: 'none',
           }}
-          className="sidebar-backdrop"
         />
       )}
 
       {/* Sidebar */}
       <div
-        style={{
-          width: collapsed ? 64 : 240,
-          height: '100vh',
-          position: 'sticky',
-          top: 0,
-          background: 'var(--color-surface)',
-          borderRight: '1px solid var(--color-border)',
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-          overflowY: 'auto',
-          transition: 'width 0.2s ease',
-          zIndex: 50,
-        }}
-        className="sidebar"
+        className={`app-sidebar${mobileOpen ? ' app-sidebar--open' : ''}`}
       >
         {/* Brand */}
         <div
@@ -123,38 +107,20 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
             overflow: 'hidden',
           }}
         >
-          {!collapsed && (
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: 'var(--color-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Building2 size={18} color="#fff" strokeWidth={2.2} />
-            </div>
-          )}
-          {collapsed && (
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: 'var(--color-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Building2 size={18} color="#fff" strokeWidth={2.2} />
-            </div>
-          )}
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'var(--color-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Building2 size={18} color="#fff" strokeWidth={2.2} />
+          </div>
           {!collapsed && (
             <div style={{ overflow: 'hidden' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
@@ -228,28 +194,6 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
           })}
         </nav>
       </div>
-
-      <style>{`
-        @media (max-width: 767px) {
-          .sidebar {
-            position: fixed !important;
-            left: 0;
-            top: 0;
-            height: 100vh !important;
-            transform: translateX(${mobileOpen ? '0' : '-100%'});
-            transition: transform 0.25s ease;
-            box-shadow: ${mobileOpen ? '4px 0 20px rgba(0,0,0,0.15)' : 'none'};
-          }
-          .sidebar-backdrop {
-            display: block !important;
-          }
-        }
-        @media (min-width: 768px) {
-          .sidebar-backdrop {
-            display: none !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
