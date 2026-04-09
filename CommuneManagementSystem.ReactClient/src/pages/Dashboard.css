@@ -4,8 +4,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700&display=swap');
 
 :root {
-  --civic-green: #1e40af;
-  --civic-green-light: #1d4ed8;
+  --civic-green: #2563eb;
+  --civic-green-light: #3b82f6;
   --civic-green-bg: #eff6ff;
   --civic-green-border: #bfdbfe;
   --civic-warm-bg: #fafaf7;
@@ -39,7 +39,7 @@
 
 /* Welcome Banner */
 .civic-welcome {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 40%, #1e40af 70%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 40%, #3b82f6 70%, #2563eb 100%);
   border-radius: 20px;
   padding: 32px 36px;
   color: #fff;
