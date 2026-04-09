@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Input, Select, Modal, Form, Space, Tag, Avatar, message, Tooltip, Popconfirm } from 'antd';
+import { Table, Button, Input, Select, Modal, Form, Space, Tag, Avatar, message, Tooltip, Popconfirm, Descriptions } from 'antd';
 import { PlusOutlined, ReloadOutlined, ClockCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { tempResidenceService } from '../services/reportService';
@@ -19,6 +19,7 @@ export default function TemporaryResidence() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [modal, setModal] = useState<{ open: boolean }>({ open: false });
   const [extendModal, setExtendModal] = useState<{ open: boolean; id?: number }>({ open: false });
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: TempResidence }>({ open: false });
   const [persons, setPersons] = useState<Person[]>([]);
   const [form] = Form.useForm();
   const [extendForm] = Form.useForm();
@@ -149,6 +150,7 @@ export default function TemporaryResidence() {
             loading={loading}
             scroll={{ x: 920 }}
             pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (t) => `${t} đăng ký` }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }), style: { cursor: 'pointer' } })}
           />
         </div>
       </div>
@@ -210,6 +212,28 @@ export default function TemporaryResidence() {
             <Input type="date" style={{ width: '100%' }} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết tạm trú"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={[<Button key="close" onClick={() => setDetailModal({ open: false })}>Đóng</Button>]}
+        width={560}
+      >
+        <Descriptions column={1} style={{ marginTop: 16 }} bordered size="small">
+          <Descriptions.Item label="Người tạm trú">{detailModal.item?.personName || '—'}</Descriptions.Item>
+          <Descriptions.Item label="Địa chỉ tạm trú">{detailModal.item?.address || '—'}</Descriptions.Item>
+          <Descriptions.Item label="Từ ngày">{detailModal.item?.startDate ? new Date(detailModal.item.startDate).toLocaleDateString('vi-VN') : '—'}</Descriptions.Item>
+          <Descriptions.Item label="Đến ngày">{detailModal.item?.endDate ? new Date(detailModal.item.endDate).toLocaleDateString('vi-VN') : '—'}</Descriptions.Item>
+          <Descriptions.Item label="Gia hạn đến">{detailModal.item?.extendedTo ? new Date(detailModal.item.extendedTo).toLocaleDateString('vi-VN') : '—'}</Descriptions.Item>
+          <Descriptions.Item label="Lý do">{detailModal.item?.reason || '—'}</Descriptions.Item>
+          <Descriptions.Item label="Trạng thái">
+            {detailModal.item?.status ? (
+              <Tag color={statusColor[detailModal.item.status]}>{statusLabel[detailModal.item.status]}</Tag>
+            ) : '—'}
+          </Descriptions.Item>
+        </Descriptions>
       </Modal>
     </>
   );

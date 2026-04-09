@@ -6,6 +6,7 @@ import {
 import {
   Button,
   Card,
+  Descriptions,
   Form,
   Input,
   Modal,
@@ -45,6 +46,7 @@ export default function Feedback() {
   const [filters, setFilters] = useState({ search: '', status: '' });
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [editor, setEditor] = useState<{ open: boolean; item?: FeedbackItem }>({ open: false });
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: FeedbackItem }>({ open: false });
   const [createForm] = Form.useForm<CreateFeedbackFormValues>();
   const [updateForm] = Form.useForm<UpdateFeedbackFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
@@ -221,6 +223,7 @@ export default function Feedback() {
             columns={columns}
             pagination={{ pageSize: 8 }}
             scroll={{ x: 980 }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }), style: { cursor: 'pointer' } })}
           />
         </Card>
       </div>
@@ -279,6 +282,30 @@ export default function Feedback() {
             <Input.TextArea rows={5} placeholder="Nội dung phản hồi, hướng xử lý, kết quả giải quyết" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết phản ánh"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={[<Button key="close" onClick={() => setDetailModal({ open: false })}>Đóng</Button>]}
+        width={640}
+      >
+        <Descriptions column={1} style={{ marginTop: 16 }} bordered size="small">
+          <Descriptions.Item label="Tiêu đề">{detailModal.item?.title}</Descriptions.Item>
+          <Descriptions.Item label="Người gửi">{detailModal.item?.fullName}</Descriptions.Item>
+          <Descriptions.Item label="Liên hệ">{detailModal.item?.contactInfo}</Descriptions.Item>
+          <Descriptions.Item label="Nội dung">{detailModal.item?.content}</Descriptions.Item>
+          <Descriptions.Item label="Trạng thái">
+            {detailModal.item?.status ? (
+              <Tag color={statusConfig[detailModal.item.status]?.color}>{statusConfig[detailModal.item.status]?.label}</Tag>
+            ) : '—'}
+          </Descriptions.Item>
+          <Descriptions.Item label="Kết quả xử lý">{detailModal.item?.resolutionNote || '—'}</Descriptions.Item>
+          <Descriptions.Item label="Ngày gửi">{detailModal.item?.createdAt ? new Date(detailModal.item.createdAt).toLocaleString('vi-VN') : '—'}</Descriptions.Item>
+          <Descriptions.Item label="Ngày xử lý">{detailModal.item?.processedAt ? new Date(detailModal.item.processedAt).toLocaleString('vi-VN') : '—'}</Descriptions.Item>
+          <Descriptions.Item label="Người xử lý">{detailModal.item?.processedByName || '—'}</Descriptions.Item>
+        </Descriptions>
       </Modal>
     </>
   );
