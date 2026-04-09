@@ -4,14 +4,12 @@ import {
   ArrowLeftRight,
   BarChart3,
   Bell,
-  BookOpen,
   Building2,
   CalendarClock,
   ClipboardList,
   Database,
   FileText,
   FolderOpen,
-  HardDrive,
   History,
   House,
   Layers3,
@@ -79,22 +77,23 @@ const menuGroups: Array<{ label: string; items: Array<{ label: string; path: str
 export default function Sidebar({ onNavigate, userRole, collapsed = false, onToggle, mobileOpen = false, onMobileClose }: SidebarProps) {
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* Mobile backdrop — only when open */}
       {mobileOpen && (
         <div
           onClick={onMobileClose}
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 49,
             background: 'rgba(0,0,0,0.5)',
+            zIndex: 49,
           }}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar shell */}
       <div
-        className={`app-sidebar${mobileOpen ? ' app-sidebar--open' : ''}`}
+        className="app-sidebar"
+        style={mobileOpen ? { transform: 'translateX(0)' } : undefined}
       >
         {/* Brand */}
         <div
