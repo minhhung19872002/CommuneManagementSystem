@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, Card, Input, Select, Space, Table, Tabs, Tag, message } from 'antd';
+import { Button, Card, Descriptions, Input, Modal, Select, Space, Table, Tabs, Tag, message } from 'antd';
 import { householdService } from '../services/householdService';
 import { reportService } from '../services/reportService';
 import { Household, PopulationStats } from '../types';
@@ -58,6 +58,7 @@ export default function Reports() {
     absence: { status: '', fromDate: '', toDate: '' },
   });
   const [messageApi, contextHolder] = message.useMessage();
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: Record<string, any> }>({ open: false });
 
   useEffect(() => {
     reportService.getStatistics().then((response) => setStats(response.data)).catch(console.error);
@@ -317,6 +318,7 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 820 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} hộ khẩu` }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })}
           />
         </div>
       ),
@@ -352,6 +354,7 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 980 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} nhân khẩu` }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })}
           />
         </div>
       ),
@@ -391,6 +394,7 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 920 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} đăng ký` }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })}
           />
         </div>
       ),
@@ -430,6 +434,7 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 920 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} đăng ký` }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })}
           />
         </div>
       ),
@@ -497,6 +502,71 @@ export default function Reports() {
           className="reports-tabs"
         />
       </Card>
+
+      <Modal
+        title="Chi tiết"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={null}
+        width={640}
+      >
+        {detailModal.item && (
+          <Descriptions column={1} style={{ marginTop: 12 }}>
+            {'householdNumber' in detailModal.item && 'headPersonName' in detailModal.item && (
+              <>
+                <Descriptions.Item label="Số hộ">{detailModal.item.householdNumber}</Descriptions.Item>
+                <Descriptions.Item label="Địa chỉ">{detailModal.item.address}</Descriptions.Item>
+                <Descriptions.Item label="Chủ hộ">{detailModal.item.headPersonName || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Số thành viên">{detailModal.item.memberCount}</Descriptions.Item>
+                <Descriptions.Item label="Trạng thái">
+                  <Tag color={householdStatusMap[detailModal.item.status as string]?.color ?? 'default'}>
+                    {householdStatusMap[detailModal.item.status as string]?.label ?? detailModal.item.status}
+                  </Tag>
+                </Descriptions.Item>
+              </>
+            )}
+            {'fullName' in detailModal.item && 'dateOfBirth' in detailModal.item && !('memberCount' in detailModal.item) && (
+              <>
+                <Descriptions.Item label="Họ tên">{detailModal.item.fullName}</Descriptions.Item>
+                <Descriptions.Item label="Ngày sinh">
+                  {new Date(detailModal.item.dateOfBirth).toLocaleDateString('vi-VN')}
+                </Descriptions.Item>
+                <Descriptions.Item label="Giới tính">{detailModal.item.gender}</Descriptions.Item>
+                <Descriptions.Item label="CCCD">{detailModal.item.nationalId || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Dân tộc">{detailModal.item.ethnicity || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Hộ khẩu">{detailModal.item.householdNumber || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Trạng thái">
+                  <Tag color={personStatusMap[detailModal.item.status as string]?.color ?? 'default'}>
+                    {personStatusMap[detailModal.item.status as string]?.label ?? detailModal.item.status}
+                  </Tag>
+                </Descriptions.Item>
+              </>
+            )}
+            {'ageGroup' in detailModal.item && 'maleCount' in detailModal.item && (
+              <>
+                <Descriptions.Item label="Nhóm tuổi">{detailModal.item.ageGroup}</Descriptions.Item>
+                <Descriptions.Item label="Nam">{detailModal.item.maleCount}</Descriptions.Item>
+                <Descriptions.Item label="Nữ">{detailModal.item.femaleCount}</Descriptions.Item>
+                <Descriptions.Item label="Tổng">{detailModal.item.total}</Descriptions.Item>
+              </>
+            )}
+            {'householdNumber' in detailModal.item && 'oldAddress' in detailModal.item && (
+              <>
+                <Descriptions.Item label="Số hộ">{detailModal.item.householdNumber}</Descriptions.Item>
+                <Descriptions.Item label="Người">{detailModal.item.personName || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Địa chỉ cũ">{detailModal.item.oldAddress}</Descriptions.Item>
+                <Descriptions.Item label="Địa chỉ mới">{detailModal.item.newAddress}</Descriptions.Item>
+                <Descriptions.Item label="Ngày chuyển">
+                  {detailModal.item.moveDate
+                    ? new Date(detailModal.item.moveDate).toLocaleDateString('vi-VN')
+                    : '—'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Lý do">{detailModal.item.reason || '—'}</Descriptions.Item>
+              </>
+            )}
+          </Descriptions>
+        )}
+      </Modal>
     </div>
   );
 }

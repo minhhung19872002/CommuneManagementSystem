@@ -9,6 +9,7 @@ import {
 import {
   Button,
   Card,
+  Descriptions,
   Form,
   Input,
   Modal,
@@ -50,6 +51,7 @@ export default function Library() {
     open: false,
     mode: 'create',
   });
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: LibraryDocument }>({ open: false });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [form] = Form.useForm<LibraryFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
@@ -259,6 +261,7 @@ export default function Library() {
             columns={columns}
             pagination={{ pageSize: 8 }}
             scroll={{ x: 1080 }}
+            onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })}
           />
         </Card>
       </div>
@@ -310,6 +313,36 @@ export default function Library() {
             </div>
           )}
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết tài liệu"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={null}
+        width={600}
+      >
+        {detailModal.item && (
+          <Descriptions column={1} style={{ marginTop: 12 }}>
+            <Descriptions.Item label="Tiêu đề">{detailModal.item.title}</Descriptions.Item>
+            <Descriptions.Item label="Mô tả">{detailModal.item.description}</Descriptions.Item>
+            <Descriptions.Item label="Danh mục">
+              <Tag color="blue">{detailModal.item.category}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Tệp">
+              {detailModal.item.fileName} ({formatFileSize(detailModal.item.fileSize)})
+            </Descriptions.Item>
+            <Descriptions.Item label="Người tải lên">{detailModal.item.uploadedBy}</Descriptions.Item>
+            <Descriptions.Item label="Ngày tải lên">
+              {new Date(detailModal.item.uploadedAt).toLocaleString('vi-VN')}
+            </Descriptions.Item>
+            <Descriptions.Item label="Tải xuống">
+              <a href={detailModal.item.downloadUrl} target="_blank" rel="noopener noreferrer">
+                Mở tệp
+              </a>
+            </Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </>
   );

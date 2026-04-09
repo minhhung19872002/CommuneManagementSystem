@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Tabs, message } from 'antd';
+import { Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Tabs, message } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { catalogService } from '../services/catalogService';
@@ -21,6 +21,7 @@ export default function Catalogs() {
     mode: 'create',
     type: 'Field',
   });
+  const [detailModal, setDetailModal] = useState<{ open: boolean; item?: CatalogItem }>({ open: false });
   const [activeTab, setActiveTab] = useState('Field');
   const [form] = Form.useForm<CatalogFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
@@ -134,7 +135,7 @@ export default function Catalogs() {
             Thêm danh mục
           </Button>
         </div>
-        <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })} />
       </div>
     );
   };
@@ -196,6 +197,32 @@ export default function Catalogs() {
             </Form.Item>
           )}
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiết danh mục"
+        open={detailModal.open}
+        onCancel={() => setDetailModal({ open: false })}
+        footer={null}
+      >
+        {detailModal.item && (
+          <Descriptions column={1} style={{ marginTop: 12 }}>
+            <Descriptions.Item label="Mã">{detailModal.item.code}</Descriptions.Item>
+            <Descriptions.Item label="Tên">{detailModal.item.name}</Descriptions.Item>
+            <Descriptions.Item label="Mô tả">{detailModal.item.description || '—'}</Descriptions.Item>
+            <Descriptions.Item label="Loại">
+              <Tag color="blue">{detailModal.item.type}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Trạng thái">
+              <Tag color={detailModal.item.isActive ? 'success' : 'default'}>
+                {detailModal.item.isActive ? 'Sử dụng' : 'Ngừng'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Ngày tạo">
+              {new Date(detailModal.item.createdAt).toLocaleDateString('vi-VN')}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </>
   );
