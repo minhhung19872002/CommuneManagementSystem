@@ -1,0 +1,202 @@
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Tabs, message } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import { catalogService } from '../services/catalogService';
+import { CatalogItem } from '../types';
+
+type CatalogFormValues = {
+  type: string;
+  code: string;
+  name: string;
+  description?: string;
+  isActive?: boolean;
+};
+
+export default function Catalogs() {
+  const [items, setItems] = useState<CatalogItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; item?: CatalogItem; type: string }>({
+    open: false,
+    mode: 'create',
+    type: 'Field',
+  });
+  const [activeTab, setActiveTab] = useState('Field');
+  const [form] = Form.useForm<CatalogFormValues>();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const response = await catalogService.getAll();
+      setItems(response.data);
+    } catch {
+      messageApi.error('Không thể tải danh mục.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openCreate = (type: string) => {
+    form.resetFields();
+    form.setFieldsValue({ type, isActive: true });
+    setModal({ open: true, mode: 'create', type });
+  };
+
+  const openEdit = (item: CatalogItem) => {
+    form.setFieldsValue({
+      type: item.type,
+      code: item.code,
+      name: item.name,
+      description: item.description ?? undefined,
+      isActive: item.isActive,
+    });
+    setModal({ open: true, mode: 'edit', item, type: item.type });
+  };
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      if (modal.mode === 'create') {
+        await catalogService.create(values);
+        messageApi.success('Đã tạo danh mục.');
+      } else {
+        await catalogService.update(modal.item!.id, {
+          code: values.code,
+          name: values.name,
+          description: values.description,
+          isActive: Boolean(values.isActive),
+        });
+        messageApi.success('Đã cập nhật danh mục.');
+      }
+
+      setModal({ open: false, mode: 'create', type: activeTab });
+      form.resetFields();
+      void load();
+    } catch (error: any) {
+      if (error?.errorFields) {
+        return;
+      }
+      messageApi.error(error?.response?.data?.message || 'Không thể lưu danh mục.');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await catalogService.delete(id);
+      messageApi.success('Đã xóa danh mục.');
+      void load();
+    } catch (error: any) {
+      messageApi.error(error?.response?.data?.message || 'Không thể xóa danh mục.');
+    }
+  };
+
+  const renderTable = (type: string) => {
+    const data = items.filter((item) => item.type === type);
+    const columns: ColumnsType<CatalogItem> = [
+      { title: 'Mã', dataIndex: 'code', key: 'code', width: 130, render: (value: string) => <strong>{value}</strong> },
+      { title: 'Tên', dataIndex: 'name', key: 'name' },
+      { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+      {
+        title: 'Trạng thái',
+        dataIndex: 'isActive',
+        key: 'isActive',
+        width: 120,
+        render: (value: boolean) => <Tag color={value ? 'success' : 'default'}>{value ? 'Sử dụng' : 'Ngừng'}</Tag>,
+      },
+      {
+        title: 'Tác vụ',
+        key: 'actions',
+        width: 180,
+        render: (_, record) => (
+          <Space>
+            <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
+              Sửa
+            </Button>
+            <Popconfirm title="Xóa danh mục này?" onConfirm={() => void handleDelete(record.id)} okText="Xóa">
+              <Button size="small" danger icon={<DeleteOutlined />}>
+                Xóa
+              </Button>
+            </Popconfirm>
+          </Space>
+        ),
+      },
+    ];
+
+    return (
+      <div style={{ display: 'grid', gap: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate(type)}>
+            Thêm danh mục
+          </Button>
+        </div>
+        <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} />
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {contextHolder}
+
+      <div style={{ padding: '24px 24px 0' }}>
+        <Card style={{ borderRadius: 20 }} title="Danh mục hệ thống">
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            items={[
+              { key: 'Field', label: 'Lĩnh vực', children: renderTable('Field') },
+              { key: 'Unit', label: 'Đơn vị', children: renderTable('Unit') },
+            ]}
+          />
+        </Card>
+      </div>
+
+      <Modal
+        title={modal.mode === 'create' ? 'Thêm danh mục' : 'Cập nhật danh mục'}
+        open={modal.open}
+        onCancel={() => {
+          setModal({ open: false, mode: 'create', type: activeTab });
+          form.resetFields();
+        }}
+        onOk={() => void handleSave()}
+        okText={modal.mode === 'create' ? 'Thêm mới' : 'Lưu thay đổi'}
+      >
+        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+          <Form.Item name="type" label="Loại danh mục" rules={[{ required: true }]} initialValue={modal.type}>
+            <Select
+              disabled={modal.mode === 'edit'}
+              options={[
+                { label: 'Lĩnh vực', value: 'Field' },
+                { label: 'Đơn vị', value: 'Unit' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="code" label="Mã" rules={[{ required: true, message: 'Nhập mã danh mục.' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="name" label="Tên" rules={[{ required: true, message: 'Nhập tên danh mục.' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="Mô tả">
+            <Input.TextArea rows={4} />
+          </Form.Item>
+          {modal.mode === 'edit' && (
+            <Form.Item name="isActive" label="Trạng thái" rules={[{ required: true }]}>
+              <Select
+                options={[
+                  { label: 'Đang sử dụng', value: true },
+                  { label: 'Ngừng sử dụng', value: false },
+                ]}
+              />
+            </Form.Item>
+          )}
+        </Form>
+      </Modal>
+    </>
+  );
+}

@@ -9,7 +9,8 @@ const frontendPort = process.env.DEV_FRONTEND_PORT ?? '5178';
 const frontendUrl = process.env.DEV_FRONTEND_READY_URL ?? `http://127.0.0.1:${frontendPort}/login`;
 const apiBindUrl = process.env.DEV_API_BIND_URL ?? 'http://127.0.0.1:5068';
 const apiReadyUrl = process.env.DEV_API_READY_URL ?? `${apiBindUrl}/openapi/v1.json`;
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCommand = 'npm';
+const dotnetCommand = 'dotnet';
 const children = [];
 let shuttingDown = false;
 
@@ -46,6 +47,7 @@ function spawnManaged(command, args, cwd, label, extraEnv = {}) {
     cwd,
     stdio: 'inherit',
     detached: process.platform !== 'win32',
+    shell: true,
     env: {
       ...process.env,
       ...extraEnv,
@@ -72,6 +74,7 @@ async function terminateChild(child) {
     await new Promise(resolve => {
       const killer = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], {
         stdio: 'ignore',
+        shell: true,
       });
 
       killer.on('exit', () => resolve());
@@ -111,7 +114,7 @@ async function ensureStack() {
   const frontendReady = await isUrlReady(frontendUrl);
 
   if (!apiReady) {
-    spawnManaged('dotnet', ['run', '--urls', apiBindUrl], apiDir, 'backend');
+    spawnManaged(dotnetCommand, ['run', '--urls', apiBindUrl], apiDir, 'backend');
   } else {
     console.log(`[dev] Reusing backend at ${apiReadyUrl}.`);
   }

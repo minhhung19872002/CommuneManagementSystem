@@ -1,5 +1,5 @@
 import api from './api';
-import { TempResidence, TempAbsence, PopulationStats } from '../types';
+import { TempResidence, TempAbsence, PopulationStats, SystemOverview } from '../types';
 
 export const tempResidenceService = {
   getAll: (status?: string) =>
@@ -22,10 +22,15 @@ export const tempAbsenceService = {
 };
 
 export const reportService = {
-  getStatistics: () => api.get<PopulationStats>('/reports/statistics'),
-  exportHouseholds: () => api.get('/reports/households'),
-  exportPopulation: (status?: string, gender?: string) =>
-    api.get('/reports/population', { params: { status, gender } }),
-  exportTempResidence: () => api.get('/reports/temporary-residence'),
-  exportTempAbsence: () => api.get('/reports/temporary-absence'),
+  getOverview: () => api.get<SystemOverview>('/reports/overview'),
+  getStatistics: (params?: { personStatus?: string; gender?: string; householdStatus?: string }) =>
+    api.get<PopulationStats>('/reports/statistics', { params }),
+  exportHouseholds: (params?: { search?: string; status?: string }) =>
+    api.get('/reports/households', { params }),
+  exportPopulation: (params?: { status?: string; gender?: string; householdId?: number; search?: string }) =>
+    api.get('/reports/population', { params }),
+  exportTempResidence: (params?: { status?: string; fromDate?: string; toDate?: string }) =>
+    api.get('/reports/temporary-residence', { params }),
+  exportTempAbsence: (params?: { status?: string; fromDate?: string; toDate?: string }) =>
+    api.get('/reports/temporary-absence', { params }),
 };

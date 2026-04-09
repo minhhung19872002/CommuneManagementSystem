@@ -1,52 +1,78 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CommuneManagementSystem.API.Data;
 using CommuneManagementSystem.API.DTOs;
-using CommuneManagementSystem.API.Models;
+using CommuneManagementSystem.API.Filters;
+using CommuneManagementSystem.API.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CommuneManagementSystem.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[RequireRoles("Admin", "NhanKhau")]
 public class TemporaryResidencesController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly ISystemLogService _logs;
 
-    public TemporaryResidencesController(AppDbContext db) => _db = db;
+    public TemporaryResidencesController(AppDbContext db, ISystemLogService logs)
+    {
+        _db = db;
+        _logs = logs;
+    }
 
-    // GET: api/TemporaryResidences
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TempResidenceDto>>> GetAll([FromQuery] string? status)
     {
-        var query = _db.TemporaryResidences.Include(t => t.Person).AsQueryable();
-        if (!string.IsNullOrEmpty(status))
-            query = query.Where(t => t.Status == status);
+        await RefreshStatusesAsync();
 
-        var result = await query.Select(t => new TempResidenceDto(
-            t.Id, t.PersonId, t.Person != null ? t.Person.FullName : null,
-            t.Address, t.StartDate, t.EndDate, t.ExtendedTo, t.Reason, t.Status
-        )).ToListAsync();
+        var query = _db.TemporaryResidences.Include(item => item.Person).AsQueryable();
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(item => item.Status == status);
+        }
+
+        var result = await query
+            .Select(item => new TempResidenceDto(
+                item.Id,
+                item.PersonId,
+                item.Person != null ? item.Person.FullName : null,
+                item.Address,
+                item.StartDate,
+                item.EndDate,
+                item.ExtendedTo,
+                item.Reason,
+                item.Status))
+            .ToListAsync();
 
         return Ok(result);
     }
 
-    // GET: api/TemporaryResidences/5
     [HttpGet("{id}")]
     public async Task<ActionResult<TempResidenceDto>> GetById(int id)
     {
-        var t = await _db.TemporaryResidences.Include(t => t.Person).FirstOrDefaultAsync(t => t.Id == id);
-        if (t == null) return NotFound();
+        var item = await _db.TemporaryResidences.Include(entry => entry.Person).FirstOrDefaultAsync(entry => entry.Id == id);
+        if (item == null)
+        {
+            return NotFound();
+        }
 
         return Ok(new TempResidenceDto(
-            t.Id, t.PersonId, t.Person?.FullName, t.Address,
-            t.StartDate, t.EndDate, t.ExtendedTo, t.Reason, t.Status));
+            item.Id,
+            item.PersonId,
+            item.Person?.FullName,
+            item.Address,
+            item.StartDate,
+            item.EndDate,
+            item.ExtendedTo,
+            item.Reason,
+            item.Status));
     }
 
-    // POST: api/TemporaryResidences
     [HttpPost]
     public async Task<ActionResult<TempResidenceDto>> Create([FromBody] CreateTempResidenceDto dto)
     {
-        var tr = new TemporaryResidence
+        var item = new Models.TemporaryResidence
         {
             PersonId = dto.PersonId,
             Address = dto.Address,
@@ -54,46 +80,104 @@ public class TemporaryResidencesController : ControllerBase
             EndDate = dto.EndDate,
             Reason = dto.Reason,
             CreatedAt = DateTime.Now,
-            Status = "Active"
+            Status = "Active",
         };
 
-        _db.TemporaryResidences.Add(tr);
+        _db.TemporaryResidences.Add(item);
         await _db.SaveChangesAsync();
 
         var person = await _db.Persons.FindAsync(dto.PersonId);
-        return Created("", new TempResidenceDto(
-            tr.Id, tr.PersonId, person?.FullName, tr.Address,
-            tr.StartDate, tr.EndDate, null, tr.Reason, tr.Status));
+        await _logs.LogAsync(
+            HttpContext,
+            "Đăng ký tạm trú",
+            "TamTru",
+            $"Đăng ký tạm trú cho {person?.FullName ?? dto.PersonId.ToString()}",
+            newValue: new { item.Id, item.PersonId, item.Address, item.StartDate, item.EndDate });
+
+        return Created(string.Empty, new TempResidenceDto(
+            item.Id,
+            item.PersonId,
+            person?.FullName,
+            item.Address,
+            item.StartDate,
+            item.EndDate,
+            null,
+            item.Reason,
+            item.Status));
     }
 
-    // PUT: api/TemporaryResidences/extend
     [HttpPut("extend")]
     public async Task<ActionResult<TempResidenceDto>> Extend([FromBody] ExtendTempResidenceDto dto)
     {
-        var tr = await _db.TemporaryResidences.FindAsync(dto.Id);
-        if (tr == null) return NotFound();
+        var item = await _db.TemporaryResidences.FindAsync(dto.Id);
+        if (item == null)
+        {
+            return NotFound();
+        }
 
-        tr.ExtendedTo = dto.NewEndDate;
-        tr.EndDate = dto.NewEndDate;
-
+        item.ExtendedTo = dto.NewEndDate;
+        item.EndDate = dto.NewEndDate;
+        item.Status = "Active";
         await _db.SaveChangesAsync();
 
-        var person = await _db.Persons.FindAsync(tr.PersonId);
+        var person = await _db.Persons.FindAsync(item.PersonId);
+        await _logs.LogAsync(
+            HttpContext,
+            "Gia hạn tạm trú",
+            "TamTru",
+            $"Gia hạn tạm trú cho {person?.FullName ?? item.PersonId.ToString()}",
+            newValue: new { item.Id, item.EndDate });
+
         return Ok(new TempResidenceDto(
-            tr.Id, tr.PersonId, person?.FullName, tr.Address,
-            tr.StartDate, tr.EndDate, tr.ExtendedTo, tr.Reason, tr.Status));
+            item.Id,
+            item.PersonId,
+            person?.FullName,
+            item.Address,
+            item.StartDate,
+            item.EndDate,
+            item.ExtendedTo,
+            item.Reason,
+            item.Status));
     }
 
-    // DELETE: api/TemporaryResidences/5
     [HttpDelete("{id}")]
     public async Task<ActionResult> Cancel(int id)
     {
-        var tr = await _db.TemporaryResidences.FindAsync(id);
-        if (tr == null) return NotFound();
+        var item = await _db.TemporaryResidences.FindAsync(id);
+        if (item == null)
+        {
+            return NotFound();
+        }
 
-        tr.Status = "Cancelled";
+        item.Status = "Cancelled";
         await _db.SaveChangesAsync();
 
+        await _logs.LogAsync(
+            HttpContext,
+            "Hủy tạm trú",
+            "TamTru",
+            $"Hủy đăng ký tạm trú #{item.Id}",
+            oldValue: new { item.Id, item.PersonId, item.Address });
+
         return NoContent();
+    }
+
+    private async Task RefreshStatusesAsync()
+    {
+        var expiredItems = await _db.TemporaryResidences
+            .Where(item => item.Status == "Active" && item.EndDate.Date < DateTime.Today)
+            .ToListAsync();
+
+        if (expiredItems.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var item in expiredItems)
+        {
+            item.Status = "Expired";
+        }
+
+        await _db.SaveChangesAsync();
     }
 }

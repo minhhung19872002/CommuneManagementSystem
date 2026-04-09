@@ -1,16 +1,49 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Input, Select, Modal, Form, Space, Tag, Avatar, Descriptions, message, Tooltip, Tabs } from 'antd';
-import { PlusOutlined, SearchOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  EyeOutlined,
+  PaperClipOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
+import {
+  Avatar,
+  Button,
+  Card,
+  Descriptions,
+  Form,
+  Input,
+  List,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tabs,
+  Tag,
+  Tooltip,
+  message,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { personService } from '../services/personService';
 import { householdService } from '../services/householdService';
-import { Person, Household } from '../types';
+import { personService } from '../services/personService';
+import { Household, Person, PersonDocument } from '../types';
 
 const statusColor: Record<string, string> = {
-  Alive: 'success', Dead: 'error', Moved: 'warning', Deleted: 'default',
+  Alive: 'success',
+  Dead: 'error',
+  Moved: 'warning',
+  Deleted: 'default',
 };
+
 const statusLabel: Record<string, string> = {
-  Alive: 'Đang sống', Dead: 'Đã mất', Moved: 'Đã chuyển', Deleted: 'Đã xóa',
+  Alive: 'Đang sống',
+  Dead: 'Đã mất',
+  Moved: 'Đã chuyển',
+  Deleted: 'Đã xóa',
 };
 
 export default function Persons() {
@@ -18,9 +51,19 @@ export default function Persons() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; editing?: Person }>({ open: false, mode: 'create' });
+  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; editing?: Person }>({
+    open: false,
+    mode: 'create',
+  });
   const [detailModal, setDetailModal] = useState<{ open: boolean; person?: Person }>({ open: false });
-  const [regModal, setRegModal] = useState<{ open: boolean; type: 'birth' | 'death' }>({ open: false, type: 'birth' });
+  const [regModal, setRegModal] = useState<{ open: boolean; type: 'birth' | 'death' }>({
+    open: false,
+    type: 'birth',
+  });
+  const [documents, setDocuments] = useState<PersonDocument[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
   const [households, setHouseholds] = useState<Household[]>([]);
   const [form] = Form.useForm();
   const [regForm] = Form.useForm();
@@ -28,107 +71,243 @@ export default function Persons() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    try { const res = await personService.getAll(search || undefined, statusFilter || undefined); setData(res.data); }
-    finally { setLoading(false); }
+    try {
+      const response = await personService.getAll(search || undefined, statusFilter || undefined);
+      setData(response.data);
+    } finally {
+      setLoading(false);
+    }
   }, [search, statusFilter]);
 
-  useEffect(() => { load(); }, [load]);
-  useEffect(() => { householdService.getAll().then(r => setHouseholds(r.data)).catch(console.error); }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const openEdit = (p: Person) => {
+  useEffect(() => {
+    householdService.getAll().then((response) => setHouseholds(response.data)).catch(console.error);
+  }, []);
+
+  const aliveCount = useMemo(() => data.filter((item) => item.status === 'Alive').length, [data]);
+
+  const loadDocuments = useCallback(async (personId: number) => {
+    setDocumentsLoading(true);
+    try {
+      const response = await personService.getDocuments(personId);
+      setDocuments(response.data);
+    } catch {
+      setDocuments([]);
+    } finally {
+      setDocumentsLoading(false);
+    }
+  }, []);
+
+  const openEdit = (person: Person) => {
     form.setFieldsValue({
-      fullName: p.fullName, dateOfBirth: p.dateOfBirth.split('T')[0], gender: p.gender,
-      nationalId: p.nationalId, nationalIdIssuedAt: p.nationalIdIssuedAt,
-      nationalIdIssuedDate: p.nationalIdIssuedDate ? p.nationalIdIssuedDate.split('T')[0] : null,
-      ethnicity: p.ethnicity, religion: p.religion, educationLevel: p.educationLevel,
-      occupation: p.occupation, householdId: p.householdId, relationshipToHead: p.relationshipToHead,
+      fullName: person.fullName,
+      dateOfBirth: person.dateOfBirth.split('T')[0],
+      gender: person.gender,
+      nationalId: person.nationalId,
+      nationalIdIssuedAt: person.nationalIdIssuedAt,
+      nationalIdIssuedDate: person.nationalIdIssuedDate ? person.nationalIdIssuedDate.split('T')[0] : null,
+      ethnicity: person.ethnicity,
+      religion: person.religion,
+      educationLevel: person.educationLevel,
+      occupation: person.occupation,
+      householdId: person.householdId,
+      relationshipToHead: person.relationshipToHead,
     });
-    setModal({ open: true, mode: 'edit', editing: p });
+    setModal({ open: true, mode: 'edit', editing: person });
+  };
+
+  const openDetail = async (person: Person) => {
+    setDetailModal({ open: true, person });
+    setSelectedFile(null);
+    await loadDocuments(person.id);
   };
 
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
       const payload = { ...values, householdId: values.householdId || null };
+
       if (modal.mode === 'create') {
         await personService.create(payload);
-        messageApi.success('Thêm nhân khẩu thành công!');
+        messageApi.success('Thêm nhân khẩu thành công.');
       } else {
         await personService.update(modal.editing!.id, payload);
-        messageApi.success('Cập nhật thành công!');
+        messageApi.success('Cập nhật nhân khẩu thành công.');
       }
+
       setModal({ open: false, mode: 'create' });
       form.resetFields();
-      load();
-    } catch { messageApi.error('Có lỗi xảy ra!'); }
+      void load();
+    } catch (error: any) {
+      messageApi.error(error?.response?.data?.message || 'Không thể lưu thay đổi.');
+    }
   };
 
   const handleDelete = async (id: number) => {
     Modal.confirm({
-      title: 'Xác nhận xóa', content: 'Bạn có chắc muốn xóa nhân khẩu này?',
-      okText: 'Xóa', okButtonProps: { danger: true },
+      title: 'Xác nhận xóa',
+      content: 'Bạn có chắc muốn xóa nhân khẩu này?',
+      okText: 'Xóa',
+      okButtonProps: { danger: true },
       onOk: async () => {
-        try { await personService.delete(id); messageApi.success('Xóa thành công!'); load(); }
-        catch { messageApi.error('Xóa thất bại!'); }
-      }
+        try {
+          await personService.delete(id);
+          messageApi.success('Xóa nhân khẩu thành công.');
+          void load();
+        } catch (error: any) {
+          messageApi.error(error?.response?.data?.message || 'Không thể xóa nhân khẩu.');
+        }
+      },
     });
   };
 
   const handleRegister = async () => {
     try {
       const values = await regForm.validateFields();
+
       if (regModal.type === 'birth') {
         await personService.registerBirth(values);
-        messageApi.success('Đăng ký khai sinh thành công!');
+        messageApi.success('Đăng ký khai sinh thành công.');
       } else {
-        await personService.registerDeath(values);
-        messageApi.success('Đăng ký khai tử thành công!');
+        const person = data.find((item) => item.id === Number(values.personId));
+        await personService.registerDeath({
+          ...values,
+          personId: Number(values.personId),
+          fullName: person?.fullName ?? values.fullName ?? '',
+        });
+        messageApi.success('Đăng ký khai tử thành công.');
       }
+
       setRegModal({ open: false, type: 'birth' });
       regForm.resetFields();
-      load();
-    } catch { messageApi.error('Có lỗi xảy ra!'); }
+      void load();
+    } catch (error: any) {
+      messageApi.error(error?.response?.data?.message || 'Không thể hoàn tất đăng ký.');
+    }
+  };
+
+  const handleUploadDocument = async () => {
+    if (!detailModal.person || !selectedFile) {
+      messageApi.warning('Vui lòng chọn tệp tài liệu.');
+      return;
+    }
+
+    setUploadingDocument(true);
+    try {
+      await personService.uploadDocument(detailModal.person.id, selectedFile);
+      messageApi.success('Tải tài liệu thành công.');
+      setSelectedFile(null);
+      await loadDocuments(detailModal.person.id);
+    } catch (error: any) {
+      messageApi.error(error?.response?.data?.message || 'Không thể tải tài liệu.');
+    } finally {
+      setUploadingDocument(false);
+    }
+  };
+
+  const handleDeleteDocument = async (documentId: number) => {
+    try {
+      await personService.deleteDocument(documentId);
+      messageApi.success('Đã xóa tài liệu.');
+      if (detailModal.person) {
+        await loadDocuments(detailModal.person.id);
+      }
+    } catch (error: any) {
+      messageApi.error(error?.response?.data?.message || 'Không thể xóa tài liệu.');
+    }
+  };
+
+  const handleDownloadDocument = async (personDocument: PersonDocument) => {
+    try {
+      const response = await personService.downloadDocument(personDocument.id);
+      const blob = new Blob([response.data], { type: personDocument.contentType });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = window.document.createElement('a');
+      anchor.href = url;
+      anchor.download = personDocument.fileName;
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      messageApi.error('Không thể tải tài liệu.');
+    }
   };
 
   const columns: ColumnsType<Person> = [
     {
-      title: 'Họ tên', dataIndex: 'fullName', key: 'fullName',
-      render: (v) => (
+      title: 'Họ tên',
+      dataIndex: 'fullName',
+      key: 'fullName',
+      render: (value: string) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Avatar style={{ background: '#034AA0', flexShrink: 0, fontWeight: 700 }}>{v.charAt(0)}</Avatar>
-          <span style={{ fontWeight: 600 }}>{v}</span>
+          <Avatar style={{ background: '#155DFC', flexShrink: 0, fontWeight: 800 }}>{value.charAt(0)}</Avatar>
+          <span style={{ fontWeight: 700 }}>{value}</span>
         </div>
       ),
     },
     {
-      title: 'Ngày sinh', dataIndex: 'dateOfBirth', key: 'dateOfBirth',
-      render: (v) => new Date(v).toLocaleDateString('vi-VN'),
-      sorter: (a, b) => new Date(a.dateOfBirth).getTime() - new Date(b.dateOfBirth).getTime()
+      title: 'Ngày sinh',
+      dataIndex: 'dateOfBirth',
+      key: 'dateOfBirth',
+      render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
+      sorter: (a, b) => new Date(a.dateOfBirth).getTime() - new Date(b.dateOfBirth).getTime(),
     },
     {
-      title: 'GT', dataIndex: 'gender', key: 'gender', width: 60, align: 'center',
-      render: (v) => <span style={{ fontSize: '16px' }}>{v === 'Nam' ? '♂️' : '♀️'}</span>,
+      title: 'Giới tính',
+      dataIndex: 'gender',
+      key: 'gender',
+      width: 90,
+      align: 'center',
     },
-    { title: 'CCCD', dataIndex: 'nationalId', key: 'nationalId', render: (v) => v || '—', ellipsis: true },
+    {
+      title: 'CCCD',
+      dataIndex: 'nationalId',
+      key: 'nationalId',
+      render: (value: string) => value || '—',
+      ellipsis: true,
+    },
     { title: 'Dân tộc', dataIndex: 'ethnicity', key: 'ethnicity', ellipsis: true },
-    { title: 'Nghề nghiệp', dataIndex: 'occupation', key: 'occupation', render: (v) => v || '—', ellipsis: true },
-    { title: 'Hộ khẩu', dataIndex: 'householdNumber', key: 'householdNumber', render: (v) => v || '—', ellipsis: true },
     {
-      title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 110,
-      render: (s) => <Tag color={statusColor[s]}>{statusLabel[s] || s}</Tag>,
+      title: 'Nghề nghiệp',
+      dataIndex: 'occupation',
+      key: 'occupation',
+      render: (value: string) => value || '—',
+      ellipsis: true,
     },
     {
-      title: 'Thao tác', key: 'actions', width: 130, align: 'center',
+      title: 'Hộ khẩu',
+      dataIndex: 'householdNumber',
+      key: 'householdNumber',
+      render: (value: string) => value || '—',
+      ellipsis: true,
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (value: string) => <Tag color={statusColor[value]}>{statusLabel[value] || value}</Tag>,
+    },
+    {
+      title: 'Thao tác',
+      key: 'actions',
+      width: 180,
+      align: 'center',
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Xem chi tiết">
-            <Button size="small" icon={<EyeOutlined />} onClick={() => setDetailModal({ open: true, person: record })} />
+            <Button size="small" icon={<EyeOutlined />} onClick={() => void openDetail(record)} />
           </Tooltip>
           <Tooltip title="Sửa">
             <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
           </Tooltip>
+          <Tooltip title="Tài liệu">
+            <Button size="small" icon={<PaperClipOutlined />} onClick={() => void openDetail(record)} />
+          </Tooltip>
           <Tooltip title="Xóa">
-            <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+            <Button size="small" danger icon={<DeleteOutlined />} onClick={() => void handleDelete(record.id)} />
           </Tooltip>
         </Space>
       ),
@@ -136,87 +315,115 @@ export default function Persons() {
   ];
 
   return (
-    <>
+    <div className="management-page" data-testid="persons-page">
       {contextHolder}
 
-      {/* Page Header */}
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#32373C', margin: 0, lineHeight: 1.2 }}>Quản lý Nhân khẩu</h1>
-            <p style={{ fontSize: '13px', color: '#737373', margin: '4px 0 0' }}>{data.length} nhân khẩu</p>
+      <section className="management-page__hero">
+        <div className="management-page__copy">
+          <p className="management-page__eyebrow">Dân cư / Nhân khẩu</p>
+          <h1 className="management-page__title">Hồ sơ công dân</h1>
+          <p className="management-page__subtitle">
+            Quản lý thông tin định danh, quan hệ hộ khẩu, khai sinh, khai tử và tài liệu đính kèm.
+          </p>
+        </div>
+
+        <div className="management-page__meta">
+          <div className="management-page__stat">
+            <span className="management-page__stat-value">{data.length}</span>
+            <span className="management-page__stat-label">Nhân khẩu hiện có</span>
           </div>
-          <Space>
+          <div className="management-page__stat">
+            <span className="management-page__stat-value">{aliveCount}</span>
+            <span className="management-page__stat-label">Đang sống</span>
+          </div>
+          <div className="management-page__actions">
             <Button onClick={() => { regForm.resetFields(); setRegModal({ open: true, type: 'birth' }); }}>
-              🍼 Khai sinh
+              Đăng ký khai sinh
             </Button>
             <Button danger onClick={() => { regForm.resetFields(); setRegModal({ open: true, type: 'death' }); }}>
-              ⚰️ Khai tử
+              Đăng ký khai tử
             </Button>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => { form.resetFields(); setModal({ open: true, mode: 'create' }); }}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                form.resetFields();
+                setModal({ open: true, mode: 'create' });
+              }}
+            >
               Thêm nhân khẩu
             </Button>
-          </Space>
+          </div>
         </div>
+      </section>
 
-        {/* Toolbar */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <Input
-            prefix={<SearchOutlined style={{ color: '#737373' }} />}
-            placeholder="Tìm tên, CCCD..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ width: '280px' }}
-            allowClear
-            onPressEnter={load}
-          />
-          <Select
-            placeholder="Trạng thái"
-            value={statusFilter || undefined}
-            onChange={v => setStatusFilter(v || '')}
-            allowClear
-            style={{ width: '160px' }}
-            options={[
-              { label: 'Đang sống', value: 'Alive' },
-              { label: 'Đã mất', value: 'Dead' },
-              { label: 'Đã chuyển', value: 'Moved' },
-            ]}
-          />
-          <Button icon={<ReloadOutlined />} onClick={load}>Làm mới</Button>
-        </div>
-      </div>
+      <section className="management-toolbar">
+        <Input
+          className="management-toolbar__grow"
+          prefix={<SearchOutlined />}
+          placeholder="Tìm theo họ tên hoặc CCCD"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          allowClear
+          onPressEnter={() => void load()}
+        />
 
-      {/* Table */}
-      <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
-          <Table
-            columns={columns}
-            dataSource={data}
-            rowKey="id"
-            loading={loading}
-            pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (t) => `${t} nhân khẩu` }}
-          />
-        </div>
-      </div>
+        <Select
+          placeholder="Trạng thái"
+          value={statusFilter || undefined}
+          onChange={(value) => setStatusFilter(value || '')}
+          allowClear
+          style={{ width: 180 }}
+          options={[
+            { label: 'Đang sống', value: 'Alive' },
+            { label: 'Đã mất', value: 'Dead' },
+            { label: 'Đã chuyển', value: 'Moved' },
+          ]}
+        />
 
-      {/* Create / Edit Modal */}
+        <Button icon={<ReloadOutlined />} onClick={() => void load()}>
+          Làm mới
+        </Button>
+      </section>
+
+      <Card className="management-table-card">
+        <Table
+          columns={columns}
+          dataSource={data}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `${total} nhân khẩu`,
+          }}
+        />
+      </Card>
+
       <Modal
-        title={modal.mode === 'create' ? 'Thêm nhân khẩu mới' : 'Sửa nhân khẩu'}
+        title={modal.mode === 'create' ? 'Thêm nhân khẩu mới' : 'Chỉnh sửa nhân khẩu'}
         open={modal.open}
-        onCancel={() => { setModal({ open: false, mode: 'create' }); form.resetFields(); }}
-        onOk={handleSave}
-        okText={modal.mode === 'create' ? 'Thêm mới' : 'Lưu'}
-        width={620}
+        onCancel={() => {
+          setModal({ open: false, mode: 'create' });
+          form.resetFields();
+        }}
+        onOk={() => void handleSave()}
+        okText={modal.mode === 'create' ? 'Tạo mới' : 'Lưu thay đổi'}
+        width={680}
       >
-        <Form form={form} layout="vertical" style={{ marginTop: '16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-            <Form.Item name="fullName" label="Họ tên" rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}>
+        <Form form={form} layout="vertical">
+          <div className="form-grid-two">
+            <Form.Item name="fullName" label="Họ tên" rules={[{ required: true, message: 'Vui lòng nhập họ tên.' }]}>
               <Input placeholder="Nguyễn Văn A" />
             </Form.Item>
-            <Form.Item name="dateOfBirth" label="Ngày sinh" rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}>
-              <Input type="date" style={{ width: '100%' }} />
+            <Form.Item
+              name="dateOfBirth"
+              label="Ngày sinh"
+              rules={[{ required: true, message: 'Vui lòng nhập ngày sinh.' }]}
+            >
+              <Input type="date" />
             </Form.Item>
-            <Form.Item name="gender" label="Giới tính" rules={[{ required: true }]} initialValue="Nam">
+            <Form.Item name="gender" label="Giới tính" initialValue="Nam" rules={[{ required: true }]}>
               <Select options={[{ label: 'Nam', value: 'Nam' }, { label: 'Nữ', value: 'Nữ' }]} />
             </Form.Item>
             <Form.Item name="nationalId" label="Số CCCD">
@@ -226,135 +433,237 @@ export default function Persons() {
               <Input placeholder="Công an tỉnh..." />
             </Form.Item>
             <Form.Item name="nationalIdIssuedDate" label="Ngày cấp CCCD">
-              <Input type="date" style={{ width: '100%' }} />
+              <Input type="date" />
             </Form.Item>
             <Form.Item name="ethnicity" label="Dân tộc" initialValue="Kinh">
-              <Input placeholder="Kinh" />
+              <Input />
             </Form.Item>
             <Form.Item name="religion" label="Tôn giáo" initialValue="Không">
-              <Input placeholder="Không" />
+              <Input />
             </Form.Item>
             <Form.Item name="educationLevel" label="Trình độ học vấn">
-              <Input placeholder="VD: 12/12" />
+              <Input placeholder="Ví dụ: 12/12" />
             </Form.Item>
             <Form.Item name="occupation" label="Nghề nghiệp">
-              <Input placeholder="Nông dân, Công nhân..." />
+              <Input placeholder="Nghề nghiệp hiện tại" />
             </Form.Item>
             <Form.Item name="householdId" label="Hộ khẩu">
               <Select
                 showSearch
-                optionFilterProp="children"
-                placeholder="— Chọn hộ khẩu —"
+                optionFilterProp="label"
+                placeholder="Chọn hộ khẩu"
                 allowClear
-                options={households.map(h => ({ label: `${h.householdNumber} — ${h.address}`, value: h.id }))}
+                options={households.map((household) => ({
+                  label: `${household.householdNumber} — ${household.address}`,
+                  value: household.id,
+                }))}
               />
             </Form.Item>
-            <Form.Item name="relationshipToHead" label="Quan hệ chủ hộ">
-              <Input placeholder="VD: Vợ, Con, Anh..." />
+            <Form.Item name="relationshipToHead" label="Quan hệ với chủ hộ">
+              <Input placeholder="Ví dụ: Vợ, con, anh..." />
             </Form.Item>
           </div>
         </Form>
       </Modal>
 
-      {/* Detail Modal */}
       <Modal
-        title={`Chi tiết: ${detailModal.person?.fullName || ''}`}
+        title={`Chi tiết nhân khẩu ${detailModal.person?.fullName || ''}`}
         open={detailModal.open}
-        onCancel={() => setDetailModal({ open: false })}
+        onCancel={() => {
+          setDetailModal({ open: false });
+          setDocuments([]);
+          setSelectedFile(null);
+        }}
         footer={<Button onClick={() => setDetailModal({ open: false })}>Đóng</Button>}
-        width={600}
+        width={760}
       >
         {detailModal.person && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-              <Avatar size={56} style={{ background: '#034AA0', fontWeight: 800, fontSize: '22px' }}>
+          <div className="management-section">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Avatar size={56} style={{ background: '#155DFC', fontWeight: 800, fontSize: '22px' }}>
                 {detailModal.person.fullName.charAt(0)}
               </Avatar>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '16px' }}>{detailModal.person.fullName}</div>
-                <Tag color={statusColor[detailModal.person.status]} style={{ marginTop: '4px' }}>
+                <div style={{ fontWeight: 800, fontSize: '16px' }}>{detailModal.person.fullName}</div>
+                <Tag color={statusColor[detailModal.person.status]} style={{ marginTop: '6px' }}>
                   {statusLabel[detailModal.person.status]}
                 </Tag>
               </div>
             </div>
+
             <Descriptions
               column={2}
               size="small"
               bordered
               items={[
-                { key: 'ns', label: 'Ngày sinh', children: new Date(detailModal.person.dateOfBirth).toLocaleDateString('vi-VN') },
-                { key: 'gt', label: 'Giới tính', children: detailModal.person.gender },
-                { key: 'cccd', label: 'CCCD', children: detailModal.person.nationalId || '—' },
-                { key: 'nc', label: 'Nơi cấp', children: detailModal.person.nationalIdIssuedAt || '—' },
-                { key: 'dt', label: 'Dân tộc', children: detailModal.person.ethnicity },
-                { key: 'tg', label: 'Tôn giáo', children: detailModal.person.religion },
-                { key: 'hv', label: 'Học vấn', children: detailModal.person.educationLevel || '—' },
-                { key: 'nn', label: 'Nghề nghiệp', children: detailModal.person.occupation || '—' },
-                { key: 'hk', label: 'Hộ khẩu', children: detailModal.person.householdNumber || 'Chưa có' },
-                { key: 'qh', label: 'Quan hệ', children: detailModal.person.relationshipToHead || '—' },
+                {
+                  key: 'dob',
+                  label: 'Ngày sinh',
+                  children: new Date(detailModal.person.dateOfBirth).toLocaleDateString('vi-VN'),
+                },
+                { key: 'gender', label: 'Giới tính', children: detailModal.person.gender },
+                { key: 'nationalId', label: 'CCCD', children: detailModal.person.nationalId || '—' },
+                { key: 'issuedAt', label: 'Nơi cấp', children: detailModal.person.nationalIdIssuedAt || '—' },
+                { key: 'ethnicity', label: 'Dân tộc', children: detailModal.person.ethnicity },
+                { key: 'religion', label: 'Tôn giáo', children: detailModal.person.religion },
+                { key: 'education', label: 'Học vấn', children: detailModal.person.educationLevel || '—' },
+                { key: 'job', label: 'Nghề nghiệp', children: detailModal.person.occupation || '—' },
+                { key: 'household', label: 'Hộ khẩu', children: detailModal.person.householdNumber || 'Chưa có' },
+                { key: 'relation', label: 'Quan hệ', children: detailModal.person.relationshipToHead || '—' },
               ]}
             />
+
+            <div>
+              <p className="management-page__eyebrow" style={{ marginBottom: '0.75rem' }}>
+                Tài liệu đính kèm
+              </p>
+
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+                <input
+                  type="file"
+                  onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                  aria-label="Tài liệu nhân khẩu"
+                />
+                <Button
+                  type="primary"
+                  icon={<UploadOutlined />}
+                  onClick={() => void handleUploadDocument()}
+                  loading={uploadingDocument}
+                >
+                  Tải tài liệu
+                </Button>
+                {selectedFile && <span style={{ color: '#667085' }}>{selectedFile.name}</span>}
+              </div>
+
+              <List
+                loading={documentsLoading}
+                dataSource={documents}
+                locale={{ emptyText: 'Chưa có tài liệu nào.' }}
+                renderItem={(document) => (
+                  <List.Item
+                    actions={[
+                      <Button
+                        key="download"
+                        size="small"
+                        icon={<DownloadOutlined />}
+                        onClick={() => void handleDownloadDocument(document)}
+                      >
+                        Tải xuống
+                      </Button>,
+                      <Button
+                        key="delete"
+                        size="small"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => void handleDeleteDocument(document.id)}
+                      >
+                        Xóa
+                      </Button>,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      title={document.fileName}
+                      description={`${(document.fileSize / 1024).toFixed(1)} KB · ${new Date(document.uploadedAt).toLocaleString('vi-VN')} · ${document.uploadedBy}`}
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
           </div>
         )}
       </Modal>
 
-      {/* Birth / Death Registration Modal */}
       <Modal
         title={regModal.type === 'birth' ? 'Đăng ký khai sinh' : 'Đăng ký khai tử'}
         open={regModal.open}
-        onCancel={() => { setRegModal({ open: false, type: 'birth' }); regForm.resetFields(); }}
-        onOk={handleRegister}
-        okText="Đăng ký"
-        width={520}
+        onCancel={() => {
+          setRegModal({ open: false, type: 'birth' });
+          regForm.resetFields();
+        }}
+        onOk={() => void handleRegister()}
+        okText="Xác nhận"
+        width={560}
       >
         <Tabs
           activeKey={regModal.type}
-          onChange={k => setRegModal({ open: true, type: k as 'birth' | 'death' })}
-          style={{ marginBottom: '12px' }}
+          onChange={(key) => {
+            regForm.resetFields();
+            setRegModal({ open: true, type: key as 'birth' | 'death' });
+          }}
           items={[
             {
-              key: 'birth', label: 'Khai sinh',
+              key: 'birth',
+              label: 'Khai sinh',
               children: (
                 <Form form={regForm} layout="vertical">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-                    <Form.Item name="fullName" label="Họ tên trẻ" rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}>
-                      <Input placeholder="Tên trẻ" />
+                  <div className="form-grid-two">
+                    <Form.Item
+                      name="fullName"
+                      label="Họ tên trẻ"
+                      rules={[{ required: true, message: 'Vui lòng nhập họ tên trẻ.' }]}
+                    >
+                      <Input placeholder="Họ tên trẻ" />
                     </Form.Item>
                     <Form.Item name="dateOfBirth" label="Ngày sinh" rules={[{ required: true }]}>
-                      <Input type="date" style={{ width: '100%' }} />
+                      <Input type="date" />
                     </Form.Item>
-                    <Form.Item name="gender" label="Giới tính" rules={[{ required: true }]} initialValue="Nam">
+                    <Form.Item name="gender" label="Giới tính" initialValue="Nam" rules={[{ required: true }]}>
                       <Select options={[{ label: 'Nam', value: 'Nam' }, { label: 'Nữ', value: 'Nữ' }]} />
                     </Form.Item>
                     <Form.Item name="birthPlace" label="Nơi sinh">
-                      <Input placeholder="Bệnh viện, Xã..." />
+                      <Input placeholder="Bệnh viện, xã..." />
                     </Form.Item>
-                    <Form.Item name="motherId" label="ID CCCD mẹ">
-                      <Input type="number" placeholder="ID người mẹ" />
+                    <Form.Item name="motherId" label="Người mẹ">
+                      <Select
+                        showSearch
+                        optionFilterProp="label"
+                        allowClear
+                        options={data.map((person) => ({ label: person.fullName, value: person.id }))}
+                      />
                     </Form.Item>
-                    <Form.Item name="fatherId" label="ID CCCD cha">
-                      <Input type="number" placeholder="ID người cha" />
+                    <Form.Item name="fatherId" label="Người cha">
+                      <Select
+                        showSearch
+                        optionFilterProp="label"
+                        allowClear
+                        options={data.map((person) => ({ label: person.fullName, value: person.id }))}
+                      />
                     </Form.Item>
                   </div>
                 </Form>
               ),
             },
             {
-              key: 'death', label: 'Khai tử',
+              key: 'death',
+              label: 'Khai tử',
               children: (
                 <Form form={regForm} layout="vertical">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-                    <Form.Item name="personId" label="ID nhân khẩu" rules={[{ required: true, message: 'Vui lòng nhập ID!' }]}>
-                      <Input type="number" placeholder="ID người mất" />
+                  <div className="form-grid-two">
+                    <Form.Item
+                      name="personId"
+                      label="Nhân khẩu"
+                      rules={[{ required: true, message: 'Vui lòng chọn nhân khẩu.' }]}
+                    >
+                      <Select
+                        showSearch
+                        optionFilterProp="label"
+                        options={data
+                          .filter((person) => person.status === 'Alive')
+                          .map((person) => ({ label: person.fullName, value: person.id }))}
+                      />
                     </Form.Item>
                     <Form.Item name="dateOfDeath" label="Ngày mất" rules={[{ required: true }]}>
-                      <Input type="date" style={{ width: '100%' }} />
+                      <Input type="date" />
                     </Form.Item>
-                    <Form.Item name="placeOfDeath" label="Nơi mất" rules={[{ required: true }]}>
-                      <Input placeholder="Bệnh viện, Xã..." />
+                    <Form.Item
+                      name="placeOfDeath"
+                      label="Nơi mất"
+                      rules={[{ required: true, message: 'Vui lòng nhập nơi mất.' }]}
+                    >
+                      <Input placeholder="Bệnh viện, xã..." />
                     </Form.Item>
                     <Form.Item name="reason" label="Nguyên nhân">
-                      <Input placeholder="Bệnh tật, Tai nạn..." />
+                      <Input placeholder="Nguyên nhân tử vong" />
                     </Form.Item>
                   </div>
                 </Form>
@@ -363,6 +672,6 @@ export default function Persons() {
           ]}
         />
       </Modal>
-    </>
+    </div>
   );
 }

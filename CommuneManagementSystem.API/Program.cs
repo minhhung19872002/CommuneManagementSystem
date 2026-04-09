@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using CommuneManagementSystem.API.Data;
+using CommuneManagementSystem.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddScoped<ISystemLogService, SystemLogService>();
 
 // SQLite + InMemory mock
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -28,7 +30,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    db.EnsureRuntimeSchema();
     db.Seed();
 }
 

@@ -14,4 +14,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Suppress console noise for non-critical 403s
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      // Re-throw 403 and 401 so callers can handle them
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        return Promise.reject(error);
+      }
+      // Other errors — re-throw
+      return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default api;

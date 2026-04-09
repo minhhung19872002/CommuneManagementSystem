@@ -1,91 +1,198 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CommuneManagementSystem.API.Data;
 using CommuneManagementSystem.API.DTOs;
+using CommuneManagementSystem.API.Filters;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CommuneManagementSystem.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[RequireRoles("Admin", "NhanKhau", "HoKhau")]
 public class ReportsController : ControllerBase
 {
     private readonly AppDbContext _db;
 
-    public ReportsController(AppDbContext db) => _db = db;
-
-    // ======== STATISTICS ========
-    [HttpGet("statistics")]
-    public async Task<ActionResult<PopulationStatsDto>> GetStatistics()
+    public ReportsController(AppDbContext db)
     {
-        var totalPop = await _db.Persons.CountAsync();
-        var male = await _db.Persons.CountAsync(p => p.Gender == "Nam");
-        var female = await _db.Persons.CountAsync(p => p.Gender == "Nữ");
-        var alive = await _db.Persons.CountAsync(p => p.Status == "Alive");
-        var dead = await _db.Persons.CountAsync(p => p.Status == "Dead");
-        var moved = await _db.Persons.CountAsync(p => p.Status == "Moved");
-        var totalHH = await _db.Households.CountAsync();
-        var activeHH = await _db.Households.CountAsync(h => h.Status == "Active");
-        var movedHH = await _db.Households.CountAsync(h => h.Status == "Moved");
-        var tempResident = await _db.TemporaryResidences.CountAsync(t => t.Status == "Active");
-        var tempAbsent = await _db.TemporaryAbsences.CountAsync(t => t.Status == "Active");
-
-        return Ok(new PopulationStatsDto(
-            totalPop, male, female, alive, dead, moved,
-            totalHH, activeHH, movedHH, tempResident, tempAbsent
-        ));
+        _db = db;
     }
 
-    // ======== HOUSEHOLD REPORT ========
-    [HttpGet("households")]
-    public async Task<ActionResult> ExportHouseholds()
+    [HttpGet("overview")]
+    public async Task<ActionResult<SystemOverviewDto>> GetOverview()
     {
-        var headNames = await _db.Persons.ToDictionaryAsync(p => p.Id, p => p.FullName);
+        var totalPopulation = await _db.Persons.CountAsync();
+        var totalHouseholds = await _db.Households.CountAsync();
+        var activeTasks = await _db.TaskItems.CountAsync(item => item.Status != "Completed");
+        var activeWorks = await _db.WorkItems.CountAsync(item => item.Status != "Completed");
+        var activeProjects = await _db.ProjectItems.CountAsync(item => item.Status == "Active");
+        var pendingProposals = await _db.ProposalItems.CountAsync(item => item.Status == "Pending");
+        var staffCount = await _db.StaffProfiles.CountAsync(item => item.Status == "Active");
+        var monthlyPayrollTotal = await _db.PayrollEntries
+            .Where(item => item.Month == DateTime.Now.ToString("yyyy-MM"))
+            .SumAsync(item => (decimal?)item.TotalAmount) ?? 0;
 
-        var households = await _db.Households
-            .Include(h => h.Members)
-            .Select(h => new
+        var totalTasks = await _db.TaskItems.CountAsync();
+        var completedTasks = await _db.TaskItems.CountAsync(item => item.Status == "Completed");
+        var totalWorks = await _db.WorkItems.CountAsync();
+        var completedWorks = await _db.WorkItems.CountAsync(item => item.Status == "Completed");
+        var taskRate = totalTasks == 0 ? 0 : (decimal)completedTasks * 100 / totalTasks;
+        var workRate = totalWorks == 0 ? 0 : (decimal)completedWorks * 100 / totalWorks;
+        var overallKpiScore = Math.Round((taskRate + workRate) / 2, 2);
+
+        return Ok(new SystemOverviewDto(
+            totalPopulation,
+            totalHouseholds,
+            activeTasks,
+            activeWorks,
+            activeProjects,
+            pendingProposals,
+            staffCount,
+            monthlyPayrollTotal,
+            overallKpiScore));
+    }
+
+    [HttpGet("statistics")]
+    public async Task<ActionResult<PopulationStatsDto>> GetStatistics(
+        [FromQuery] string? personStatus,
+        [FromQuery] string? gender,
+        [FromQuery] string? householdStatus)
+    {
+        var persons = _db.Persons.AsQueryable();
+        var households = _db.Households.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(personStatus))
+        {
+            persons = persons.Where(person => person.Status == personStatus);
+        }
+
+        if (!string.IsNullOrWhiteSpace(gender))
+        {
+            persons = persons.Where(person => person.Gender == gender);
+        }
+
+        if (!string.IsNullOrWhiteSpace(householdStatus))
+        {
+            households = households.Where(household => household.Status == householdStatus);
+        }
+
+        var totalPopulation = await persons.CountAsync();
+        var maleCount = await persons.CountAsync(person => person.Gender == "Nam");
+        var femaleCount = await persons.CountAsync(person => person.Gender == "Nữ");
+        var aliveCount = await persons.CountAsync(person => person.Status == "Alive");
+        var deadCount = await persons.CountAsync(person => person.Status == "Dead");
+        var movedCount = await persons.CountAsync(person => person.Status == "Moved");
+        var totalHouseholds = await households.CountAsync();
+        var activeHouseholds = await households.CountAsync(household => household.Status == "Active");
+        var movedHouseholds = await households.CountAsync(household => household.Status == "Moved");
+        var tempResidentCount = await _db.TemporaryResidences.CountAsync(item => item.Status == "Active");
+        var tempAbsentCount = await _db.TemporaryAbsences.CountAsync(item => item.Status == "Active");
+
+        return Ok(new PopulationStatsDto(
+            totalPopulation,
+            maleCount,
+            femaleCount,
+            aliveCount,
+            deadCount,
+            movedCount,
+            totalHouseholds,
+            activeHouseholds,
+            movedHouseholds,
+            tempResidentCount,
+            tempAbsentCount));
+    }
+
+    [HttpGet("households")]
+    public async Task<ActionResult> ExportHouseholds([FromQuery] string? search, [FromQuery] string? status)
+    {
+        var headNames = await _db.Persons.ToDictionaryAsync(person => person.Id, person => person.FullName);
+
+        var query = _db.Households
+            .Include(household => household.Members)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(household =>
+                household.HouseholdNumber.Contains(search) ||
+                household.Address.Contains(search));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(household => household.Status == status);
+        }
+
+        var households = await query
+            .Select(household => new
             {
-                h.Id,
-                h.HouseholdNumber,
-                h.Address,
-                HeadPersonName = h.HeadPersonId.HasValue && headNames.ContainsKey(h.HeadPersonId.Value)
-                    ? headNames[h.HeadPersonId.Value]
+                household.Id,
+                household.HouseholdNumber,
+                household.Address,
+                HeadPersonName = household.HeadPersonId.HasValue && headNames.ContainsKey(household.HeadPersonId.Value)
+                    ? headNames[household.HeadPersonId.Value]
                     : null,
-                MemberCount = h.Members.Count,
-                h.Status,
-                h.CreatedAt
-            }).ToListAsync();
+                MemberCount = household.Members.Count,
+                household.Status,
+                household.CreatedAt,
+            })
+            .ToListAsync();
 
         return Ok(new
         {
             type = "households",
             title = "BÁO CÁO DANH SÁCH HỘ KHẨU",
             data = households,
-            generatedAt = DateTime.Now
+            generatedAt = DateTime.Now,
+            filter = new { search, status },
         });
     }
 
-    // ======== POPULATION REPORT ========
     [HttpGet("population")]
     public async Task<ActionResult> ExportPopulation(
-        [FromQuery] string? status, [FromQuery] string? gender)
+        [FromQuery] string? status,
+        [FromQuery] string? gender,
+        [FromQuery] int? householdId,
+        [FromQuery] string? search)
     {
-        var query = _db.Persons.Include(p => p.Household).AsQueryable();
-        if (!string.IsNullOrEmpty(status)) query = query.Where(p => p.Status == status);
-        if (!string.IsNullOrEmpty(gender)) query = query.Where(p => p.Gender == gender);
+        var query = _db.Persons.Include(person => person.Household).AsQueryable();
 
-        var persons = await query.Select(p => new
+        if (!string.IsNullOrWhiteSpace(status))
         {
-            p.Id,
-            p.FullName,
-            p.DateOfBirth,
-            p.Gender,
-            p.NationalId,
-            p.Ethnicity,
-            p.Occupation,
-            HouseholdNumber = p.Household != null ? p.Household.HouseholdNumber : null,
-            p.Status
-        }).ToListAsync();
+            query = query.Where(person => person.Status == status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(gender))
+        {
+            query = query.Where(person => person.Gender == gender);
+        }
+
+        if (householdId.HasValue)
+        {
+            query = query.Where(person => person.HouseholdId == householdId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(person =>
+                person.FullName.Contains(search) ||
+                person.NationalId.Contains(search));
+        }
+
+        var persons = await query
+            .Select(person => new
+            {
+                person.Id,
+                person.FullName,
+                person.DateOfBirth,
+                person.Gender,
+                person.NationalId,
+                person.Ethnicity,
+                person.Occupation,
+                HouseholdNumber = person.Household != null ? person.Household.HouseholdNumber : null,
+                person.Status,
+            })
+            .ToListAsync();
 
         return Ok(new
         {
@@ -93,61 +200,99 @@ public class ReportsController : ControllerBase
             title = "BÁO CÁO NHÂN KHẨU",
             data = persons,
             generatedAt = DateTime.Now,
-            filter = new { status, gender }
+            filter = new { status, gender, householdId, search },
         });
     }
 
-    // ======== TEMPORARY RESIDENCE REPORT ========
     [HttpGet("temporary-residence")]
-    public async Task<ActionResult> ExportTempResidence()
+    public async Task<ActionResult> ExportTempResidence(
+        [FromQuery] string? status,
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate)
     {
-        var data = await _db.TemporaryResidences
-            .Include(t => t.Person)
-            .Where(t => t.Status == "Active")
-            .Select(t => new
+        var query = _db.TemporaryResidences.Include(item => item.Person).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(item => item.Status == status);
+        }
+
+        if (fromDate.HasValue)
+        {
+            query = query.Where(item => item.StartDate.Date >= fromDate.Value.Date);
+        }
+
+        if (toDate.HasValue)
+        {
+            query = query.Where(item => item.EndDate.Date <= toDate.Value.Date);
+        }
+
+        var data = await query
+            .Select(item => new
             {
-                t.Id,
-                PersonName = t.Person != null ? t.Person.FullName : "",
-                t.Address,
-                t.StartDate,
-                t.EndDate,
-                t.Reason,
-                t.Status
-            }).ToListAsync();
+                item.Id,
+                PersonName = item.Person != null ? item.Person.FullName : string.Empty,
+                item.Address,
+                item.StartDate,
+                item.EndDate,
+                item.Reason,
+                item.Status,
+            })
+            .ToListAsync();
 
         return Ok(new
         {
             type = "temp-residence",
             title = "BÁO CÁO ĐĂNG KÝ TẠM TRÚ",
             data,
-            generatedAt = DateTime.Now
+            generatedAt = DateTime.Now,
+            filter = new { status, fromDate, toDate },
         });
     }
 
-    // ======== TEMPORARY ABSENCE REPORT ========
     [HttpGet("temporary-absence")]
-    public async Task<ActionResult> ExportTempAbsence()
+    public async Task<ActionResult> ExportTempAbsence(
+        [FromQuery] string? status,
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate)
     {
-        var data = await _db.TemporaryAbsences
-            .Include(t => t.Person)
-            .Where(t => t.Status == "Active")
-            .Select(t => new
+        var query = _db.TemporaryAbsences.Include(item => item.Person).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(item => item.Status == status);
+        }
+
+        if (fromDate.HasValue)
+        {
+            query = query.Where(item => item.StartDate.Date >= fromDate.Value.Date);
+        }
+
+        if (toDate.HasValue)
+        {
+            query = query.Where(item => item.EndDate.Date <= toDate.Value.Date);
+        }
+
+        var data = await query
+            .Select(item => new
             {
-                t.Id,
-                PersonName = t.Person != null ? t.Person.FullName : "",
-                t.StartDate,
-                t.EndDate,
-                t.Destination,
-                t.Reason,
-                t.Status
-            }).ToListAsync();
+                item.Id,
+                PersonName = item.Person != null ? item.Person.FullName : string.Empty,
+                item.StartDate,
+                item.EndDate,
+                item.Destination,
+                item.Reason,
+                item.Status,
+            })
+            .ToListAsync();
 
         return Ok(new
         {
             type = "temp-absence",
             title = "BÁO CÁO ĐĂNG KÝ TẠM VẮNG",
             data,
-            generatedAt = DateTime.Now
+            generatedAt = DateTime.Now,
+            filter = new { status, fromDate, toDate },
         });
     }
 }

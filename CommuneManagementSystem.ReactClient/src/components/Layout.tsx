@@ -1,223 +1,308 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Bell, CalendarDays, Menu, Search, Sparkles } from 'lucide-react';
+import { Bell, CalendarDays, ChevronDown, KeyRound, LogOut, Users } from 'lucide-react';
+import { Badge, Button, Dropdown, Form, Input, message, Modal, Typography } from 'antd';
+import type { MenuProps } from 'antd';
 import Sidebar from './Sidebar';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
 
-const roleMap: Record<string, string> = {
-  Admin: 'Quản trị viên',
-  NhanKhau: 'Cán bộ nhân khẩu',
-  HoKhau: 'Cán bộ hộ khẩu',
+const { Text } = Typography;
+
+const routeMeta: Record<string, { title: string; breadcrumb: string }> = {
+  '/': { title: 'Tổng quan', breadcrumb: 'Trang chủ' },
+  '/households': { title: 'Hộ khẩu', breadcrumb: 'Dân cư / Hộ khẩu' },
+  '/persons': { title: 'Nhân khẩu', breadcrumb: 'Dân cư / Nhân khẩu' },
+  '/temporary-residence': { title: 'Tạm trú', breadcrumb: 'Dân cư / Tạm trú' },
+  '/temporary-absence': { title: 'Tạm vắng', breadcrumb: 'Dân cư / Tạm vắng' },
+  '/reports': { title: 'Báo cáo', breadcrumb: 'Phân tích / Báo cáo' },
+  '/notifications': { title: 'Thông báo', breadcrumb: 'Phân tích / Thông báo' },
+  '/meetings': { title: 'Lịch họp', breadcrumb: 'Phân tích / Lịch họp' },
+  '/library': { title: 'Kho tài liệu', breadcrumb: 'Phân tích / Kho tài liệu' },
+  '/feedback': { title: 'Phản ánh', breadcrumb: 'Phân tích / Phản ánh' },
+  '/tasks': { title: 'Nhiệm vụ', breadcrumb: 'Điều hành / Nhiệm vụ' },
+  '/projects': { title: 'Dự án', breadcrumb: 'Điều hành / Dự án' },
+  '/human-resources': { title: 'Nhân sự & Lương', breadcrumb: 'Hệ thống / Nhân sự & Lương' },
+  '/users': { title: 'Người dùng', breadcrumb: 'Hệ thống / Người dùng' },
+  '/logs': { title: 'Nhật ký', breadcrumb: 'Hệ thống / Nhật ký' },
+  '/login-history': { title: 'Lịch sử đăng nhập', breadcrumb: 'Hệ thống / Lịch sử đăng nhập' },
+  '/settings': { title: 'Tham số', breadcrumb: 'Hệ thống / Tham số' },
+  '/catalogs': { title: 'Danh mục', breadcrumb: 'Hệ thống / Danh mục' },
+  '/user-groups': { title: 'Nhóm người dùng', breadcrumb: 'Hệ thống / Nhóm người dùng' },
+  '/backup': { title: 'Sao lưu', breadcrumb: 'Hệ thống / Sao lưu' },
 };
 
-const routeMeta = [
-  {
-    match: (pathname: string) => pathname === '/',
-    title: 'Tổng quan hệ thống',
-    description: 'Theo dõi nhanh biến động dân cư, hộ khẩu và trạng thái hồ sơ trong ngày.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/households'),
-    title: 'Quản lý hộ khẩu',
-    description: 'Điều phối hồ sơ hộ dân, địa chỉ cư trú và thành viên trong từng hộ.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/persons'),
-    title: 'Quản lý nhân khẩu',
-    description: 'Tra cứu thông tin công dân, khai sinh, khai tử và dữ liệu định danh.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/temporary-residence'),
-    title: 'Theo dõi tạm trú',
-    description: 'Giám sát hồ sơ đăng ký tạm trú, thời hạn hiệu lực và gia hạn lưu trú.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/temporary-absence'),
-    title: 'Theo dõi tạm vắng',
-    description: 'Quản lý thông tin tạm vắng, nơi đến và thời gian vắng mặt của cư dân.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/reports'),
-    title: 'Báo cáo và thống kê',
-    description: 'Tổng hợp số liệu dân cư và xuất báo cáo điều hành theo từng nghiệp vụ.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/users'),
-    title: 'Quản lý người dùng',
-    description: 'Thiết lập tài khoản, vai trò truy cập và trạng thái vận hành của cán bộ.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/logs'),
-    title: 'Nhật ký hệ thống',
-    description: 'Theo dõi hoạt động đăng nhập, thao tác nghiệp vụ và dấu vết vận hành.',
-  },
-  {
-    match: (pathname: string) => pathname.startsWith('/backup'),
-    title: 'Sao lưu và phục hồi',
-    description: 'Đảm bảo an toàn dữ liệu với các điểm sao lưu và kiểm soát khôi phục.',
-  },
-];
+type ChangePasswordValues = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+type ProfileValues = {
+  fullName: string;
+  email?: string;
+  phoneNumber?: string;
+};
 
 export default function Layout() {
-  const { user } = useAuth();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout, updateUser } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [changePasswordForm] = Form.useForm<ChangePasswordValues>();
+  const [profileForm] = Form.useForm<ProfileValues>();
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
-  React.useEffect(() => {
-    setMobileOpen(false);
+  useEffect(() => {
+    setProfileOpen(false);
   }, [location.pathname]);
 
-  const pageMeta = useMemo(
-    () =>
-      routeMeta.find((item) => item.match(location.pathname)) ?? {
-        title: 'Bảng điều hành',
-        description: 'Không gian làm việc tập trung cho hệ thống quản lý dân cư cấp xã.',
-      },
-    [location.pathname],
-  );
+  useEffect(() => {
+    if (!profileOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [profileOpen]);
 
-  const today = useMemo(
-    () =>
-      new Date().toLocaleDateString('vi-VN', {
-        weekday: 'long',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      }),
-    [],
-  );
+  useEffect(() => {
+    if (user?.passwordWarningMessage && !sessionStorage.getItem('password-warning-shown')) {
+      messageApi.warning(user.passwordWarningMessage);
+      sessionStorage.setItem('password-warning-shown', '1');
+    }
+  }, [messageApi, user?.passwordWarningMessage]);
+
+  const currentMeta = routeMeta[location.pathname] ?? routeMeta['/'];
 
   const initials = user?.fullName
-    ?.split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((segment) => segment[0])
-    .join('')
-    .toUpperCase();
+    ?.split(' ').filter(Boolean).slice(0, 2).map(s => s[0]).join('').toUpperCase() ?? 'U';
+
+  const today = new Date().toLocaleDateString('vi-VN', {
+    weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+
+  const roleLabel = user?.role === 'Admin' ? 'Quản trị viên'
+    : user?.role === 'NhanKhau' ? 'Cán bộ nhân khẩu'
+    : 'Cán bộ hộ khẩu';
+
+  const dropdownItems: MenuProps['items'] = [
+    {
+      key: 'change-pw',
+      label: 'Đổi mật khẩu',
+      icon: <KeyRound size={14} />,
+      onClick: () => { setProfileOpen(false); setChangePasswordOpen(true); },
+    },
+    {
+      key: 'profile',
+      label: 'Hồ sơ tài khoản',
+      icon: <Users size={14} />,
+      onClick: () => {
+        setProfileOpen(false);
+        profileForm.setFieldsValue({
+          fullName: user?.fullName || '',
+          email: user?.email || undefined,
+          phoneNumber: user?.phoneNumber || undefined,
+        });
+        setProfileModalOpen(true);
+      },
+    },
+    { type: 'divider' },
+    {
+      key: 'logout',
+      label: 'Đăng xuất',
+      icon: <LogOut size={14} />,
+      danger: true,
+      onClick: () => { setProfileOpen(false); logout(); },
+    },
+  ];
+
+  const handleChangePassword = async () => {
+    try {
+      const values = await changePasswordForm.validateFields();
+      setChangingPassword(true);
+      await authService.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      messageApi.success('Đã đổi mật khẩu.');
+      setChangePasswordOpen(false);
+      changePasswordForm.resetFields();
+      sessionStorage.removeItem('password-warning-shown');
+    } catch (err: any) {
+      if (err?.errorFields) return;
+      messageApi.error(err?.response?.data?.message || 'Không thể đổi mật khẩu.');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const values = await profileForm.validateFields();
+      setSavingProfile(true);
+      const res = await authService.updateProfile(values);
+      updateUser(res.data);
+      messageApi.success('Đã cập nhật hồ sơ.');
+      setProfileModalOpen(false);
+    } catch (err: any) {
+      if (err?.errorFields) return;
+      messageApi.error(err?.response?.data?.message || 'Không thể cập nhật hồ sơ.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   return (
-    <div className="flex min-h-screen bg-transparent" data-testid="app-shell">
-      <div className="hidden flex-none p-4 pr-0 lg:block">
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed((current) => !current)}
-        />
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {contextHolder}
+
+      {/* Sidebar */}
+      <div style={{ flexShrink: 0 }}>
+        <Sidebar onNavigate={() => {}} userRole={user?.role} />
       </div>
 
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-[2px] lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      {/* Main */}
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Top Bar */}
+        <header
+          style={{
+            height: 64,
+            borderBottom: '1px solid var(--color-border)',
+            background: 'var(--color-surface)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 24px',
+            gap: 16,
+            flexShrink: 0,
+          }}
+        >
+          {/* Page info */}
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 11, color: 'var(--color-text-muted)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              {currentMeta.breadcrumb}
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2 }}>
+              {currentMeta.title}
+            </div>
+          </div>
 
-      <div
-        className={`fixed inset-y-0 left-0 z-40 w-[296px] p-4 pr-0 transition-transform duration-300 lg:hidden ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <Sidebar
-          collapsed={false}
-          mobileOpen={mobileOpen}
-          onToggle={() => setMobileOpen(false)}
-          onClose={() => setMobileOpen(false)}
-        />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col p-4 pt-0 lg:pl-4">
-        <header className="sticky top-0 z-20 mb-4 rounded-[28px] border border-white/70 bg-white/80 p-4 shadow-[0_20px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex items-start gap-3">
-              <button
-                type="button"
-                className="mt-1 flex h-11 w-11 items-center justify-center rounded-2xl border border-[#dce4f0] bg-white text-[#1d2736] transition hover:border-[#8cb6e8] hover:text-primary lg:hidden"
-                data-testid="topbar-mobile-menu"
-                onClick={() => setMobileOpen(true)}
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                className="mt-1 hidden h-11 w-11 items-center justify-center rounded-2xl border border-[#dce4f0] bg-white text-[#1d2736] transition hover:border-[#8cb6e8] hover:text-primary lg:flex"
-                onClick={() => setSidebarCollapsed((current) => !current)}
-              >
-                <span className="text-base font-bold">{sidebarCollapsed ? '→' : '←'}</span>
-              </button>
-
-              <div className="min-w-0">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#61748f]">
-                    Trung tâm điều hành
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#ebf3fc] px-3 py-1 text-[11px] font-bold text-primary">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Đồng bộ trực tuyến
-                  </span>
-                </div>
-
-                <h1 className="text-[clamp(1.5rem,2vw,2.1rem)] font-extrabold tracking-[-0.03em] text-[#1d2736]">
-                  {pageMeta.title}
-                </h1>
-                <p className="mt-1 max-w-3xl text-sm leading-6 text-[#6b7280]">{pageMeta.description}</p>
-              </div>
+          {/* Right controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Date */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: 'var(--color-surface-secondary)', border: '1px solid var(--color-border)', fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+              <CalendarDays size={14} />
+              <span>{today}</span>
             </div>
 
-            <div className="flex w-full flex-col gap-3 xl:max-w-[540px] xl:items-end">
-              <div className="flex w-full flex-col gap-3 sm:flex-row xl:justify-end">
-                <label className="relative block flex-1 xl:max-w-[320px]">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8aa5]" />
-                  <input
-                    type="text"
-                    placeholder="Tìm hộ khẩu, nhân khẩu, báo cáo..."
-                    className="h-11 w-full rounded-2xl border border-[#dce4f0] bg-white/95 pl-11 pr-4 text-sm text-[#1d2736] outline-none transition placeholder:text-[#94a3b8] focus:border-primary focus:ring-4 focus:ring-[#034AA014]"
-                  />
-                </label>
+            {/* Notifications */}
+            <Badge dot>
+              <Button type="text" icon={<Bell size={18} />} />
+            </Badge>
 
-                <div className="flex items-center gap-2">
-                  <div className="hidden h-11 items-center gap-2 rounded-2xl border border-[#dce4f0] bg-white px-4 text-sm font-semibold text-[#4b5a70] sm:flex">
-                    <CalendarDays className="h-4 w-4 text-primary" />
-                    <span className="capitalize">{today}</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#dce4f0] bg-white text-[#44546b] transition hover:border-[#8cb6e8] hover:text-primary"
-                    aria-label="Thông báo"
-                  >
-                    <Bell className="h-5 w-5" />
-                  </button>
+            {/* User menu */}
+            <div ref={profileMenuRef} style={{ position: 'relative' }}>
+              <Button
+                type="text"
+                onClick={() => setProfileOpen(v => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 12px', border: '1px solid var(--color-border)', borderRadius: 10 }}
+              >
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--color-primary)', color: '#fff', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {initials}
                 </div>
-              </div>
+                <div style={{ textAlign: 'left', lineHeight: 1.3 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)' }}>{user?.fullName ?? 'Người dùng'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{roleLabel}</div>
+                </div>
+                <ChevronDown size={14} style={{ color: 'var(--color-text-muted)', transition: 'transform 0.2s', transform: profileOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              </Button>
 
-              <div className="flex items-center justify-between gap-4 rounded-[22px] border border-[#e7edf6] bg-[#f7faff] px-4 py-3">
-                <div className="flex min-w-0 items-center gap-3" data-testid="topbar-user">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#034AA0] to-[#1a74da] text-sm font-extrabold text-white shadow-[0_16px_30px_rgba(3,74,160,0.22)]">
-                    {initials || 'US'}
+              {profileOpen && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 220, background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', overflow: 'hidden', zIndex: 50 }}>
+                  <div style={{ padding: 16, background: 'var(--color-surface-secondary)', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--color-primary)', color: '#fff', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {initials}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700 }}>{user?.fullName}</div>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>@{user?.username}</div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-extrabold text-[#1d2736]">{user?.fullName || 'Người dùng hệ thống'}</p>
-                    <p className="truncate text-xs font-medium text-[#61748f]">@{user?.username || 'unknown'}</p>
+                  <div style={{ padding: 8 }}>
+                    {dropdownItems.filter(i => i && i.key !== 'divider').map(item => (
+                      <div
+                        key={item!.key}
+                        onClick={() => (item as any).onClick?.()}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, color: (item as any).danger ? 'var(--color-danger)' : 'var(--color-text)', transition: 'background 0.15s', background: 'transparent' }}
+                        onMouseEnter={e => e.currentTarget.style.background = (item as any).danger ? 'var(--color-danger-bg)' : 'var(--color-surface-secondary)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <span style={{ color: 'var(--color-text-muted)' }}>{(item as any).icon}</span>
+                        {(item as any).label}
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                <div className="text-right">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#7b8aa5]">Phân quyền</p>
-                  <span className="mt-1 inline-flex rounded-full bg-white px-3 py-1.5 text-xs font-bold text-primary shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
-                    {roleMap[user?.role || ''] || 'Cán bộ hệ thống'}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-y-auto pb-4">
-          <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6">
-            <Outlet />
-          </div>
+        {/* Content */}
+        <main style={{ flex: 1, overflowY: 'auto' }}>
+          <Outlet />
         </main>
       </div>
+
+      {/* Modals */}
+      <Modal title="Đổi mật khẩu" open={changePasswordOpen} confirmLoading={changingPassword}
+        onCancel={() => { setChangePasswordOpen(false); changePasswordForm.resetFields(); }}
+        onOk={() => void handleChangePassword()} okText="Cập nhật">
+        <Form form={changePasswordForm} layout="vertical">
+          <Form.Item name="currentPassword" label="Mật khẩu hiện tại" rules={[{ required: true, message: 'Nhập mật khẩu hiện tại.' }]}>
+            <Input.Password autoComplete="current-password" />
+          </Form.Item>
+          <Form.Item name="newPassword" label="Mật khẩu mới" rules={[{ required: true, message: 'Nhập mật khẩu mới.' }, { min: 4, message: 'Tối thiểu 4 ký tự.' }]}>
+            <Input.Password autoComplete="new-password" />
+          </Form.Item>
+          <Form.Item name="confirmPassword" label="Nhập lại mật khẩu mới" dependencies={['newPassword']}
+            rules={[{ required: true, message: 'Nhập lại mật khẩu.' }, ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('newPassword') === value) return Promise.resolve();
+                return Promise.reject(new Error('Mật khẩu nhập lại không khớp.'));
+              },
+            })]}
+          >
+            <Input.Password autoComplete="new-password" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title="Hồ sơ tài khoản" open={profileModalOpen} confirmLoading={savingProfile}
+        onCancel={() => { setProfileModalOpen(false); profileForm.resetFields(); }}
+        onOk={() => void handleSaveProfile()} okText="Lưu thay đổi">
+        <div style={{ marginBottom: 16, padding: 12, background: 'var(--color-surface-secondary)', borderRadius: 8, fontSize: 13 }}>
+          <div><strong>Tài khoản:</strong> @{user?.username}</div>
+          <div><strong>Vai trò:</strong> {roleLabel}</div>
+        </div>
+        <Form form={profileForm} layout="vertical">
+          <Form.Item name="fullName" label="Họ tên" rules={[{ required: true, message: 'Nhập họ tên.' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="email" label="Email">
+            <Input type="email" />
+          </Form.Item>
+          <Form.Item name="phoneNumber" label="Số điện thoại">
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

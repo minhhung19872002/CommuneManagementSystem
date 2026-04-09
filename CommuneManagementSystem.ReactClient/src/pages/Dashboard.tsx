@@ -1,380 +1,250 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Activity,
+  ArrowLeftRight,
   ArrowRight,
   BarChart3,
+  Bell,
+  BookOpen,
   Building2,
+  CalendarClock,
+  CheckCircle,
   ClipboardList,
-  HeartPulse,
+  FolderOpen,
+  HardDrive,
   House,
-  MapPin,
-  ShieldCheck,
+  MessageSquare,
+  TrendingUp,
   Users,
 } from 'lucide-react';
-import { Card } from 'antd';
+import { Card, Progress, Skeleton, Tag, Typography } from 'antd';
 import { reportService } from '../services/reportService';
-import { PopulationStats } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { hasRouteAccess } from '../utils/permissions';
+import { PopulationStats, SystemOverview } from '../types';
+
+const { Text, Title } = Typography;
 
 const formatNumber = (value: number) => value.toLocaleString('vi-VN');
 
-const statLabelClass = 'text-[11px] font-bold uppercase tracking-[0.18em] text-[#7b8aa5]';
+// KPI data — replace with real API calls
+const kpiCards = [
+  { label: 'Tổng hộ khẩu', value: 248, icon: House, color: 'blue', trend: '+3 tháng này', trendUp: true },
+  { label: 'Nhân khẩu', value: 1_247, icon: Users, color: 'cyan', trend: '+12 tháng này', trendUp: true },
+  { label: 'Tạm trú', value: 34, icon: ArrowLeftRight, color: 'amber', trend: '+5 tháng này', trendUp: true },
+  { label: 'Tạm vắng', value: 8, icon: ArrowLeftRight, color: 'red', trend: '-2 tháng này', trendUp: false },
+  { label: 'Nhiệm vụ', value: 18, icon: ClipboardList, color: 'purple', trend: '8 đang xử lý', trendUp: true },
+  { label: 'Dự án', value: 4, icon: Building2, color: 'green', trend: '2 đang triển khai', trendUp: true },
+];
+
+const recentActivities = [
+  { id: 1, text: 'Nguyễn Văn A — khai báo tạm trú mới', time: '5 phút trước', type: 'info' },
+  { id: 2, text: 'Hộ khẩu số 01234 — cập nhật thông tin thành công', time: '23 phút trước', type: 'success' },
+  { id: 3, text: 'Cảnh báo: Mật khẩu sắp hết hạn — tài khoản admin', time: '1 giờ trước', type: 'warning' },
+  { id: 4, text: 'Phản ánh mới từ: Trần Thị B — Khu phố 3', time: '2 giờ trước', type: 'info' },
+  { id: 5, text: 'Cập nhật danh mục: Đơn vị hành chính cấp xã', time: '3 giờ trước', type: 'success' },
+  { id: 6, text: 'Lịch họp ngày mai — 3 đăng ký mới', time: '4 giờ trước', type: 'info' },
+];
+
+const taskProgress = [
+  { name: 'Cập nhật hộ khẩu Q1/2025', progress: 78 },
+  { name: 'Kiểm tra nhân khẩu định kỳ', progress: 55 },
+  { name: 'Hoàn thành báo cáo tháng 3', progress: 100 },
+  { name: 'Xử lý phản ánh còn tồn đọng', progress: 33 },
+];
+
+const quickLinks = [
+  { label: 'Hộ khẩu', desc: '248 hộ', icon: House, path: '/households', bg: '#eff6ff', color: '#2563eb' },
+  { label: 'Nhân khẩu', desc: '1,247 người', icon: Users, path: '/persons', bg: '#ecfeff', color: '#0891b2' },
+  { label: 'Báo cáo', desc: 'Xem thống kê', icon: BarChart3, path: '/reports', bg: '#f5f3ff', color: '#7c3aed' },
+  { label: 'Nhiệm vụ', desc: '8 đang xử lý', icon: ClipboardList, path: '/tasks', bg: '#fff7ed', color: '#ea580c' },
+  { label: 'Thông báo', desc: 'Phát hành thông báo', icon: Bell, path: '/notifications', bg: '#fff1f2', color: '#e11d48' },
+  { label: 'Lịch họp', desc: 'Quản lý cuộc họp', icon: CalendarClock, path: '/meetings', bg: '#f0fdf4', color: '#16a34a' },
+  { label: 'Kho tài liệu', desc: 'Văn bản & mẫu', icon: FolderOpen, path: '/library', bg: '#fefce8', color: '#ca8a04' },
+  { label: 'Phản ánh', desc: 'Tiếp nhận ý kiến', icon: MessageSquare, path: '/feedback', bg: '#fdf4ff', color: '#9333ea' },
+];
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<PopulationStats | null>(null);
+  const [overview, setOverview] = useState<SystemOverview | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    reportService
-      .getStatistics()
-      .then((response) => setStats(response.data))
+    Promise.all([reportService.getStatistics(), reportService.getOverview()])
+      .then(([s, o]) => { setStats(s.data); setOverview(o.data); })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const today = useMemo(
-    () =>
-      new Date().toLocaleDateString('vi-VN', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-    [],
-  );
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Chào buổi sáng' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
 
-  const primaryStats = [
-    {
-      label: 'Tổng dân số',
-      value: stats?.totalPopulation ?? 0,
-      icon: Users,
-      testId: 'dashboard-stat-total-population',
-      accent: 'from-[#ffffff26] to-[#ffffff0d]',
-      iconShell: 'bg-white/12',
-    },
-    {
-      label: 'Tổng hộ khẩu',
-      value: stats?.totalHouseholds ?? 0,
-      icon: House,
-      testId: 'dashboard-stat-total-households',
-      accent: 'from-[#ffffff20] to-[#ffffff08]',
-      iconShell: 'bg-white/12',
-    },
-    {
-      label: 'Nhân khẩu đang sống',
-      value: stats?.aliveCount ?? 0,
-      icon: HeartPulse,
-      testId: 'dashboard-stat-alive-count',
-      accent: 'from-[#ffffff18] to-[#ffffff08]',
-      iconShell: 'bg-white/12',
-    },
-  ];
-
-  const metricCards = [
-    {
-      label: 'Nam giới',
-      value: stats?.maleCount ?? 0,
-      icon: Users,
-      testId: 'dashboard-stat-male-count',
-      color: '#2563EB',
-      soft: '#EFF6FF',
-    },
-    {
-      label: 'Nữ giới',
-      value: stats?.femaleCount ?? 0,
-      icon: Users,
-      testId: 'dashboard-stat-female-count',
-      color: '#BE185D',
-      soft: '#FDF2F8',
-    },
-    {
-      label: 'Đã mất',
-      value: stats?.deadCount ?? 0,
-      icon: Activity,
-      testId: 'dashboard-stat-dead-count',
-      color: '#DC2626',
-      soft: '#FEF2F2',
-    },
-    {
-      label: 'Đã chuyển đi',
-      value: stats?.movedCount ?? 0,
-      icon: ArrowRight,
-      testId: 'dashboard-stat-moved-count',
-      color: '#EA580C',
-      soft: '#FFF7ED',
-    },
-    {
-      label: 'Tạm trú',
-      value: stats?.tempResidentCount ?? 0,
-      icon: MapPin,
-      testId: 'dashboard-stat-temp-resident-count',
-      color: '#0891B2',
-      soft: '#ECFEFF',
-    },
-    {
-      label: 'Tạm vắng',
-      value: stats?.tempAbsentCount ?? 0,
-      icon: ClipboardList,
-      testId: 'dashboard-stat-temp-absent-count',
-      color: '#7C3AED',
-      soft: '#F5F3FF',
-    },
-  ];
-
-  const quickLinks = [
-    { label: 'Cập nhật hộ khẩu', to: '/households', icon: House },
-    { label: 'Quản lý nhân khẩu', to: '/persons', icon: Users },
-    { label: 'Xem báo cáo', to: '/reports', icon: BarChart3 },
-  ];
-
-  const genderTotal = (stats?.maleCount ?? 0) + (stats?.femaleCount ?? 0) || 1;
+  const roleLabel = user?.role === 'Admin' ? 'Quản trị viên' : user?.role === 'NhanKhau' ? 'Cán bộ nhân khẩu' : 'Cán bộ hộ khẩu';
 
   return (
-    <div className="page-stack" data-testid="dashboard-page">
-      <section className="overflow-hidden rounded-[30px] bg-[linear-gradient(140deg,#034AA0_0%,#0B58BA_55%,#1A74DA_100%)] px-6 py-6 text-white shadow-[0_26px_65px_rgba(3,74,160,0.24)] sm:px-7 sm:py-7">
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-semibold text-white/92">
-              <ShieldCheck className="h-4 w-4" />
-              Hệ thống đang hoạt động ổn định
+    <div className="page-wrapper">
+      {/* Welcome banner */}
+      <Card
+        style={{
+          background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 60%, #3b82f6 100%)',
+          border: 'none',
+          borderRadius: 16,
+          marginBottom: 20,
+        }}
+        styles={{ body: { padding: '24px 28px' } }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: 4 }}>
+              {greeting}
             </div>
-
-            <h2 className="text-3xl font-extrabold tracking-[-0.04em] sm:text-4xl">Trung tâm điều hành dân cư</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/84">
-              Toàn bộ bức tranh dân cư, hộ khẩu, tạm trú và tạm vắng được tổng hợp theo thời gian thực để
-              cán bộ xử lý nhanh các biến động tại địa phương.
-            </p>
+            <Title level={4} style={{ color: '#fff', margin: 0, fontWeight: 800, letterSpacing: '-0.02em' }}>
+              {user?.fullName ?? 'Người dùng'}
+            </Title>
+            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
+              {roleLabel} · {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </Text>
           </div>
-
-          <div className="rounded-[24px] border border-white/16 bg-white/10 px-5 py-4 backdrop-blur-sm">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/72">Hôm nay</p>
-            <p className="mt-2 text-sm font-semibold capitalize text-white/92">{today}</p>
+          <div style={{ display: 'flex', gap: 12 }}>
+            {[
+              { v: loading ? '...' : formatNumber(stats?.totalHouseholds ?? 0), l: 'Hộ khẩu' },
+              { v: loading ? '...' : formatNumber(stats?.totalPopulation ?? 0), l: 'Nhân khẩu' },
+              { v: loading ? '...' : (overview?.activeTasks ?? 0).toString(), l: 'Nhiệm vụ' },
+            ].map(item => (
+              <div key={item.l} style={{ textAlign: 'center', padding: '12px 20px', background: 'rgba(255,255,255,0.12)', borderRadius: 12, backdropFilter: 'blur(8px)' }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{item.v}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{item.l}</div>
+              </div>
+            ))}
           </div>
         </div>
+      </Card>
 
-        <div className="mt-7 grid gap-4 md:grid-cols-3">
-          {primaryStats.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <div
-                key={item.label}
-                data-testid={item.testId}
-                className={`rounded-[26px] border border-white/14 bg-gradient-to-br ${item.accent} p-5 backdrop-blur-sm`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">{item.label}</p>
-                    <p
-                      data-testid={`${item.testId}-value`}
-                      className="mt-4 text-4xl font-extrabold tracking-[-0.05em] text-white"
-                    >
-                      {loading ? '—' : formatNumber(item.value)}
-                    </p>
-                  </div>
-
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-[20px] ${item.iconShell}`}>
-                    <Icon className="h-7 w-7" />
-                  </div>
+      {/* KPI Cards */}
+      <div className="kpi-grid">
+        {kpiCards.map((kpi) => {
+          const Icon = kpi.icon;
+          return (
+            <div key={kpi.label} className="kpi-card">
+              <div className={`kpi-card__icon kpi-card__icon--${kpi.color}`}>
+                <Icon size={20} strokeWidth={2.2} />
+              </div>
+              <div className="kpi-card__content">
+                <div className="kpi-card__value">
+                  {loading ? '...' : kpi.value.toLocaleString('vi-VN')}
+                </div>
+                <div className="kpi-card__label">{kpi.label}</div>
+                <div className={`kpi-card__trend kpi-card__trend--${kpi.trendUp ? 'up' : 'down'}`}>
+                  {kpi.trend}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
+            </div>
+          );
+        })}
+      </div>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,1fr)]">
-        <div className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {metricCards.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <div
-                  key={item.label}
-                  data-testid={item.testId}
-                  className="rounded-[24px] border border-white/75 bg-white/92 p-5 shadow-[0_16px_38px_rgba(15,23,42,0.06)]"
-                >
-                  <div
-                    className="flex h-12 w-12 items-center justify-center rounded-[18px]"
-                    style={{ background: item.soft, color: item.color }}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </div>
-
-                  <p
-                    data-testid={`${item.testId}-value`}
-                    className="mt-4 text-[2rem] font-extrabold tracking-[-0.05em] text-[#1d2736]"
-                  >
-                    {loading ? '—' : formatNumber(item.value)}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[#61748f]">{item.label}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="grid gap-5 lg:grid-cols-3">
-            <Card title="Thống kê hộ khẩu" loading={loading}>
-              <div className="space-y-4">
-                {[
-                  { label: 'Tổng số hộ', value: stats?.totalHouseholds ?? 0, color: '#034AA0' },
-                  { label: 'Hộ đang hoạt động', value: stats?.activeHouseholds ?? 0, color: '#10B981' },
-                  { label: 'Hộ đã chuyển đi', value: stats?.movedHouseholds ?? 0, color: '#EA580C' },
-                ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between border-b border-[#eef3f9] pb-3 last:border-b-0 last:pb-0">
-                    <span className="text-sm text-[#61748f]">{row.label}</span>
-                    <span className="text-sm font-extrabold" style={{ color: row.color }}>
-                      {loading ? '—' : formatNumber(row.value)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card title="Trạng thái nhân khẩu" loading={loading}>
-              <div className="space-y-4">
-                {[
-                  { label: 'Đang sống', value: stats?.aliveCount ?? 0, color: '#10B981' },
-                  { label: 'Đã mất', value: stats?.deadCount ?? 0, color: '#DC2626' },
-                  { label: 'Đã chuyển đi', value: stats?.movedCount ?? 0, color: '#EA580C' },
-                  { label: 'Tạm trú', value: stats?.tempResidentCount ?? 0, color: '#0891B2' },
-                  { label: 'Tạm vắng', value: stats?.tempAbsentCount ?? 0, color: '#7C3AED' },
-                ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between border-b border-[#eef3f9] pb-3 last:border-b-0 last:pb-0">
-                    <span className="text-sm text-[#61748f]">{row.label}</span>
-                    <span className="text-sm font-extrabold" style={{ color: row.color }}>
-                      {loading ? '—' : formatNumber(row.value)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card title="Cơ cấu giới tính" loading={loading}>
-              <div className="space-y-5">
-                {[
-                  { label: 'Nam giới', value: stats?.maleCount ?? 0, color: '#2563EB' },
-                  { label: 'Nữ giới', value: stats?.femaleCount ?? 0, color: '#BE185D' },
-                ].map((row) => {
-                  const pct = Math.round((row.value / genderTotal) * 100);
-
+      {/* Main grid */}
+      <div className="dashboard-grid">
+        {/* Left */}
+        <div>
+          {/* Quick links */}
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div className="card__header">
+              <h3 className="card__title">Truy cập nhanh</h3>
+            </div>
+            <div className="card__body" style={{ padding: '12px 16px' }}>
+              <div className="quick-links-grid">
+                {quickLinks.map((link) => {
+                  const Icon = link.icon;
                   return (
-                    <div key={row.label}>
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm text-[#61748f]">{row.label}</span>
-                        <span className="text-sm font-extrabold" style={{ color: row.color }}>
-                          {loading ? '—' : `${formatNumber(row.value)} (${pct}%)`}
-                        </span>
+                    <Link key={link.path} to={link.path} className="quick-link">
+                      <div style={{ width: 36, height: 36, borderRadius: 9, background: link.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon size={17} color={link.color} strokeWidth={2.2} />
                       </div>
-                      <div className="h-2 rounded-full bg-[#eef3f9]">
-                        <div
-                          className="h-2 rounded-full"
-                          style={{ width: `${pct}%`, background: row.color }}
-                        />
+                      <div>
+                        <div className="quick-link__label">{link.label}</div>
+                        <div className="quick-link__desc">{link.desc}</div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
-            </Card>
-          </div>
-        </div>
-
-        <div className="space-y-5">
-          <div className="rounded-[28px] border border-white/75 bg-white/92 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className={statLabelClass}>Nhịp vận hành</p>
-                <h3 className="mt-2 text-xl font-extrabold tracking-[-0.03em] text-[#1d2736]">
-                  Bức tranh điều hành nhanh
-                </h3>
-              </div>
-              <div className="rounded-2xl bg-[#ebf3fc] p-3 text-primary">
-                <Activity className="h-5 w-5" />
-              </div>
             </div>
+          </div>
 
-            <div className="mt-5 space-y-4">
-              <div className="rounded-[22px] border border-[#e3ebf6] bg-[#f8fbff] p-4">
-                <p className="text-sm font-bold text-[#1d2736]">Tỷ lệ hồ sơ cư trú đang hoạt động</p>
-                <p className="mt-2 text-3xl font-extrabold tracking-[-0.05em] text-primary">
-                  {loading
-                    ? '—'
-                    : `${Math.round(((stats?.activeHouseholds ?? 0) / ((stats?.totalHouseholds ?? 0) || 1)) * 100)}%`}
-                </p>
-                <p className="mt-2 text-xs leading-5 text-[#61748f]">
-                  Tính trên tổng số hộ khẩu hiện đang được hệ thống quản lý.
-                </p>
-              </div>
-
-              <div className="grid gap-3">
-                {[
-                  {
-                    label: 'Biến động lưu trú',
-                    value: (stats?.tempResidentCount ?? 0) + (stats?.tempAbsentCount ?? 0),
-                    note: 'Hồ sơ tạm trú và tạm vắng cần theo dõi',
-                  },
-                  {
-                    label: 'Tổng hồ sơ công dân',
-                    value: stats?.totalPopulation ?? 0,
-                    note: 'Nguồn dữ liệu phục vụ báo cáo và tra cứu',
-                  },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-start justify-between gap-3 rounded-[20px] border border-[#edf2f8] px-4 py-4">
-                    <div>
-                      <p className="text-sm font-bold text-[#1d2736]">{item.label}</p>
-                      <p className="mt-1 text-xs leading-5 text-[#61748f]">{item.note}</p>
-                    </div>
-                    <span className="text-lg font-extrabold tracking-[-0.04em] text-primary">
-                      {loading ? '—' : formatNumber(item.value)}
+          {/* Task progress */}
+          <div className="card">
+            <div className="card__header">
+              <h3 className="card__title">Tiến độ nhiệm vụ</h3>
+              <Link to="/tasks" style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 600 }}>Xem tất cả</Link>
+            </div>
+            <div className="card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {taskProgress.map((task) => (
+                <div key={task.name}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{task.name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: task.progress === 100 ? 'var(--color-success)' : 'var(--color-primary)' }}>
+                      {task.progress === 100 ? '✓ Hoàn thành' : `${task.progress}%`}
                     </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-white/75 bg-white/92 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className={statLabelClass}>Lối tắt nghiệp vụ</p>
-                <h3 className="mt-2 text-xl font-extrabold tracking-[-0.03em] text-[#1d2736]">
-                  Thao tác nhanh
-                </h3>
-              </div>
-              <div className="rounded-2xl bg-[#f7faff] p-3 text-primary">
-                <Building2 className="h-5 w-5" />
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-3">
-              {quickLinks.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className="flex items-center justify-between gap-3 rounded-[20px] border border-[#e3ebf6] bg-[#f8fbff] px-4 py-4 text-[#1d2736] transition hover:border-[#c3d9f4] hover:bg-white"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-[#ebf3fc] text-primary">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">{item.label}</p>
-                        <p className="text-xs text-[#61748f]">Mở nhanh màn hình nghiệp vụ liên quan</p>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-[#7b8aa5]" />
-                  </Link>
-                );
-              })}
+                  <Progress
+                    percent={task.progress}
+                    showInfo={false}
+                    strokeColor={task.progress === 100 ? 'var(--color-success)' : 'var(--color-primary)'}
+                    trailColor="var(--color-border)"
+                    size="small"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </section>
+
+        {/* Right */}
+        <div>
+          {/* Recent activity */}
+          <div className="card">
+            <div className="card__header">
+              <h3 className="card__title">Hoạt động gần đây</h3>
+              <Tag color="blue" style={{ fontSize: 11 }}>Mới nhất</Tag>
+            </div>
+            <div className="card__body" style={{ padding: '8px 16px' }}>
+              <ul className="activity-list">
+                {recentActivities.map((item) => (
+                  <li key={item.id} className="activity-item">
+                    <div className={`activity-item__dot activity-item__dot--${item.type === 'success' ? 'success' : item.type === 'warning' ? 'warning' : 'info'}`} />
+                    <div className="activity-item__content">
+                      <div className="activity-item__text">{item.text}</div>
+                      <div className="activity-item__time">{item.time}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* System status */}
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="card__header">
+              <h3 className="card__title">Trạng thái hệ thống</h3>
+            </div>
+            <div className="card__body">
+              {[
+                { label: 'Kết nối cơ sở dữ liệu', status: 'Hoạt động', color: 'success' },
+                { label: 'Dịch vụ API', status: 'Hoạt động', color: 'success' },
+                { label: 'Sao lưu tự động', status: 'Hàng ngày 02:00', color: 'blue' },
+                { label: 'Người dùng đang online', status: '2 người', color: 'blue' },
+              ].map((item) => (
+                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
+                  <span style={{ fontSize: 13 }}>{item.label}</span>
+                  <Tag color={item.color} style={{ fontSize: 11 }}>{item.status}</Tag>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

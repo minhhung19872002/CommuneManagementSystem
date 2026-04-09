@@ -35,4 +35,7 @@ public class Person
 
     // Temporary absence
     public ICollection<TemporaryAbsence> TemporaryAbsences { get; set; } = new List<TemporaryAbsence>();
+
+    // Attached documents
+    public ICollection<PersonDocument> Documents { get; set; } = new List<PersonDocument>();
 }

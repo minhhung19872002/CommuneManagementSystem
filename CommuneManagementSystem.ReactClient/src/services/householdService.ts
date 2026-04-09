@@ -9,7 +9,13 @@ export const householdService = {
   create: (data: any) => api.post<Household>('/households', data),
   update: (id: number, data: any) => api.put<Household>(`/households/${id}`, data),
   delete: (id: number) => api.delete(`/households/${id}`),
-  split: (data: any) => api.post('/households/split', data),
+  split: (data: {
+    originalId: number;
+    newHouseholdNumber: string;
+    newAddress: string;
+    newHeadPersonId: number;
+    memberIds: number[];
+  }) => api.post('/households/split', data),
   addMember: (data: { householdId: number; personId: number; relationshipToHead: string }) =>
     api.post('/households/add-member', data),
   move: (data: { householdId: number; movedTo: string; moveDate: string }) =>

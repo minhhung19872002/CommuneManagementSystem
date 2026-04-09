@@ -1,8 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Table, Tabs, Tag, message } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, Card, Input, Select, Space, Table, Tabs, Tag, message } from 'antd';
+import { householdService } from '../services/householdService';
 import { reportService } from '../services/reportService';
-import { PopulationStats } from '../types';
+import { Household, PopulationStats } from '../types';
+
+type ReportStatusMap = Record<string, { label: string; color: string }>;
+type ReportData = { type: string; title: string; generatedAt?: string; data: Record<string, any>[]; filter?: Record<string, any> } | null;
+
+const householdStatusMap: ReportStatusMap = {
+  Active: { label: 'Hoạt động', color: 'success' },
+  Moved: { label: 'Đã chuyển', color: 'warning' },
+  Deleted: { label: 'Đã xóa', color: 'default' },
+};
+
+const personStatusMap: ReportStatusMap = {
+  Alive: { label: 'Đang sống', color: 'success' },
+  Dead: { label: 'Đã mất', color: 'error' },
+  Moved: { label: 'Đã chuyển', color: 'warning' },
+  Deleted: { label: 'Đã xóa', color: 'default' },
+};
+
+const residenceStatusMap: ReportStatusMap = {
+  Active: { label: 'Hiệu lực', color: 'processing' },
+  Expired: { label: 'Hết hạn', color: 'warning' },
+  Returned: { label: 'Đã trở về', color: 'success' },
+  Cancelled: { label: 'Đã hủy', color: 'default' },
+};
 
 const buildSummaryCards = (stats: PopulationStats) => [
   { label: 'Tổng dân số', value: stats.totalPopulation, color: '#034AA0', testId: 'reports-summary-total-population' },
@@ -11,15 +35,33 @@ const buildSummaryCards = (stats: PopulationStats) => [
   { label: 'Tạm vắng', value: stats.tempAbsentCount, color: '#7C3AED', testId: 'reports-summary-temp-absence' },
 ];
 
+const renderStatusTag = (value: string, map: ReportStatusMap) => {
+  const config = map[value] ?? { label: value, color: 'default' };
+  return <Tag color={config.color}>{config.label}</Tag>;
+};
+
+const escapeCsvValue = (value: unknown) => {
+  const raw = value == null ? '' : String(value);
+  return `"${raw.replaceAll('"', '""')}"`;
+};
+
 export default function Reports() {
   const [stats, setStats] = useState<PopulationStats | null>(null);
-  const [reportData, setReportData] = useState<any>(null);
+  const [households, setHouseholds] = useState<Household[]>([]);
+  const [reportData, setReportData] = useState<ReportData>(null);
   const [activeTab, setActiveTab] = useState('households');
   const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({
+    households: { search: '', status: '' },
+    population: { search: '', status: '', gender: '', householdId: undefined as number | undefined },
+    residence: { status: '', fromDate: '', toDate: '' },
+    absence: { status: '', fromDate: '', toDate: '' },
+  });
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     reportService.getStatistics().then((response) => setStats(response.data)).catch(console.error);
+    householdService.getAll().then((response) => setHouseholds(response.data)).catch(console.error);
     void loadReport('households');
   }, []);
 
@@ -30,10 +72,10 @@ export default function Reports() {
     try {
       let response: any;
 
-      if (key === 'households') response = await reportService.exportHouseholds();
-      else if (key === 'population') response = await reportService.exportPopulation();
-      else if (key === 'temp-residence') response = await reportService.exportTempResidence();
-      else response = await reportService.exportTempAbsence();
+      if (key === 'households') response = await reportService.exportHouseholds(filters.households);
+      else if (key === 'population') response = await reportService.exportPopulation(filters.population);
+      else if (key === 'temp-residence') response = await reportService.exportTempResidence(filters.residence);
+      else response = await reportService.exportTempAbsence(filters.absence);
 
       setReportData(response.data);
     } catch {
@@ -49,39 +91,225 @@ export default function Reports() {
     const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
     const anchor = document.createElement('a');
     anchor.href = URL.createObjectURL(blob);
-    anchor.download = `report-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `report-${reportData.type}-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(anchor.href);
     messageApi.success('Đã xuất file JSON.');
   };
 
-  const generatedAt = reportData?.generatedAt
-    ? new Date(reportData.generatedAt).toLocaleString('vi-VN')
-    : null;
+  const exportCsv = () => {
+    if (!reportData || !reportData.data?.length) {
+      messageApi.warning('Không có dữ liệu để xuất CSV.');
+      return;
+    }
+
+    const columns = Object.keys(reportData.data[0]);
+    const rows = reportData.data.map((row) => columns.map((column) => escapeCsvValue(row[column])).join(','));
+    const csv = [columns.join(','), ...rows].join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const anchor = document.createElement('a');
+    anchor.href = URL.createObjectURL(blob);
+    anchor.download = `report-${reportData.type}-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(anchor.href);
+    messageApi.success('Đã xuất file CSV.');
+  };
+
+  const generatedAt = reportData?.generatedAt ? new Date(reportData.generatedAt).toLocaleString('vi-VN') : null;
+  const tableHeader = generatedAt ? (
+    <p className="reports-generated-at">
+      Xuất lúc: <strong>{generatedAt}</strong>
+    </p>
+  ) : null;
+
+  const filterBar = useMemo(() => {
+    if (activeTab === 'households') {
+      return (
+        <Space wrap>
+          <Input
+            placeholder="Tìm số hộ hoặc địa chỉ"
+            value={filters.households.search}
+            onChange={(event) =>
+              setFilters((current) => ({
+                ...current,
+                households: { ...current.households, search: event.target.value },
+              }))
+            }
+            style={{ width: 220 }}
+            allowClear
+          />
+          <Select
+            placeholder="Trạng thái"
+            value={filters.households.status || undefined}
+            onChange={(value) =>
+              setFilters((current) => ({
+                ...current,
+                households: { ...current.households, status: value || '' },
+              }))
+            }
+            allowClear
+            style={{ width: 180 }}
+            options={[
+              { label: 'Hoạt động', value: 'Active' },
+              { label: 'Đã chuyển', value: 'Moved' },
+            ]}
+          />
+        </Space>
+      );
+    }
+
+    if (activeTab === 'population') {
+      return (
+        <Space wrap>
+          <Input
+            placeholder="Tìm họ tên hoặc CCCD"
+            value={filters.population.search}
+            onChange={(event) =>
+              setFilters((current) => ({
+                ...current,
+                population: { ...current.population, search: event.target.value },
+              }))
+            }
+            style={{ width: 220 }}
+            allowClear
+          />
+          <Select
+            placeholder="Trạng thái"
+            value={filters.population.status || undefined}
+            onChange={(value) =>
+              setFilters((current) => ({
+                ...current,
+                population: { ...current.population, status: value || '' },
+              }))
+            }
+            allowClear
+            style={{ width: 170 }}
+            options={[
+              { label: 'Đang sống', value: 'Alive' },
+              { label: 'Đã mất', value: 'Dead' },
+              { label: 'Đã chuyển', value: 'Moved' },
+            ]}
+          />
+          <Select
+            placeholder="Giới tính"
+            value={filters.population.gender || undefined}
+            onChange={(value) =>
+              setFilters((current) => ({
+                ...current,
+                population: { ...current.population, gender: value || '' },
+              }))
+            }
+            allowClear
+            style={{ width: 140 }}
+            options={[
+              { label: 'Nam', value: 'Nam' },
+              { label: 'Nữ', value: 'Nữ' },
+            ]}
+          />
+          <Select
+            placeholder="Hộ khẩu"
+            value={filters.population.householdId}
+            onChange={(value) =>
+              setFilters((current) => ({
+                ...current,
+                population: { ...current.population, householdId: value },
+              }))
+            }
+            allowClear
+            style={{ width: 220 }}
+            options={households.map((household) => ({
+              label: household.householdNumber,
+              value: household.id,
+            }))}
+          />
+        </Space>
+      );
+    }
+
+    const key = activeTab === 'temp-residence' ? 'residence' : 'absence';
+    const value = filters[key];
+    const statusOptions =
+      activeTab === 'temp-residence'
+        ? [
+            { label: 'Hiệu lực', value: 'Active' },
+            { label: 'Hết hạn', value: 'Expired' },
+            { label: 'Đã hủy', value: 'Cancelled' },
+          ]
+        : [
+            { label: 'Hiệu lực', value: 'Active' },
+            { label: 'Đã trở về', value: 'Returned' },
+            { label: 'Đã hủy', value: 'Cancelled' },
+          ];
+
+    return (
+      <Space wrap>
+        <Select
+          placeholder="Trạng thái"
+          value={value.status || undefined}
+          onChange={(status) =>
+            setFilters((current) => ({
+              ...current,
+              [key]: { ...current[key], status: status || '' },
+            }))
+          }
+          allowClear
+          style={{ width: 180 }}
+          options={statusOptions}
+        />
+        <Input
+          type="date"
+          value={value.fromDate}
+          onChange={(event) =>
+            setFilters((current) => ({
+              ...current,
+              [key]: { ...current[key], fromDate: event.target.value },
+            }))
+          }
+          style={{ width: 180 }}
+        />
+        <Input
+          type="date"
+          value={value.toDate}
+          onChange={(event) =>
+            setFilters((current) => ({
+              ...current,
+              [key]: { ...current[key], toDate: event.target.value },
+            }))
+          }
+          style={{ width: 180 }}
+        />
+      </Space>
+    );
+  }, [activeTab, filters, households]);
 
   const tabItems = [
     {
       key: 'households',
       label: <span data-testid="reports-tab-households">Hộ khẩu</span>,
       children: (
-        <div data-testid="reports-table-households" className="px-6 pb-6 pt-5">
-          {generatedAt && <p className="mb-4 text-sm text-[#61748f]">Xuất lúc: <strong>{generatedAt}</strong></p>}
+        <div data-testid="reports-table-households" className="reports-table-panel">
+          {tableHeader}
           <Table
             columns={[
               {
                 title: 'Số hộ',
                 dataIndex: 'householdNumber',
                 key: 'householdNumber',
-                render: (value: string) => <span className="font-extrabold text-primary">{value}</span>,
+                render: (value: string) => <span className="reports-table__primary">{value}</span>,
               },
               { title: 'Địa chỉ', dataIndex: 'address', key: 'address', ellipsis: true },
-              { title: 'Chủ hộ', dataIndex: 'headPersonName', key: 'headPersonName', render: (value: string) => value || '—' },
+              {
+                title: 'Chủ hộ',
+                dataIndex: 'headPersonName',
+                key: 'headPersonName',
+                render: (value: string) => value || '—',
+              },
               { title: 'Số thành viên', dataIndex: 'memberCount', key: 'memberCount', align: 'center' as const },
               {
                 title: 'Trạng thái',
                 dataIndex: 'status',
                 key: 'status',
-                render: (value: string) => <Tag color={value === 'Active' ? 'success' : value === 'Moved' ? 'warning' : 'default'}>{value}</Tag>,
+                render: (value: string) => renderStatusTag(value, householdStatusMap),
               },
             ]}
             dataSource={reportData?.data || []}
@@ -89,7 +317,6 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 820 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} hộ khẩu` }}
-            locale={{ emptyText: !reportData ? 'Chọn loại báo cáo để xem dữ liệu' : 'Không có dữ liệu' }}
           />
         </div>
       ),
@@ -98,12 +325,17 @@ export default function Reports() {
       key: 'population',
       label: <span data-testid="reports-tab-population">Nhân khẩu</span>,
       children: (
-        <div data-testid="reports-table-population" className="px-6 pb-6 pt-5">
-          {generatedAt && <p className="mb-4 text-sm text-[#61748f]">Xuất lúc: <strong>{generatedAt}</strong></p>}
+        <div data-testid="reports-table-population" className="reports-table-panel">
+          {tableHeader}
           <Table
             columns={[
               { title: 'Họ tên', dataIndex: 'fullName', key: 'fullName', render: (value: string) => <strong>{value}</strong> },
-              { title: 'Ngày sinh', dataIndex: 'dateOfBirth', key: 'dateOfBirth', render: (value: string) => new Date(value).toLocaleDateString('vi-VN') },
+              {
+                title: 'Ngày sinh',
+                dataIndex: 'dateOfBirth',
+                key: 'dateOfBirth',
+                render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
+              },
               { title: 'Giới tính', dataIndex: 'gender', key: 'gender', align: 'center' as const },
               { title: 'CCCD', dataIndex: 'nationalId', key: 'nationalId', render: (value: string) => value || '—' },
               { title: 'Dân tộc', dataIndex: 'ethnicity', key: 'ethnicity' },
@@ -112,7 +344,7 @@ export default function Reports() {
                 title: 'Trạng thái',
                 dataIndex: 'status',
                 key: 'status',
-                render: (value: string) => <Tag color={value === 'Alive' ? 'success' : value === 'Dead' ? 'error' : value === 'Moved' ? 'warning' : 'default'}>{value}</Tag>,
+                render: (value: string) => renderStatusTag(value, personStatusMap),
               },
             ]}
             dataSource={reportData?.data || []}
@@ -120,7 +352,6 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 980 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} nhân khẩu` }}
-            locale={{ emptyText: !reportData ? 'Chọn loại báo cáo để xem dữ liệu' : 'Không có dữ liệu' }}
           />
         </div>
       ),
@@ -129,20 +360,30 @@ export default function Reports() {
       key: 'temp-residence',
       label: <span data-testid="reports-tab-temp-residence">Tạm trú</span>,
       children: (
-        <div data-testid="reports-table-temp-residence" className="px-6 pb-6 pt-5">
-          {generatedAt && <p className="mb-4 text-sm text-[#61748f]">Xuất lúc: <strong>{generatedAt}</strong></p>}
+        <div data-testid="reports-table-temp-residence" className="reports-table-panel">
+          {tableHeader}
           <Table
             columns={[
               { title: 'Người tạm trú', dataIndex: 'personName', key: 'personName', render: (value: string) => value || '—' },
               { title: 'Địa chỉ', dataIndex: 'address', key: 'address', ellipsis: true },
-              { title: 'Từ ngày', dataIndex: 'startDate', key: 'startDate', render: (value: string) => new Date(value).toLocaleDateString('vi-VN') },
-              { title: 'Đến ngày', dataIndex: 'endDate', key: 'endDate', render: (value: string) => new Date(value).toLocaleDateString('vi-VN') },
+              {
+                title: 'Từ ngày',
+                dataIndex: 'startDate',
+                key: 'startDate',
+                render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
+              },
+              {
+                title: 'Đến ngày',
+                dataIndex: 'endDate',
+                key: 'endDate',
+                render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
+              },
               { title: 'Lý do', dataIndex: 'reason', key: 'reason', ellipsis: true, render: (value: string) => value || '—' },
               {
                 title: 'Trạng thái',
                 dataIndex: 'status',
                 key: 'status',
-                render: (value: string) => <Tag color={value === 'Active' ? 'processing' : value === 'Expired' ? 'warning' : 'default'}>{value}</Tag>,
+                render: (value: string) => renderStatusTag(value, residenceStatusMap),
               },
             ]}
             dataSource={reportData?.data || []}
@@ -150,7 +391,6 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 920 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} đăng ký` }}
-            locale={{ emptyText: !reportData ? 'Chọn loại báo cáo để xem dữ liệu' : 'Không có dữ liệu' }}
           />
         </div>
       ),
@@ -159,20 +399,30 @@ export default function Reports() {
       key: 'temp-absence',
       label: <span data-testid="reports-tab-temp-absence">Tạm vắng</span>,
       children: (
-        <div data-testid="reports-table-temp-absence" className="px-6 pb-6 pt-5">
-          {generatedAt && <p className="mb-4 text-sm text-[#61748f]">Xuất lúc: <strong>{generatedAt}</strong></p>}
+        <div data-testid="reports-table-temp-absence" className="reports-table-panel">
+          {tableHeader}
           <Table
             columns={[
               { title: 'Người tạm vắng', dataIndex: 'personName', key: 'personName', render: (value: string) => value || '—' },
-              { title: 'Từ ngày', dataIndex: 'startDate', key: 'startDate', render: (value: string) => new Date(value).toLocaleDateString('vi-VN') },
-              { title: 'Đến ngày', dataIndex: 'endDate', key: 'endDate', render: (value: string) => new Date(value).toLocaleDateString('vi-VN') },
+              {
+                title: 'Từ ngày',
+                dataIndex: 'startDate',
+                key: 'startDate',
+                render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
+              },
+              {
+                title: 'Đến ngày',
+                dataIndex: 'endDate',
+                key: 'endDate',
+                render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
+              },
               { title: 'Nơi đến', dataIndex: 'destination', key: 'destination', ellipsis: true },
               { title: 'Lý do', dataIndex: 'reason', key: 'reason', ellipsis: true, render: (value: string) => value || '—' },
               {
                 title: 'Trạng thái',
                 dataIndex: 'status',
                 key: 'status',
-                render: (value: string) => <Tag color={value === 'Active' ? 'processing' : value === 'Returned' ? 'success' : 'default'}>{value}</Tag>,
+                render: (value: string) => renderStatusTag(value, residenceStatusMap),
               },
             ]}
             dataSource={reportData?.data || []}
@@ -180,7 +430,6 @@ export default function Reports() {
             loading={loading}
             scroll={{ x: 920 }}
             pagination={{ pageSize: 10, showTotal: (total: number) => `${total} đăng ký` }}
-            locale={{ emptyText: !reportData ? 'Chọn loại báo cáo để xem dữ liệu' : 'Không có dữ liệu' }}
           />
         </div>
       ),
@@ -195,10 +444,15 @@ export default function Reports() {
         <div>
           <p className="page-kicker">Trung tâm báo cáo</p>
           <h1 className="page-title">Báo cáo và thống kê</h1>
-          <p className="page-subtitle">Tổng hợp số liệu dân cư và xuất báo cáo điều hành theo từng nghiệp vụ.</p>
+          <p className="page-subtitle">
+            Tạo báo cáo theo bộ lọc tùy chọn và xuất dữ liệu nhanh dưới dạng JSON hoặc CSV.
+          </p>
         </div>
 
         <div className="page-actions">
+          <Button icon={<DownloadOutlined />} onClick={exportCsv} disabled={!reportData?.data?.length}>
+            Xuất CSV
+          </Button>
           <Button
             data-testid="reports-export-json"
             type="primary"
@@ -214,34 +468,35 @@ export default function Reports() {
       {stats && (
         <div className="summary-grid">
           {buildSummaryCards(stats).map((card) => (
-            <div key={card.testId} className="summary-card" data-testid={card.testId}>
+            <Card key={card.testId} className="summary-card" data-testid={card.testId}>
               <div className="summary-card-value" style={{ color: card.color }}>
                 {card.value.toLocaleString('vi-VN')}
               </div>
               <div className="summary-card-label">{card.label}</div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
-      <div className="surface-panel surface-panel--flush">
-        <div
-          className="page-toolbar"
-          style={{ border: 'none', borderBottom: '1px solid #dce4f0', borderRadius: 0, boxShadow: 'none' }}
-        >
-          <Tabs
-            data-testid="reports-tabs"
-            items={tabItems}
-            activeKey={activeTab}
-            onChange={loadReport}
-            style={{ flex: 1, marginBottom: 0 }}
-          />
-
-          <Button data-testid="reports-refresh" icon={<ReloadOutlined />} onClick={() => void loadReport(activeTab)}>
-            Làm mới
-          </Button>
+      <Card className="surface-panel surface-panel--flush reports-panel">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+          {filterBar}
+          <Space wrap>
+            <Button onClick={() => void loadReport(activeTab)}>Áp dụng bộ lọc</Button>
+            <Button data-testid="reports-refresh" icon={<ReloadOutlined />} onClick={() => void loadReport(activeTab)}>
+              Làm mới
+            </Button>
+          </Space>
         </div>
-      </div>
+
+        <Tabs
+          data-testid="reports-tabs"
+          items={tabItems}
+          activeKey={activeTab}
+          onChange={(key) => void loadReport(key)}
+          className="reports-tabs"
+        />
+      </Card>
     </div>
   );
 }
