@@ -1,0 +1,71 @@
+# Build outputs
+artifacts/
+bin/
+obj/
+
+# .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.DotSettings.user
+*.rsuser
+
+# IDE
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+backend.out.log
+backend.err.log
+runtime-check.out.log
+runtime-check.err.log
+api-smoke.out
+api-smoke.err
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+build/
+
+# Playwright
+playwright-report/
+test-results/
+test-results-e2e/
+playwright/.auth/
+
+# Misc
+*.log
+*.tmp
+*.png
+
+# Screenshots
+*.png
+
+# MCP / Playwright logs
+.playwright-mcp/
+
+# Playwright
+playwright-report/
+test-results/
+test-results-e2e/
+playwright/.auth/
