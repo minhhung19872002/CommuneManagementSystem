@@ -397,6 +397,10 @@ export default function Persons() {
             showSizeChanger: true,
             showTotal: (total) => `${total} nhân khẩu`,
           }}
+          onRow={(record) => ({
+            onDoubleClick: () => setDetailModal({ open: true, person: record }),
+            style: { cursor: 'pointer' },
+          })}
         />
       </Card>
 

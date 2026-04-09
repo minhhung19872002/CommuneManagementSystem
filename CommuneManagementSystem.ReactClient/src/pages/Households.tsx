@@ -354,6 +354,13 @@ export default function Households() {
             showSizeChanger: true,
             showTotal: (total) => `${total} hộ khẩu`,
           }}
+          onRow={(record) => ({
+            onDoubleClick: () => {
+              setPersons([]);
+              setDetailModal({ open: true, household: record, members: [] });
+            },
+            style: { cursor: 'pointer' },
+          })}
         />
       </Card>
 

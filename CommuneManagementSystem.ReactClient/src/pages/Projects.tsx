@@ -44,7 +44,9 @@ export default function Projects() {
   const [projectFilter, setProjectFilter] = useState({ search: '', status: '' });
   const [proposalFilter, setProposalFilter] = useState({ search: '', status: '', fieldCode: '', priority: '' });
   const [projectModal, setProjectModal] = useState<{ open: boolean; item?: ProjectItem }>({ open: false });
+  const [projectDetailModal, setProjectDetailModal] = useState<{ open: boolean; item?: ProjectItem }>({ open: false });
   const [proposalModal, setProposalModal] = useState<{ open: boolean; item?: ProposalItem }>({ open: false });
+  const [proposalDetailModal, setProposalDetailModal] = useState<{ open: boolean; item?: ProposalItem }>({ open: false });
   const [projectForm] = Form.useForm<ProjectFormValues>();
   const [proposalForm] = Form.useForm<ProposalFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
@@ -325,7 +327,18 @@ export default function Projects() {
                         Thêm dự án
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={projects} columns={projectColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1100 }} />
+                    <Table
+                      rowKey="id"
+                      loading={loading}
+                      dataSource={projects}
+                      columns={projectColumns}
+                      pagination={{ pageSize: 8 }}
+                      scroll={{ x: 1100 }}
+                      onRow={(record) => ({
+                        onDoubleClick: () => setProjectDetailModal({ open: true, item: record }),
+                        style: { cursor: 'pointer' },
+                      })}
+                    />
                   </>
                 ),
               },
@@ -372,7 +385,18 @@ export default function Projects() {
                         Thêm đề xuất
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={proposals} columns={proposalColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1200 }} />
+                    <Table
+                      rowKey="id"
+                      loading={loading}
+                      dataSource={proposals}
+                      columns={proposalColumns}
+                      pagination={{ pageSize: 8 }}
+                      scroll={{ x: 1200 }}
+                      onRow={(record) => ({
+                        onDoubleClick: () => setProposalDetailModal({ open: true, item: record }),
+                        style: { cursor: 'pointer' },
+                      })}
+                    />
                   </>
                 ),
               },
@@ -452,6 +476,93 @@ export default function Projects() {
             <Input.TextArea rows={3} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Project detail modal */}
+      <Modal
+        title={`Chi tiết: ${projectDetailModal.item?.name || ''}`}
+        open={projectDetailModal.open}
+        onCancel={() => setProjectDetailModal({ open: false })}
+        footer={
+          <>
+            <Button onClick={() => setProjectDetailModal({ open: false })}>Đóng</Button>
+            <Button type="primary" onClick={() => { setProjectDetailModal({ open: false }); openProjectModal(projectDetailModal.item); }}>
+              Chỉnh sửa
+            </Button>
+          </>
+        }
+        width={680}
+      >
+        {projectDetailModal.item && (
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ background: '#F8FAFF', borderRadius: 10, padding: '16px 20px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: 13, color: '#667085', marginBottom: 4 }}>Mô tả</div>
+              <div style={{ fontSize: 14, color: '#18212F' }}>{projectDetailModal.item.description}</div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                { label: 'Chủ đầu tư', value: projectDetailModal.item.sponsor },
+                { label: 'Quản lý', value: projectDetailModal.item.managerUserName || 'Chưa gán' },
+                { label: 'Ngân sách', value: formatCurrency(projectDetailModal.item.budget) },
+                { label: 'Tiến độ', value: `${projectDetailModal.item.progress}%` },
+                { label: 'Trạng thái', value: projectDetailModal.item.status },
+                { label: 'Ngày bắt đầu', value: new Date(projectDetailModal.item.startDate).toLocaleDateString('vi-VN') },
+                { label: 'Ngày kết thúc', value: new Date(projectDetailModal.item.endDate).toLocaleDateString('vi-VN') },
+              ].map((item) => (
+                <div key={item.label} style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontSize: 12, color: '#667085', marginBottom: 2 }}>{item.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#18212F' }}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Proposal detail modal */}
+      <Modal
+        title={`Chi tiết đề xuất: ${proposalDetailModal.item?.title || ''}`}
+        open={proposalDetailModal.open}
+        onCancel={() => setProposalDetailModal({ open: false })}
+        footer={
+          <>
+            <Button onClick={() => setProposalDetailModal({ open: false })}>Đóng</Button>
+            <Button type="primary" onClick={() => { setProposalDetailModal({ open: false }); openProposalModal(proposalDetailModal.item); }}>
+              Chỉnh sửa
+            </Button>
+          </>
+        }
+        width={720}
+      >
+        {proposalDetailModal.item && (
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ background: '#F8FAFF', borderRadius: 10, padding: '16px 20px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: 13, color: '#667085', marginBottom: 4 }}>Nội dung</div>
+              <div style={{ fontSize: 14, color: '#18212F' }}>{proposalDetailModal.item.content}</div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+              {[
+                { label: 'Lĩnh vực', value: proposalDetailModal.item.fieldCode },
+                { label: 'Ưu tiên', value: proposalDetailModal.item.priority },
+                { label: 'Trạng thái', value: proposalDetailModal.item.status },
+                { label: 'Người gửi', value: proposalDetailModal.item.submittedByName || '—' },
+                { label: 'Ngày gửi', value: proposalDetailModal.item.submittedAt ? new Date(proposalDetailModal.item.submittedAt).toLocaleString('vi-VN') : '—' },
+                { label: 'Ngày duyệt', value: proposalDetailModal.item.reviewedAt ? new Date(proposalDetailModal.item.reviewedAt).toLocaleString('vi-VN') : '—' },
+              ].map((item) => (
+                <div key={item.label} style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontSize: 12, color: '#667085', marginBottom: 2 }}>{item.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#18212F' }}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+            {proposalDetailModal.item.reviewNote && (
+              <div style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', border: '1px solid #E2E8F0' }}>
+                <div style={{ fontSize: 12, color: '#667085', marginBottom: 4 }}>Ghi chú phê duyệt</div>
+                <div style={{ fontSize: 14, color: '#18212F' }}>{proposalDetailModal.item.reviewNote}</div>
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </>
   );

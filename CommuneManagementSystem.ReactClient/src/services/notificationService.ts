@@ -11,4 +11,6 @@ export const notificationService = {
   review: (id: number, data: { status: string; reviewNote?: string | null }) =>
     api.post<NotificationItem>(`/notifications/${id}/review`, data),
   delete: (id: number) => api.delete(`/notifications/${id}`),
+  getUnread: () => api.get<NotificationItem[]>('/notifications/unread'),
+  markAsRead: (id: number) => api.post(`/notifications/${id}/read`),
 };

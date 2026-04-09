@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, CalendarDays, ChevronDown, KeyRound, LogOut, Users } from 'lucide-react';
-import { Badge, Button, Dropdown, Form, Input, message, Modal, Typography } from 'antd';
+import { Badge, Button, Dropdown, Form, Input, List, message, Modal, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import Sidebar from './Sidebar';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import { notificationService } from '../services/notificationService';
+import { NotificationItem } from '../types';
 
 const { Text } = Typography;
 
@@ -56,6 +58,9 @@ export default function Layout() {
   const [profileForm] = Form.useForm<ProfileValues>();
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     setProfileOpen(false);
@@ -78,6 +83,13 @@ export default function Layout() {
       sessionStorage.setItem('password-warning-shown', '1');
     }
   }, [messageApi, user?.passwordWarningMessage]);
+
+  useEffect(() => {
+    notificationService.getAll({ status: 'Published' }).then((res) => {
+      setNotifications(res.data);
+      setUnreadCount(res.data.length);
+    }).catch(() => {});
+  }, []);
 
   const currentMeta = routeMeta[location.pathname] ?? routeMeta['/'];
 
@@ -202,9 +214,70 @@ export default function Layout() {
             </div>
 
             {/* Notifications */}
-            <Badge dot>
-              <Button type="text" icon={<Bell size={18} />} />
-            </Badge>
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              dropdownRender={() => (
+                <div style={{
+                  width: 360,
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 16,
+                  boxShadow: 'var(--shadow-lg)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    padding: '14px 20px',
+                    borderBottom: '1px solid var(--color-border)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                    <Text strong style={{ fontSize: 15 }}>Thông báo</Text>
+                    {unreadCount > 0 && (
+                      <Badge count={unreadCount} style={{ backgroundColor: '#DC2626' }} />
+                    )}
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+                      Không có thông báo nào.
+                    </div>
+                  ) : (
+                    <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                      {notifications.slice(0, 10).map((n) => (
+                        <div
+                          key={n.id}
+                          style={{
+                            padding: '12px 20px',
+                            borderBottom: '1px solid var(--color-border)',
+                            cursor: 'pointer',
+                            transition: 'background 0.15s',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-surface-secondary)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = '')}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--color-text)', marginBottom: 2 }}>{n.title}</div>
+                          <div style={{ fontSize: 12, color: '#94a3b8' }}>{n.summary}</div>
+                          <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 4 }}>
+                            {new Date(n.createdAt).toLocaleString('vi-VN')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div
+                    style={{ padding: '10px 20px', textAlign: 'center', borderTop: '1px solid var(--color-border)', cursor: 'pointer' }}
+                    onClick={() => navigate('/notifications')}
+                  >
+                    <Text style={{ fontSize: 13, color: 'var(--color-primary)' }}>Xem tất cả thông báo</Text>
+                  </div>
+                </div>
+              )}
+            >
+              <Badge count={unreadCount} size="small" offset={[-2, 2]} style={{ backgroundColor: unreadCount > 0 ? '#DC2626' : undefined }}>
+                <Button type="text" icon={<Bell size={18} />} />
+              </Badge>
+            </Dropdown>
 
             {/* User menu */}
             <div ref={profileMenuRef} style={{ position: 'relative' }}>
