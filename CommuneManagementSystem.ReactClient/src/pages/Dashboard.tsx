@@ -61,14 +61,14 @@ const taskProgress = [
 ];
 
 const quickLinks = [
-  { label: 'Hộ khẩu', desc: '248 hộ', icon: House, bg: '#eff6ff', color: '#2563eb' },
-  { label: 'Nhân khẩu', desc: '1,247 người', icon: Users, bg: '#f0fdf4', color: '#16a34a' },
-  { label: 'Báo cáo', desc: 'Thống kê', icon: BarChart3, bg: '#faf5ff', color: '#9333ea' },
-  { label: 'Nhiệm vụ', desc: '8 đang xử lý', icon: ListChecks, bg: '#fff7ed', color: '#ea580c' },
-  { label: 'Thông báo', desc: 'Phát hành', icon: Bell, bg: '#fff1f2', color: '#e11d48' },
-  { label: 'Lịch họp', desc: 'Quản lý', icon: CalendarClock, bg: '#f0fdf4', color: '#16a34a' },
-  { label: 'Kho tài liệu', desc: 'Văn bản & mẫu', icon: FolderOpen, bg: '#fefce8', color: '#ca8a04' },
-  { label: 'Phản ánh', desc: 'Tiếp nhận', icon: MessageSquare, bg: '#fdf4ff', color: '#9333ea' },
+  { label: 'Hộ khẩu', desc: '248 hộ', icon: House, path: '/households', bg: '#eff6ff', color: '#2563eb' },
+  { label: 'Nhân khẩu', desc: '1,247 người', icon: Users, path: '/persons', bg: '#f0fdf4', color: '#16a34a' },
+  { label: 'Báo cáo', desc: 'Thống kê', icon: BarChart3, path: '/reports', bg: '#faf5ff', color: '#9333ea' },
+  { label: 'Nhiệm vụ', desc: '8 đang xử lý', icon: ListChecks, path: '/tasks', bg: '#fff7ed', color: '#ea580c' },
+  { label: 'Thông báo', desc: 'Phát hành', icon: Bell, path: '/notifications', bg: '#fff1f2', color: '#e11d48' },
+  { label: 'Lịch họp', desc: 'Quản lý', icon: CalendarClock, path: '/meetings', bg: '#f0fdf4', color: '#16a34a' },
+  { label: 'Kho tài liệu', desc: 'Văn bản & mẫu', icon: FolderOpen, path: '/library', bg: '#fefce8', color: '#ca8a04' },
+  { label: 'Phản ánh', desc: 'Tiếp nhận', icon: MessageSquare, path: '/feedback', bg: '#fdf4ff', color: '#9333ea' },
 ];
 
 const systemStatus = [
@@ -183,7 +183,7 @@ export default function Dashboard() {
                 {quickLinks.map((link) => {
                   const Icon = link.icon;
                   return (
-                    <Link key={link.path ?? link.label} to={link.path ?? '/'} className="civic-link">
+                    <Link key={link.path} to={link.path} className="civic-link">
                       <div className="civic-link__icon" style={{ background: link.bg }}>
                         <Icon size={18} color={link.color} strokeWidth={2.2} />
                       </div>
