@@ -121,7 +121,7 @@ export default function Users() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+      <div className="responsive-grid responsive-grid--cards-wide" style={{ gap: '16px' }}>
         {users.map((user) => {
           const config = roleConfig[user.role] || roleConfig.NhanKhau;
           return (

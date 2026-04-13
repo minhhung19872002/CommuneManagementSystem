@@ -115,7 +115,7 @@ export default function Logs() {
           </div>
         </div>
 
-        <div style={{ padding: '0 20px 20px' }}>
+        <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
           <Table
             columns={columns}
             dataSource={filteredLogs}
@@ -123,6 +123,7 @@ export default function Logs() {
             loading={loading}
             pagination={{ pageSize: 15, showSizeChanger: true, showTotal: (t) => `${t} bản ghi` }}
             size="middle"
+            scroll={{ x: 1080 }}
             onRow={(record) => ({
               onDoubleClick: () => setDetailModal({ open: true, item: record }),
             })}

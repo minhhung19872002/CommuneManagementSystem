@@ -279,7 +279,7 @@ export default function Tasks() {
         <Form form={taskForm} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item name="title" label="Tiêu đề" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label="Mô tả" rules={[{ required: true }]}><Input.TextArea rows={4} /></Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          <div className="responsive-grid responsive-grid--2">
             <Form.Item name="priority" label="Ưu tiên" rules={[{ required: true }]}><Select options={priorityOptions.map((value) => ({ label: value, value }))} /></Form.Item>
             <Form.Item name="status" label="Trạng thái" rules={[{ required: true }]}><Select options={taskStatusOptions.map((value) => ({ label: value, value }))} /></Form.Item>
             <Form.Item name="startDate" label="Ngày bắt đầu" rules={[{ required: true }]}><Input type="date" /></Form.Item>
@@ -294,7 +294,7 @@ export default function Tasks() {
         <Form form={workForm} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item name="title" label="Tiêu đề" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label="Mô tả" rules={[{ required: true }]}><Input.TextArea rows={4} /></Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+          <div className="responsive-grid responsive-grid--3">
             <Form.Item name="fieldCode" label="Lĩnh vực" rules={[{ required: true }]}><Select options={fields.map((item) => ({ label: item.name, value: item.code }))} /></Form.Item>
             <Form.Item name="unitCode" label="Đơn vị" rules={[{ required: true }]}><Select options={units.map((item) => ({ label: item.name, value: item.code }))} /></Form.Item>
             <Form.Item name="assignedUserId" label="Phụ trách"><Select allowClear options={userOptions} /></Form.Item>

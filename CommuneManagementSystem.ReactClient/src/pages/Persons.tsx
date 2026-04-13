@@ -383,11 +383,13 @@ export default function Persons() {
       </div>
 
       <Card className="civic-section" styles={{ body: { padding: 0 } }}>
-        <Table
+        <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+          <Table
           columns={columns}
           dataSource={data}
           rowKey="id"
           loading={loading}
+          scroll={{ x: 1280 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -397,7 +399,8 @@ export default function Persons() {
             onDoubleClick: () => setDetailModal({ open: true, person: record }),
             style: { cursor: 'pointer' },
           })}
-        />
+          />
+        </div>
       </Card>
 
       <Modal
@@ -492,7 +495,7 @@ export default function Persons() {
             </div>
 
             <Descriptions
-              column={2}
+              column={{ xs: 1, sm: 2 }}
               size="small"
               bordered
               items={[

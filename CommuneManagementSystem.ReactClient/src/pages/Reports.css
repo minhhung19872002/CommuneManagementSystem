@@ -86,7 +86,12 @@
 
 /* ── Table Panel ───────────────────────────── */
 .reports-table-panel {
-  padding: 4px 0;
+  padding: 4px 16px 16px;
+}
+
+.reports-table-panel .ant-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .reports-table__primary {
@@ -142,6 +147,9 @@
   .reports-summary-strip {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+  .reports-table-panel {
+    padding: 4px 12px 12px;
   }
   .reports-summary-card__value { font-size: 24px; }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   ArrowLeftRight,
@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { hasRouteAccess } from '../utils/permissions';
+import { useMediaQuery } from '../utils/useMediaQuery';
 
 type SidebarProps = {
   onNavigate?: () => void;
@@ -80,94 +81,83 @@ function NavContent({ onMobileClose, collapsed }: { onMobileClose?: () => void; 
   const { user } = useAuth();
 
   return (
-    <>
-      {/* Nav */}
-      <nav
-        style={{
-          flex: 1,
-          padding: '12px 8px',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        {menuGroups.map((group) => {
-          const visible = group.items.filter(item => hasRouteAccess(user?.role, item.path));
-          if (visible.length === 0) return null;
+    <nav
+      style={{
+        flex: 1,
+        padding: '12px 8px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+      }}
+    >
+      {menuGroups.map((group) => {
+        const visible = group.items.filter((item) => hasRouteAccess(user?.role, item.path));
+        if (visible.length === 0) return null;
 
-          return (
-            <div key={group.label} style={{ marginBottom: 20 }}>
-              {!collapsed && (
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: 'var(--color-text-muted)',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    padding: '0 8px',
-                    marginBottom: 6,
+        return (
+          <div key={group.label} style={{ marginBottom: 20 }}>
+            {!collapsed && (
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: 'var(--color-text-muted)',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  padding: '0 8px',
+                  marginBottom: 6,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {group.label}
+              </div>
+            )}
+            {visible.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === '/'}
+                  onClick={onMobileClose}
+                  title={collapsed ? item.label : undefined}
+                  style={({ isActive }) => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: collapsed ? '10px 12px' : '9px 10px',
+                    borderRadius: 10,
+                    marginBottom: 2,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    background: isActive ? 'var(--color-primary-light)' : 'transparent',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s',
                     whiteSpace: 'nowrap',
-                  }}
+                    overflow: 'hidden',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                  })}
                 >
-                  {group.label}
-                </div>
-              )}
-              {visible.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    end={item.path === '/'}
-                    onClick={onMobileClose}
-                    title={collapsed ? item.label : undefined}
-                    style={({ isActive }) => ({
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: collapsed ? '10px 12px' : '9px 10px',
-                      borderRadius: 10,
-                      marginBottom: 2,
-                      fontSize: 15,
-                      fontWeight: 600,
-                      color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                      background: isActive ? 'var(--color-primary-light)' : 'transparent',
-                      textDecoration: 'none',
-                      transition: 'all 0.15s',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      justifyContent: collapsed ? 'center' : 'flex-start',
-                    })}
-                  >
-                    <span style={{ flexShrink: 0, display: 'inline-flex' }}><Icon size={16} strokeWidth={2} /></span>
-                    {!collapsed && (
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </div>
-          );
-        })}
-      </nav>
-    </>
+                  <span style={{ flexShrink: 0, display: 'inline-flex' }}><Icon size={16} strokeWidth={2} /></span>
+                  {!collapsed && (
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
+        );
+      })}
+    </nav>
   );
 }
 
 export default function Sidebar({ onNavigate, userRole, collapsed = false, onToggle, mobileOpen = false, onMobileClose }: SidebarProps) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const sidebarWidth = collapsed ? 64 : 260;
 
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handler, { passive: true });
-    return () => window.removeEventListener('resize', handler);
-  }, []);
-
-  const SIDEBAR_WIDTH = collapsed ? 64 : 260;
-
-  // Shared sidebar styles
   const baseStyle: React.CSSProperties = {
-    width: SIDEBAR_WIDTH,
+    width: sidebarWidth,
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
@@ -189,15 +179,16 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
     ...baseStyle,
     position: 'fixed',
     top: 0,
-    left: mobileOpen ? 0 : -260,
-    transition: 'left 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+    left: 0,
+    width: 'min(300px, calc(100vw - 28px))',
+    transform: mobileOpen ? 'translateX(0)' : 'translateX(-110%)',
+    transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
     boxShadow: mobileOpen ? '8px 0 32px rgba(0,0,0,0.2)' : 'none',
     zIndex: 100,
   };
 
   return (
     <>
-      {/* Backdrop — only on mobile when drawer is open */}
       {isMobile && mobileOpen && (
         <div
           onClick={onMobileClose}
@@ -210,41 +201,114 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
         />
       )}
 
-      {/* Desktop sidebar */}
-      <div
-        className="sidebar-desktop"
-        style={desktopStyle}
-      >
-        {/* Brand header — toggle button sits OUTSIDE overflow:hidden so it stays visible */}
-        <div
-          style={{
-            padding: '16px 12px 14px',
-            borderBottom: '1px solid var(--color-border)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            flexShrink: 0,
-          }}
-        >
-          {/* Logo always visible */}
+      {!isMobile && (
+        <div className="sidebar-desktop" style={desktopStyle}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'var(--color-primary)',
+              padding: '16px 12px 14px',
+              borderBottom: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              gap: 10,
               flexShrink: 0,
             }}
           >
-            <Building2 size={18} color="#fff" strokeWidth={2.2} />
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: 'var(--color-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Building2 size={18} color="#fff" strokeWidth={2.2} />
+            </div>
+
+            {!collapsed && (
+              <div style={{ overflow: 'hidden', flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+                  CommuneHub
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
+                  Quản lý cấp xã
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Text — hidden when collapsed */}
-          {!collapsed && (
-            <div style={{ overflow: 'hidden', flex: 1 }}>
+          <div
+            style={{
+              padding: '8px 12px',
+              borderBottom: '1px solid var(--color-border)',
+              display: 'flex',
+              justifyContent: collapsed ? 'center' : 'flex-end',
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              onClick={onToggle}
+              title={collapsed ? 'Mở rộng' : 'Thu nhỏ'}
+              style={{
+                background: collapsed ? 'var(--color-surface-secondary)' : 'none',
+                border: collapsed ? '1px solid var(--color-border)' : '1px solid transparent',
+                cursor: 'pointer',
+                padding: '6px 8px',
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                color: 'var(--color-text-secondary)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(event) => {
+                event.currentTarget.style.background = 'var(--color-surface-secondary)';
+                event.currentTarget.style.borderColor = 'var(--color-border)';
+              }}
+              onMouseLeave={(event) => {
+                event.currentTarget.style.background = collapsed ? 'var(--color-surface-secondary)' : 'none';
+                event.currentTarget.style.borderColor = collapsed ? 'var(--color-border)' : 'transparent';
+              }}
+            >
+              {collapsed ? <Menu size={18} /> : <X size={18} />}
+            </button>
+          </div>
+
+          <NavContent collapsed={collapsed} />
+        </div>
+      )}
+
+      {isMobile && (
+        <div className="sidebar-drawer" style={mobileStyle}>
+          <div
+            style={{
+              padding: '20px 16px 16px',
+              borderBottom: '1px solid var(--color-border)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              overflow: 'hidden',
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: 'var(--color-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Building2 size={18} color="#fff" strokeWidth={2.2} />
+            </div>
+            <div style={{ overflow: 'hidden' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
                 CommuneHub
               </div>
@@ -252,108 +316,31 @@ export default function Sidebar({ onNavigate, userRole, collapsed = false, onTog
                 Quản lý cấp xã
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Toggle button — separate row so it always shows */}
-        <div
-          style={{
-            padding: '8px 12px',
-            borderBottom: '1px solid var(--color-border)',
-            display: 'flex',
-            justifyContent: collapsed ? 'center' : 'flex-end',
-            flexShrink: 0,
-          }}
-        >
-          <button
-            type="button"
-            onClick={onToggle}
-            title={collapsed ? 'Mở rộng' : 'Thu nhỏ'}
-            style={{
-              background: collapsed ? 'var(--color-surface-secondary)' : 'none',
-              border: collapsed ? '1px solid var(--color-border)' : '1px solid transparent',
-              cursor: 'pointer',
-              padding: '6px 8px',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              color: 'var(--color-text-secondary)',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-surface-secondary)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = collapsed ? 'var(--color-surface-secondary)' : 'none'; e.currentTarget.style.borderColor = collapsed ? 'var(--color-border)' : 'transparent'; }}
-          >
-            {collapsed ? <Menu size={18} /> : <X size={18} />}
-          </button>
-        </div>
-
-        <NavContent collapsed={collapsed} />
-      </div>
-
-      {/* Mobile drawer */}
-      <div
-        className="sidebar-drawer"
-        style={mobileStyle}
-      >
-        {/* Brand header */}
-        <div
-          style={{
-            padding: '20px 16px 16px',
-            borderBottom: '1px solid var(--color-border)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            overflow: 'hidden',
-            flexShrink: 0,
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'var(--color-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Building2 size={18} color="#fff" strokeWidth={2.2} />
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
-              CommuneHub
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
-              Quản lý cấp xã
-            </div>
+            <button
+              type="button"
+              onClick={onMobileClose}
+              title="Đóng menu"
+              style={{
+                marginLeft: 'auto',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 6,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                color: 'var(--color-text-muted)',
+                flexShrink: 0,
+              }}
+            >
+              <X size={20} />
+            </button>
           </div>
 
-          {/* Close button */}
-          <button
-            type="button"
-            onClick={onMobileClose}
-            title="Đóng menu"
-            style={{
-              marginLeft: 'auto',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 6,
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              color: 'var(--color-text-muted)',
-              flexShrink: 0,
-            }}
-          >
-            <X size={20} />
-          </button>
+          <NavContent onMobileClose={onMobileClose} collapsed={false} />
         </div>
-
-        <NavContent onMobileClose={onMobileClose} collapsed={false} />
-      </div>
+      )}
     </>
   );
 }

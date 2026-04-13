@@ -140,7 +140,7 @@ export default function Catalogs() {
           </div>
         </div>
         <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
-          <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })} />
+          <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} scroll={{ x: 860 }} onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })} />
         </div>
       </>
     );

@@ -108,7 +108,7 @@ export default function UserGroups() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
+      <div className="responsive-grid responsive-grid--cards-wide" style={{ gap: 16 }}>
         {groups.map((group) => (
           <Card
             key={group.id}

@@ -344,11 +344,13 @@ export default function Households() {
       </div>
 
       <Card className="civic-section" styles={{ body: { padding: 0 } }}>
-        <Table
+        <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+          <Table
           columns={columns}
           dataSource={data}
           rowKey="id"
           loading={loading}
+          scroll={{ x: 1080 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -361,7 +363,8 @@ export default function Households() {
             },
             style: { cursor: 'pointer' },
           })}
-        />
+          />
+        </div>
       </Card>
 
       <Modal
@@ -421,7 +424,7 @@ export default function Households() {
         {detailModal.household && (
           <div>
             <Descriptions
-              column={2}
+              column={{ xs: 1, sm: 2 }}
               size="small"
               style={{ marginBottom: 20 }}
               items={[

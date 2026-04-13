@@ -164,7 +164,7 @@ export default function Backup() {
           <Card title="Thông tin hệ thống" className="backup-card">
             <Descriptions
               size="small"
-              column={2}
+              column={{ xs: 1, sm: 2 }}
               bordered
               items={[
                 { key: 'tech', label: 'Backend', children: 'ASP.NET Core 9.0' },

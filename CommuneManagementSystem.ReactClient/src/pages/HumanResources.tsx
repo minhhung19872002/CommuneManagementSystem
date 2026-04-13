@@ -482,7 +482,7 @@ export default function HumanResources() {
                 label: 'Cán bộ',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
                       <Space wrap>
                         <Input
                           placeholder="Tìm cán bộ"
@@ -504,7 +504,9 @@ export default function HumanResources() {
                         Thêm cán bộ
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={staffs} columns={staffColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1350 }} onRow={(record) => ({ onDoubleClick: () => setStaffDetailModal(record) })} />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table rowKey="id" loading={loading} dataSource={staffs} columns={staffColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1350 }} onRow={(record) => ({ onDoubleClick: () => setStaffDetailModal(record) })} />
+                    </div>
                   </>
                 ),
               },
@@ -513,12 +515,14 @@ export default function HumanResources() {
                 label: 'Lương cơ sở',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
                       <Button type="primary" icon={<PlusOutlined />} onClick={() => openSalaryModal()}>
                         Thêm mức lương
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={baseSalaries} columns={salaryColumns} pagination={{ pageSize: 8 }} scroll={{ x: 900 }} onRow={(record) => ({ onDoubleClick: () => setSalaryDetailModal(record) })} />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table rowKey="id" loading={loading} dataSource={baseSalaries} columns={salaryColumns} pagination={{ pageSize: 8 }} scroll={{ x: 900 }} onRow={(record) => ({ onDoubleClick: () => setSalaryDetailModal(record) })} />
+                    </div>
                   </>
                 ),
               },
@@ -527,7 +531,7 @@ export default function HumanResources() {
                 label: 'Bảng lương',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
                       <Space wrap>
                         <Input
                           placeholder="Kỳ lương YYYY-MM"
@@ -549,7 +553,9 @@ export default function HumanResources() {
                         Thêm bảng lương
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={payrolls} columns={payrollColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1600 }} onRow={(record) => ({ onDoubleClick: () => setPayrollDetailModal(record) })} />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table rowKey="id" loading={loading} dataSource={payrolls} columns={payrollColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1600 }} onRow={(record) => ({ onDoubleClick: () => setPayrollDetailModal(record) })} />
+                    </div>
                   </>
                 ),
               },
@@ -558,7 +564,7 @@ export default function HumanResources() {
                 label: 'Chuyển lương',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
                       <Space wrap>
                         <Select
                           placeholder="Trạng thái"
@@ -573,7 +579,9 @@ export default function HumanResources() {
                         Thêm lệnh chuyển
                       </Button>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={transfers} columns={transferColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1500 }} onRow={(record) => ({ onDoubleClick: () => setTransferDetailModal(record) })} />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table rowKey="id" loading={loading} dataSource={transfers} columns={transferColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1500 }} onRow={(record) => ({ onDoubleClick: () => setTransferDetailModal(record) })} />
+                    </div>
                   </>
                 ),
               },

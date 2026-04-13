@@ -439,7 +439,7 @@ export default function Projects() {
           <Form.Item name="description" label="Mô tả" rules={[{ required: true, message: 'Nhập mô tả.' }]}>
             <Input.TextArea rows={4} />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+          <div className="responsive-grid responsive-grid--3">
             <Form.Item name="sponsor" label="Chủ đầu tư" rules={[{ required: true, message: 'Nhập chủ đầu tư.' }]}>
               <Input />
             </Form.Item>
@@ -480,7 +480,7 @@ export default function Projects() {
           <Form.Item name="content" label="Nội dung" rules={[{ required: true, message: 'Nhập nội dung.' }]}>
             <Input.TextArea rows={5} />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+          <div className="responsive-grid responsive-grid--3">
             <Form.Item name="fieldCode" label="Lĩnh vực" rules={[{ required: true, message: 'Chọn lĩnh vực.' }]}>
               <Select options={fields.map((item) => ({ label: item.name, value: item.code }))} />
             </Form.Item>

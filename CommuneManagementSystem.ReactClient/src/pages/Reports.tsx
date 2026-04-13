@@ -498,7 +498,7 @@ export default function Reports() {
           </div>
         </div>
 
-        <div style={{ padding: '0 20px 20px' }}>
+        <div style={{ padding: '0 16px 16px' }}>
           <Tabs
             data-testid="reports-tabs"
             items={tabItems}

@@ -232,7 +232,7 @@ export default function Feedback() {
           </div>
         </div>
 
-        <div style={{ padding: '0 20px 20px' }}>
+        <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
           <Table
             rowKey="id"
             loading={loading}
@@ -257,7 +257,7 @@ export default function Feedback() {
         width={720}
       >
         <Form form={createForm} layout="vertical" style={{ marginTop: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+          <div className="responsive-grid responsive-grid--cards-tight">
             <Form.Item name="fullName" label="Họ tên" rules={[{ required: true, message: 'Nhập họ tên.' }]}>
               <Input />
             </Form.Item>

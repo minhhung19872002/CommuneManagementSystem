@@ -5,6 +5,7 @@ import { Building2, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import { useMediaQuery } from '../utils/useMediaQuery';
 
 const { Text, Title } = Typography;
 
@@ -52,6 +53,8 @@ const s = {
 
 export default function Login() {
   const { login } = useAuth();
+  const isTablet = useMediaQuery('(max-width: 960px)');
+  const isMobile = useMediaQuery('(max-width: 640px)');
   const [loading, setLoading] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
@@ -100,9 +103,22 @@ export default function Login() {
 
   return (
     <div style={s.page}>
-      <div style={s.shell} className="login-shell">
+      <div
+        style={{
+          ...s.shell,
+          gridTemplateColumns: isTablet ? '1fr' : '1fr 1fr',
+          minHeight: isTablet ? 'auto' : 620,
+        }}
+        className="login-shell"
+      >
         {/* Left — branding */}
-        <div style={s.aside}>
+        <div
+          style={{
+            ...s.aside,
+            padding: isMobile ? '24px 20px' : isTablet ? '32px 28px' : '40px 36px',
+            order: isTablet ? 2 : 1,
+          }}
+        >
           <div style={s.brand}>
             <Building2 size={16} />
             CommuneHub
@@ -121,7 +137,12 @@ export default function Login() {
             </p>
           </div>
 
-          <div style={s.metrics}>
+          <div
+            style={{
+              ...s.metrics,
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            }}
+          >
             {[{ v: '24/7', l: 'Giám sát thời gian thực' }, { v: '03', l: 'Nhóm nghiệp vụ' }, { v: '100%', l: 'Số hóa nội bộ' }].map(m => (
               <div key={m.l} style={s.metricCard}>
                 <div style={s.metricVal}>{m.v}</div>
@@ -132,7 +153,13 @@ export default function Login() {
         </div>
 
         {/* Right — form */}
-        <div style={s.content}>
+        <div
+          style={{
+            ...s.content,
+            padding: isMobile ? '24px 20px' : isTablet ? '32px 28px' : '40px 36px',
+            order: 1,
+          }}
+        >
           <div>
             <div style={s.headingLabel}>Hệ thống quản lý dân cư</div>
             <Title level={4} style={{ ...s.headingTitle, marginTop: 4 }}>Đăng nhập hệ thống</Title>

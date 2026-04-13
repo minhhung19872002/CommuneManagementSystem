@@ -334,7 +334,7 @@ export default function Notifications() {
           </div>
         </div>
 
-        <div style={{ padding: '0 20px 20px' }}>
+        <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
           <Table
             rowKey="id"
             loading={loading}
