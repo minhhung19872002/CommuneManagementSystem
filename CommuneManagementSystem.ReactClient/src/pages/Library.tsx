@@ -6,6 +6,7 @@ import {
   InboxOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import './Library.css';
 import {
   Button,
   Card,
@@ -212,25 +213,38 @@ export default function Library() {
   ];
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Tổng tài liệu', value: items.length, color: '#034AA0' },
-            { label: 'Mẫu biểu', value: items.filter((item) => item.category === 'Mẫu biểu').length, color: '#7C3AED' },
-            { label: 'Văn bản', value: items.filter((item) => item.category === 'Văn bản').length, color: '#059669' },
-          ].map((card) => (
-            <Card key={card.label} style={{ borderRadius: 18 }}>
-              <div style={{ color: '#667085', fontSize: 13 }}>{card.label}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: card.color, marginTop: 4 }}>{card.value}</div>
-            </Card>
-          ))}
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Quản lý / Kho tài liệu</div>
+            <h1 className="civic-page-hero__title">Kho tài liệu</h1>
+            <p className="civic-page-hero__subtitle">
+              Lưu trữ, quản lý và chia sẻ tài liệu nội bộ cho cán bộ nghiệp vụ.
+            </p>
+          </div>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.length}</div>
+              <div className="civic-page-hero__stat-label">Tổng tài liệu</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.filter((item) => item.category === 'Mẫu biểu').length}</div>
+              <div className="civic-page-hero__stat-label">Mẫu biểu</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.filter((item) => item.category === 'Văn bản').length}</div>
+              <div className="civic-page-hero__stat-label">Văn bản</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <Card style={{ borderRadius: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">
             <Space wrap>
               <Input
                 placeholder="Tìm tên tài liệu, mô tả, tên tệp"
@@ -248,12 +262,15 @@ export default function Library() {
                 options={categories.map((item) => ({ label: item, value: item }))}
               />
             </Space>
-
+          </div>
+          <div className="civic-toolbar__actions">
             <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
               Tải tài liệu
             </Button>
           </div>
+        </div>
 
+        <div style={{ padding: '0 20px 20px' }}>
           <Table
             rowKey="id"
             loading={loading}
@@ -263,8 +280,8 @@ export default function Library() {
             scroll={{ x: 1080 }}
             onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })}
           />
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       <Modal
         title={editor.mode === 'create' ? 'Tải tài liệu mới' : 'Cập nhật thông tin tài liệu'}
@@ -290,15 +307,8 @@ export default function Library() {
           </Form.Item>
 
           {editor.mode === 'create' && (
-            <div
-              style={{
-                border: '1px dashed #C7D2FE',
-                borderRadius: 16,
-                padding: 18,
-                background: '#F8FAFF',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, color: '#034AA0' }}>
+            <div className="library-upload-zone">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, color: '#2563eb' }}>
                 <InboxOutlined />
                 <strong>Chọn tệp để đưa vào kho tài liệu</strong>
               </div>
@@ -344,6 +354,6 @@ export default function Library() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

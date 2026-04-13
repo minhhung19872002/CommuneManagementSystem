@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Input, Modal, Popconfirm, Progress, Select, Space, Table, Tabs, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import './Projects.css';
 import { projectService } from '../services/projectService';
 import { authService } from '../services/authService';
 import { catalogService } from '../services/catalogService';
@@ -280,24 +281,34 @@ export default function Projects() {
     <>
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Tổng dự án', value: stats?.totalProjects ?? 0, color: '#034AA0' },
-            { label: 'Dự án đang chạy', value: stats?.activeProjects ?? 0, color: '#D97706' },
-            { label: 'Tổng đề xuất', value: stats?.totalProposals ?? 0, color: '#7C3AED' },
-            { label: 'Chờ duyệt', value: stats?.pendingProposals ?? 0, color: '#DC2626' },
-            { label: 'Đã duyệt', value: stats?.approvedProposals ?? 0, color: '#059669' },
-            { label: 'Tổng ngân sách', value: formatCurrency(stats?.totalBudget ?? 0), color: '#2563EB' },
-          ].map((card) => (
-            <Card key={card.label} style={{ borderRadius: 18 }}>
-              <div style={{ color: '#667085' }}>{card.label}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: card.color }}>{card.value}</div>
-            </Card>
-          ))}
+      <div className="civic-page page-wrapper">
+        <div className="civic-page-hero">
+          <div className="civic-page-hero__inner">
+            <div className="civic-page-hero__left">
+              <div className="civic-page-hero__eyebrow">Điều hành / Dự án</div>
+              <h1 className="civic-page-hero__title">Dự án &amp; Đề xuất</h1>
+              <p className="civic-page-hero__subtitle">
+                Quản lý tiến độ dự án, ngân sách và tiếp nhận đề xuất từ cộng đồng.
+              </p>
+            </div>
+            <div className="civic-page-hero__stats">
+              <div className="civic-page-hero__stat">
+                <div className="civic-page-hero__stat-value">{stats?.totalProjects ?? 0}</div>
+                <div className="civic-page-hero__stat-label">Dự án</div>
+              </div>
+              <div className="civic-page-hero__stat">
+                <div className="civic-page-hero__stat-value">{stats?.activeProjects ?? 0}</div>
+                <div className="civic-page-hero__stat-label">Đang chạy</div>
+              </div>
+              <div className="civic-page-hero__stat">
+                <div className="civic-page-hero__stat-value">{stats?.pendingProposals ?? 0}</div>
+                <div className="civic-page-hero__stat-label">Chờ duyệt</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Card style={{ borderRadius: 20 }}>
+        <Card className="civic-section" styles={{ body: { padding: '0 0 4px' } }}>
           <Tabs
             items={[
               {
@@ -305,8 +316,8 @@ export default function Projects() {
                 label: 'Dự án',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-                      <Space wrap>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+                      <div className="civic-toolbar__filters">
                         <Input
                           placeholder="Tìm dự án"
                           value={projectFilter.search}
@@ -319,26 +330,30 @@ export default function Projects() {
                           value={projectFilter.status || undefined}
                           onChange={(value) => setProjectFilter((current) => ({ ...current, status: value || '' }))}
                           allowClear
-                          style={{ width: 170 }}
+                          style={{ width: 160 }}
                           options={projectStatusOptions.map((value) => ({ label: value, value }))}
                         />
-                      </Space>
-                      <Button type="primary" icon={<PlusOutlined />} onClick={() => openProjectModal()}>
-                        Thêm dự án
-                      </Button>
+                      </div>
+                      <div className="civic-toolbar__actions">
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => openProjectModal()}>
+                          Thêm dự án
+                        </Button>
+                      </div>
                     </div>
-                    <Table
-                      rowKey="id"
-                      loading={loading}
-                      dataSource={projects}
-                      columns={projectColumns}
-                      pagination={{ pageSize: 8 }}
-                      scroll={{ x: 1100 }}
-                      onRow={(record) => ({
-                        onDoubleClick: () => setProjectDetailModal({ open: true, item: record }),
-                        style: { cursor: 'pointer' },
-                      })}
-                    />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table
+                        rowKey="id"
+                        loading={loading}
+                        dataSource={projects}
+                        columns={projectColumns}
+                        pagination={{ pageSize: 8 }}
+                        scroll={{ x: 1100 }}
+                        onRow={(record) => ({
+                          onDoubleClick: () => setProjectDetailModal({ open: true, item: record }),
+                          style: { cursor: 'pointer' },
+                        })}
+                      />
+                    </div>
                   </>
                 ),
               },
@@ -347,8 +362,8 @@ export default function Projects() {
                 label: 'Đề xuất',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-                      <Space wrap>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+                      <div className="civic-toolbar__filters">
                         <Input
                           placeholder="Tìm đề xuất"
                           value={proposalFilter.search}
@@ -377,26 +392,30 @@ export default function Projects() {
                           value={proposalFilter.priority || undefined}
                           onChange={(value) => setProposalFilter((current) => ({ ...current, priority: value || '' }))}
                           allowClear
-                          style={{ width: 140 }}
+                          style={{ width: 130 }}
                           options={priorityOptions.map((value) => ({ label: value, value }))}
                         />
-                      </Space>
-                      <Button type="primary" icon={<PlusOutlined />} onClick={() => openProposalModal()}>
-                        Thêm đề xuất
-                      </Button>
+                      </div>
+                      <div className="civic-toolbar__actions">
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => openProposalModal()}>
+                          Thêm đề xuất
+                        </Button>
+                      </div>
                     </div>
-                    <Table
-                      rowKey="id"
-                      loading={loading}
-                      dataSource={proposals}
-                      columns={proposalColumns}
-                      pagination={{ pageSize: 8 }}
-                      scroll={{ x: 1200 }}
-                      onRow={(record) => ({
-                        onDoubleClick: () => setProposalDetailModal({ open: true, item: record }),
-                        style: { cursor: 'pointer' },
-                      })}
-                    />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table
+                        rowKey="id"
+                        loading={loading}
+                        dataSource={proposals}
+                        columns={proposalColumns}
+                        pagination={{ pageSize: 8 }}
+                        scroll={{ x: 1200 }}
+                        onRow={(record) => ({
+                          onDoubleClick: () => setProposalDetailModal({ open: true, item: record }),
+                          style: { cursor: 'pointer' },
+                        })}
+                      />
+                    </div>
                   </>
                 ),
               },
@@ -494,12 +513,12 @@ export default function Projects() {
         width={680}
       >
         {projectDetailModal.item && (
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ background: '#F8FAFF', borderRadius: 10, padding: '16px 20px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: 13, color: '#667085', marginBottom: 4 }}>Mô tả</div>
-              <div style={{ fontSize: 14, color: '#18212F' }}>{projectDetailModal.item.description}</div>
+          <div className="projects-detail-grid">
+            <div className="projects-detail-hero">
+              <div className="projects-detail-hero__label">Mô tả</div>
+              <div className="projects-detail-hero__value">{projectDetailModal.item.description}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="projects-detail-row">
               {[
                 { label: 'Chủ đầu tư', value: projectDetailModal.item.sponsor },
                 { label: 'Quản lý', value: projectDetailModal.item.managerUserName || 'Chưa gán' },
@@ -509,9 +528,9 @@ export default function Projects() {
                 { label: 'Ngày bắt đầu', value: new Date(projectDetailModal.item.startDate).toLocaleDateString('vi-VN') },
                 { label: 'Ngày kết thúc', value: new Date(projectDetailModal.item.endDate).toLocaleDateString('vi-VN') },
               ].map((item) => (
-                <div key={item.label} style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', border: '1px solid #E2E8F0' }}>
-                  <div style={{ fontSize: 12, color: '#667085', marginBottom: 2 }}>{item.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#18212F' }}>{item.value}</div>
+                <div key={item.label} className="projects-detail-card">
+                  <div className="projects-detail-card__label">{item.label}</div>
+                  <div className="projects-detail-card__value">{item.value}</div>
                 </div>
               ))}
             </div>
@@ -535,12 +554,12 @@ export default function Projects() {
         width={720}
       >
         {proposalDetailModal.item && (
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ background: '#F8FAFF', borderRadius: 10, padding: '16px 20px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: 13, color: '#667085', marginBottom: 4 }}>Nội dung</div>
-              <div style={{ fontSize: 14, color: '#18212F' }}>{proposalDetailModal.item.content}</div>
+          <div className="projects-detail-grid">
+            <div className="projects-detail-hero">
+              <div className="projects-detail-hero__label">Nội dung</div>
+              <div className="projects-detail-hero__value">{proposalDetailModal.item.content}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            <div className="projects-detail-row">
               {[
                 { label: 'Lĩnh vực', value: proposalDetailModal.item.fieldCode },
                 { label: 'Ưu tiên', value: proposalDetailModal.item.priority },
@@ -549,16 +568,16 @@ export default function Projects() {
                 { label: 'Ngày gửi', value: proposalDetailModal.item.submittedAt ? new Date(proposalDetailModal.item.submittedAt).toLocaleString('vi-VN') : '—' },
                 { label: 'Ngày duyệt', value: proposalDetailModal.item.reviewedAt ? new Date(proposalDetailModal.item.reviewedAt).toLocaleString('vi-VN') : '—' },
               ].map((item) => (
-                <div key={item.label} style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', border: '1px solid #E2E8F0' }}>
-                  <div style={{ fontSize: 12, color: '#667085', marginBottom: 2 }}>{item.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#18212F' }}>{item.value}</div>
+                <div key={item.label} className="projects-detail-card">
+                  <div className="projects-detail-card__label">{item.label}</div>
+                  <div className="projects-detail-card__value">{item.value}</div>
                 </div>
               ))}
             </div>
             {proposalDetailModal.item.reviewNote && (
-              <div style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', border: '1px solid #E2E8F0' }}>
-                <div style={{ fontSize: 12, color: '#667085', marginBottom: 4 }}>Ghi chú phê duyệt</div>
-                <div style={{ fontSize: 14, color: '#18212F' }}>{proposalDetailModal.item.reviewNote}</div>
+              <div className="projects-detail-hero">
+                <div className="projects-detail-hero__label">Ghi chú phê duyệt</div>
+                <div className="projects-detail-hero__value">{proposalDetailModal.item.reviewNote}</div>
               </div>
             )}
           </div>

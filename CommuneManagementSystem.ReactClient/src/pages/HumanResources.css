@@ -1,0 +1,173 @@
+/* HumanResources page — People Directory Design
+   Accent: Teal/Green — evokes people, growth, institutional trust
+   Aesthetic: Staff profile cards, payroll summaries, salary tables
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── HR Form Grid ───────────────────────────── */
+.hr-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+/* ── HR Detail Grid ──────────────────────────── */
+.hr-detail-grid {
+  display: grid;
+  gap: 10px;
+}
+
+/* ── Staff Profile Card ────────────────────── */
+.hr-staff-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  animation: civicSlideUp 0.5s ease-out both;
+}
+
+.hr-staff-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.hr-staff-card__header {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #f0ede8;
+}
+
+.hr-staff-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hr-staff-card__info { flex: 1; }
+
+.hr-staff-card__name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 3px;
+}
+
+.hr-staff-card__position {
+  font-size: 12px;
+  color: #525252;
+  font-weight: 500;
+}
+
+.hr-staff-card__body {
+  padding: 14px 20px 18px;
+}
+
+.hr-staff-card__meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.hr-staff-card__meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+}
+
+.hr-staff-card__meta-label { color: #737373; font-weight: 500; }
+.hr-staff-card__meta-value { color: #1a1a1a; font-weight: 600; }
+
+/* ── Salary / Payroll Cards ───────────────── */
+.hr-payroll-card {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%);
+  border: 1px solid #99f6e4;
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.hr-payroll-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0d9488;
+  margin-bottom: 4px;
+}
+
+.hr-payroll-card__amount {
+  font-family: 'Nunito', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.03em;
+}
+
+/* ── Transfer Status Badge ─────────────────── */
+.hr-transfer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hr-transfer-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hr-transfer-badge--Pending   { background: #fffbeb; color: #d97706; }
+.hr-transfer-badge--Completed { background: #f0fdf4; color: #16a34a; }
+.hr-transfer-badge--Failed   { background: #fef2f2; color: #dc2626; }
+
+/* ── Staff Card Stagger ─────────────────── */
+.hr-staff-card:nth-child(1) { animation-delay: 0.04s; }
+.hr-staff-card:nth-child(2) { animation-delay: 0.08s; }
+.hr-staff-card:nth-child(3) { animation-delay: 0.12s; }
+.hr-staff-card:nth-child(4) { animation-delay: 0.16s; }
+.hr-staff-card:nth-child(5) { animation-delay: 0.2s; }
+.hr-staff-card:nth-child(6) { animation-delay: 0.24s; }
+
+/* ── Payroll Card Animation ─────────────── */
+.hr-payroll-card {
+  animation: civicSlideUp 0.4s ease-out both;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.hr-payroll-card:hover {
+  box-shadow: 0 4px 16px rgba(13,148,136,0.12);
+  transform: translateY(-1px);
+}
+
+/* ── Transfer Status Pulse ───────────────── */
+.hr-transfer-badge--Pending::before {
+  animation: civicPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .hr-form-grid { grid-template-columns: 1fr; }
+  .hr-staff-card__header { padding: 14px 16px; gap: 10px; }
+  .hr-staff-card__body { padding: 12px 16px 14px; }
+}

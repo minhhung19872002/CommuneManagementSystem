@@ -285,10 +285,37 @@ a {
     padding: 12px;
   }
 }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+/* Sidebar — desktop sticky sidebar */
+.sidebar-desktop {
+  display: flex;
+}
+
+/* Sidebar — mobile drawer */
+.sidebar-drawer {
+  display: none;
+}
+
+/* On mobile: hide desktop sidebar, show mobile drawer */
+@media (max-width: 767px) {
+  .sidebar-desktop {
+    display: none;
+  }
+
+  .sidebar-drawer {
+    display: flex;
+  }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+}
+
+/* On desktop: hide hamburger */
+@media (min-width: 768px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
 
 /* ---- Page Layout ---- */
 .page-wrapper {

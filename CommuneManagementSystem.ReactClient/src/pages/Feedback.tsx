@@ -3,6 +3,7 @@ import {
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import './Feedback.css';
 import {
   Button,
   Card,
@@ -171,25 +172,38 @@ export default function Feedback() {
   ];
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Tổng phản ánh', value: items.length, color: '#034AA0' },
-            { label: 'Chờ xử lý', value: items.filter((item) => item.status === 'Pending').length, color: '#D97706' },
-            { label: 'Đã xử lý', value: items.filter((item) => item.status === 'Resolved').length, color: '#059669' },
-          ].map((card) => (
-            <Card key={card.label} style={{ borderRadius: 18 }}>
-              <div style={{ color: '#667085', fontSize: 13 }}>{card.label}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: card.color, marginTop: 4 }}>{card.value}</div>
-            </Card>
-          ))}
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Quản lý / Phản ánh</div>
+            <h1 className="civic-page-hero__title">Phản ánh, kiến nghị</h1>
+            <p className="civic-page-hero__subtitle">
+              Tiếp nhận, theo dõi và xử lý phản ánh từ người dân trong cộng đồng.
+            </p>
+          </div>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.length}</div>
+              <div className="civic-page-hero__stat-label">Tổng phản ánh</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.filter((item) => item.status === 'Pending').length}</div>
+              <div className="civic-page-hero__stat-label">Chờ xử lý</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.filter((item) => item.status === 'Resolved').length}</div>
+              <div className="civic-page-hero__stat-label">Đã xử lý</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <Card style={{ borderRadius: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">
             <Space wrap>
               <Input
                 placeholder="Tìm người gửi, tiêu đề, nội dung"
@@ -210,12 +224,15 @@ export default function Feedback() {
                 }))}
               />
             </Space>
-
+          </div>
+          <div className="civic-toolbar__actions">
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreatorOpen(true)}>
               Tạo phản ánh
             </Button>
           </div>
+        </div>
 
+        <div style={{ padding: '0 20px 20px' }}>
           <Table
             rowKey="id"
             loading={loading}
@@ -225,8 +242,8 @@ export default function Feedback() {
             scroll={{ x: 980 }}
             onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }), style: { cursor: 'pointer' } })}
           />
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       <Modal
         title="Tạo phản ánh, kiến nghị"
@@ -307,6 +324,6 @@ export default function Feedback() {
           <Descriptions.Item label="Người xử lý">{detailModal.item?.processedByName || '—'}</Descriptions.Item>
         </Descriptions>
       </Modal>
-    </>
+    </div>
   );
 }

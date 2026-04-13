@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Input, Select, Modal, Form, Space, Tag, Avatar, message, Tooltip, Popconfirm, Descriptions } from 'antd';
+import { Card, Table, Button, Input, Select, Modal, Form, Space, Tag, Avatar, message, Tooltip, Popconfirm, Descriptions } from 'antd';
 import { PlusOutlined, ReloadOutlined, ClockCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { tempResidenceService } from '../services/reportService';
 import { personService } from '../services/personService';
 import { TempResidence, Person } from '../types';
+import './TemporaryResidence.css';
 
 const statusColor: Record<string, string> = {
   Active: 'processing', Expired: 'warning', Cancelled: 'default',
@@ -103,46 +104,52 @@ export default function TemporaryResidence() {
   ];
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      {/* Page Header */}
-      <div data-testid="temp-residence-page" style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#32373C', margin: 0, lineHeight: 1.2 }}>Quản lý Tạm trú</h1>
-            <p style={{ fontSize: '13px', color: '#737373', margin: '4px 0 0' }}>{data.length} đăng ký tạm trú</p>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Quản lý / Tạm trú</div>
+            <h1 className="civic-page-hero__title">Quản lý Tạm trú</h1>
+            <p className="civic-page-hero__subtitle">
+              Đăng ký, gia hạn và hủy đăng ký tạm trú cho công dân trong phạm vi xã.
+            </p>
           </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => { form.resetFields(); setModal({ open: true }); }}
-          >
-            Đăng ký tạm trú
-          </Button>
-        </div>
-
-        {/* Toolbar */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <Select
-            placeholder="Trạng thái"
-            value={statusFilter || undefined}
-            onChange={v => setStatusFilter(v || '')}
-            allowClear
-            style={{ width: '160px' }}
-            options={[
-              { label: 'Đang tạm trú', value: 'Active' },
-              { label: 'Hết hạn', value: 'Expired' },
-              { label: 'Đã hủy', value: 'Cancelled' },
-            ]}
-          />
-          <Button icon={<ReloadOutlined />} onClick={load}>Làm mới</Button>
+          <div className="civic-page-hero__actions">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => { form.resetFields(); setModal({ open: true }); }}
+            >
+              Đăng ký tạm trú
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">
+            <Select
+              placeholder="Trạng thái"
+              value={statusFilter || undefined}
+              onChange={v => setStatusFilter(v || '')}
+              allowClear
+              style={{ width: '160px' }}
+              options={[
+                { label: 'Đang tạm trú', value: 'Active' },
+                { label: 'Hết hạn', value: 'Expired' },
+                { label: 'Đã hủy', value: 'Cancelled' },
+              ]}
+            />
+          </div>
+          <div className="civic-toolbar__actions">
+            <Button icon={<ReloadOutlined />} onClick={() => void load()}>Làm mới</Button>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 20px 20px' }}>
           <Table
             columns={columns}
             dataSource={data}
@@ -153,7 +160,7 @@ export default function TemporaryResidence() {
             onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }), style: { cursor: 'pointer' } })}
           />
         </div>
-      </div>
+      </Card>
 
       {/* Create Modal */}
       <Modal
@@ -184,7 +191,7 @@ export default function TemporaryResidence() {
           >
             <Input placeholder="Thôn, Xã, Huyện..." />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+          <div className="civic-form-grid">
             <Form.Item name="startDate" label="Từ ngày" rules={[{ required: true }]}>
               <Input type="date" style={{ width: '100%' }} />
             </Form.Item>
@@ -235,6 +242,6 @@ export default function TemporaryResidence() {
           </Descriptions.Item>
         </Descriptions>
       </Modal>
-    </>
+    </div>
   );
 }

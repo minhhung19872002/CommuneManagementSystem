@@ -9,6 +9,7 @@ import {
 import { Avatar, Button, Card, Form, Input, Modal, Popconfirm, Select, Tag, message } from 'antd';
 import { userService } from '../services/userService';
 import { AppUser } from '../types';
+import './Users.css';
 
 const roleConfig: Record<string, { label: string; color: string; tagColor: string }> = {
   Admin: { label: 'Quản trị viên', color: '#7C3AED', tagColor: 'purple' },
@@ -100,108 +101,109 @@ export default function Users() {
   };
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div data-testid="users-page" style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#32373C', margin: 0, lineHeight: 1.2 }}>Quản lý Người dùng</h1>
-            <p style={{ fontSize: '13px', color: '#737373', margin: '4px 0 0' }}>{users.length} người dùng</p>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Hệ thống / Người dùng</div>
+            <h1 className="civic-page-hero__title">Quản lý Người dùng</h1>
+            <p className="civic-page-hero__subtitle">
+              Thêm, chỉnh sửa vai trò và quản lý trạng thái tài khoản người dùng trong hệ thống.
+            </p>
           </div>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            Thêm người dùng
-          </Button>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-          {users.map((user) => {
-            const config = roleConfig[user.role] || roleConfig.NhanKhau;
-            return (
-              <Card
-                key={user.id}
-                loading={loading}
-                style={{ borderRadius: '8px', border: '1px solid #E5E5E5' }}
-                styles={{ body: { padding: 0 } }}
-              >
-                <div
-                  style={{
-                    padding: '20px',
-                    background: `linear-gradient(135deg, ${config.color}15, ${config.color}05)`,
-                    borderBottom: '1px solid #E5E5E5',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '14px',
-                  }}
-                >
-                  <Avatar size={48} style={{ background: config.color, fontWeight: 800, fontSize: '18px', flexShrink: 0 }}>
-                    {user.fullName.charAt(0)}
-                  </Avatar>
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 700, fontSize: '15px', color: '#32373C', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {user.fullName}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
-                      <Tag color={config.tagColor} style={{ margin: 0 }}>{config.label}</Tag>
-                      <Tag color={user.status === 'Active' ? 'success' : 'default'} style={{ margin: 0 }}>
-                        {user.status === 'Active' ? 'Hoạt động' : 'Khóa'}
-                      </Tag>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ padding: '16px 20px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {[
-                      { label: 'Tài khoản', value: `@${user.username}` },
-                      { label: 'Ngày tạo', value: new Date(user.createdAt).toLocaleDateString('vi-VN') },
-                      ...(user.lastLoginAt
-                        ? [{ label: 'Đăng nhập gần nhất', value: new Date(user.lastLoginAt).toLocaleString('vi-VN') }]
-                        : []),
-                    ].map((item) => (
-                      <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', color: '#737373' }}>{item.label}</span>
-                        <span style={{ fontSize: '12.5px', fontWeight: 500, color: '#32373C' }}>{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '14px', paddingTop: '14px', borderTop: '1px solid #F5F5F5' }}>
-                    <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(user)}>
-                      Vai trò
-                    </Button>
-                    <Popconfirm
-                      title={user.status === 'Active' ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?'}
-                      onConfirm={() => handleToggle(user)}
-                      okText="Xác nhận"
-                    >
-                      <Button size="small" icon={user.status === 'Active' ? <LockOutlined /> : <UnlockOutlined />}>
-                        {user.status === 'Active' ? 'Khóa' : 'Mở'}
-                      </Button>
-                    </Popconfirm>
-                    <Popconfirm
-                      title="Xóa người dùng?"
-                      onConfirm={() => handleDelete(user.id)}
-                      okText="Xóa"
-                      okButtonProps={{ danger: true }}
-                    >
-                      <Button size="small" danger icon={<DeleteOutlined />} style={{ gridColumn: '1 / span 2' }}>
-                        Xóa
-                      </Button>
-                    </Popconfirm>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {!loading && users.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px', color: '#737373' }}>
-            Chưa có người dùng nào
+          <div className="civic-page-hero__actions">
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+              Thêm người dùng
+            </Button>
           </div>
-        )}
+        </div>
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+        {users.map((user) => {
+          const config = roleConfig[user.role] || roleConfig.NhanKhau;
+          return (
+            <Card
+              key={user.id}
+              loading={loading}
+              className="users-card"
+              styles={{ body: { padding: 0 } }}
+            >
+              <div
+                className="users-card__header"
+                style={{
+                  background: `linear-gradient(135deg, ${config.color}12, ${config.color}04)`,
+                }}
+              >
+                <Avatar size={48} style={{ background: config.color, fontWeight: 800, fontSize: '18px', flexShrink: 0 }}>
+                  {user.fullName.charAt(0)}
+                </Avatar>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ fontWeight: 700, fontSize: '15px', color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.fullName}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                    <Tag color={config.tagColor} style={{ margin: 0 }}>{config.label}</Tag>
+                    <Tag color={user.status === 'Active' ? 'success' : 'default'} style={{ margin: 0 }}>
+                      {user.status === 'Active' ? 'Hoạt động' : 'Khóa'}
+                    </Tag>
+                  </div>
+                </div>
+              </div>
+
+              <div className="users-card__body">
+                <div className="users-card__meta-row">
+                  {[
+                    { label: 'Tài khoản', value: `@${user.username}` },
+                    { label: 'Ngày tạo', value: new Date(user.createdAt).toLocaleDateString('vi-VN') },
+                    ...(user.lastLoginAt
+                      ? [{ label: 'Đăng nhập gần nhất', value: new Date(user.lastLoginAt).toLocaleString('vi-VN') }]
+                      : []),
+                  ].map((item) => (
+                    <div key={item.label} className="users-card__meta-item">
+                      <span className="users-card__meta-label">{item.label}</span>
+                      <span className="users-card__meta-value">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="users-card__actions">
+                  <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(user)}>
+                    Vai trò
+                  </Button>
+                  <Popconfirm
+                    title={user.status === 'Active' ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?'}
+                    onConfirm={() => handleToggle(user)}
+                    okText="Xác nhận"
+                  >
+                    <Button size="small" icon={user.status === 'Active' ? <LockOutlined /> : <UnlockOutlined />}>
+                      {user.status === 'Active' ? 'Khóa' : 'Mở'}
+                    </Button>
+                  </Popconfirm>
+                  <Popconfirm
+                    title="Xóa người dùng?"
+                    onConfirm={() => handleDelete(user.id)}
+                    okText="Xóa"
+                    okButtonProps={{ danger: true }}
+                  >
+                    <Button size="small" danger icon={<DeleteOutlined />} className="users-card__actions--full">
+                      Xóa
+                    </Button>
+                  </Popconfirm>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {!loading && users.length === 0 && (
+        <div className="civic-empty-state">
+          Chưa có người dùng nào
+        </div>
+      )}
 
       <Modal
         title={modal.mode === 'create' ? 'Thêm người dùng mới' : 'Chỉnh sửa vai trò người dùng'}
@@ -258,6 +260,6 @@ export default function Users() {
           )}
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }

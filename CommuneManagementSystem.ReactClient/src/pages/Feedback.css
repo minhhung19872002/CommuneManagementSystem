@@ -1,0 +1,179 @@
+/* Feedback page — Issue Tracker Design
+   Accent: Rose/Magenta — evokes community, voices, civic engagement
+   Aesthetic: Ticket-style with clear status progression, timeline feel
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Feedback Ticket Cards ─────────────────── */
+.feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.feedback-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid #f0ede8;
+  align-items: flex-start;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.feedback-item:last-child { border-bottom: none; }
+
+.feedback-item:hover {
+  background: #fafaf7;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 8px;
+}
+
+.feedback-item__priority-bar {
+  width: 4px;
+  border-radius: 4px;
+  align-self: stretch;
+  min-height: 40px;
+  flex-shrink: 0;
+}
+
+.feedback-item__priority-bar--Pending    { background: linear-gradient(180deg, #d97706, #fbbf24); }
+.feedback-item__priority-bar--Processing { background: linear-gradient(180deg, #2563eb, #3b82f6); }
+.feedback-item__priority-bar--Resolved   { background: linear-gradient(180deg, #16a34a, #22c55e); }
+.feedback-item__priority-bar--Rejected   { background: linear-gradient(180deg, #dc2626, #ef4444); }
+
+.feedback-item__body { flex: 1; min-width: 0; }
+
+.feedback-item__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.feedback-item__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.feedback-item__content {
+  font-size: 12.5px;
+  color: #525252;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.feedback-item__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.feedback-item__sender {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.feedback-item__contact {
+  font-size: 11px;
+  color: #737373;
+}
+
+.feedback-item__time {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-left: auto;
+}
+
+/* ── Status Pill ───────────────────────────── */
+.feedback-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.feedback-status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.feedback-status-pill--Pending    { background: #fffbeb; color: #d97706; }
+.feedback-status-pill--Processing { background: #eff6ff; color: #2563eb; }
+.feedback-status-pill--Resolved   { background: #f0fdf4; color: #16a34a; }
+.feedback-status-pill--Rejected   { background: #fef2f2; color: #dc2626; }
+
+/* ── Status Pill Pulse ─────────────────────── */
+.feedback-status-pill--Pending::before {
+  animation: civicPulse 1.5s ease-in-out infinite;
+}
+
+.feedback-status-pill--Processing::before {
+  animation: civicPulse 1.2s ease-in-out infinite;
+}
+
+/* ── KPI Stats Row ────────────────────────── */
+.feedback-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.feedback-kpi-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: center;
+  animation: civicSlideUp 0.4s ease-out both;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.feedback-kpi-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.feedback-kpi-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.feedback-kpi-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #525252;
+  margin-top: 4px;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .feedback-item { gap: 10px; }
+  .feedback-item__priority-bar { width: 3px; }
+  .feedback-item__time { margin-left: 0; }
+}

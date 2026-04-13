@@ -1,0 +1,131 @@
+/* Notifications page — Alert Center Design
+   Accent: Warm Orange — evokes urgency, attention, warmth
+   Aesthetic: Feed-style, timeline-driven, readable at a glance
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Notification Feed ─────────────────────── */
+.notification-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notification-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0ede8;
+  align-items: flex-start;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.notification-item:last-child { border-bottom: none; }
+
+.notification-item:hover {
+  background: #fafaf7;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 8px;
+}
+
+.notification-item__icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-item__icon-wrap--draft     { background: #f5f5f5; color: #525252; }
+.notification-item__icon-wrap--Published  { background: #f0fdf4; color: #16a34a; }
+.notification-item__icon-wrap--Rejected   { background: #fef2f2; color: #dc2626; }
+
+.notification-item__body { flex: 1; min-width: 0; }
+
+.notification-item__title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.notification-item__summary {
+  font-size: 12px;
+  color: #525252;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.notification-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notification-item__time {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.notification-item__tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.notification-item__tag--draft     { background: #f5f5f5; color: #525252; }
+.notification-item__tag--Published { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.notification-item__tag--Rejected  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+/* ── Audience Pill ─────────────────────────── */
+.notification-audience-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Feed Item Animation ──────────────────── */
+.notification-item {
+  animation: civicFadeIn 0.3s ease-out both;
+}
+
+.notification-item:nth-child(1) { animation-delay: 0.05s; }
+.notification-item:nth-child(2) { animation-delay: 0.1s; }
+.notification-item:nth-child(3) { animation-delay: 0.15s; }
+.notification-item:nth-child(4) { animation-delay: 0.2s; }
+.notification-item:nth-child(5) { animation-delay: 0.25s; }
+
+/* ── Published Badge Pulse ───────────────── */
+.notification-item__tag--Published::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #16a34a;
+  display: inline-block;
+  margin-right: 4px;
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .notification-item { gap: 12px; }
+  .notification-item__icon-wrap { width: 36px; height: 36px; }
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Tabs, message } from 'antd';
+import './Catalogs.css';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { catalogService } from '../services/catalogService';
@@ -129,33 +130,48 @@ export default function Catalogs() {
     ];
 
     return (
-      <div style={{ display: 'grid', gap: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate(type)}>
-            Thêm danh mục
-          </Button>
+      <>
+        <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+          <div className="civic-toolbar__filters" />
+          <div className="civic-toolbar__actions">
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate(type)}>
+              Thêm danh mục
+            </Button>
+          </div>
         </div>
-        <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })} />
-      </div>
+        <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+          <Table rowKey="id" loading={loading} dataSource={data} columns={columns} pagination={{ pageSize: 8 }} onRow={(record) => ({ onDoubleClick: () => setDetailModal({ open: true, item: record }) })} />
+        </div>
+      </>
     );
   };
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <Card style={{ borderRadius: 20 }} title="Danh mục hệ thống">
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={[
-              { key: 'Field', label: 'Lĩnh vực', children: renderTable('Field') },
-              { key: 'Unit', label: 'Đơn vị', children: renderTable('Unit') },
-            ]}
-          />
-        </Card>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Hệ thống / Danh mục</div>
+            <h1 className="civic-page-hero__title">Danh mục hệ thống</h1>
+            <p className="civic-page-hero__subtitle">
+              Quản lý các danh mục lĩnh vực và đơn vị hành chính phục vụ nghiệp vụ.
+            </p>
+          </div>
+        </div>
       </div>
+
+      <Card className="civic-section" styles={{ body: { padding: '0 0 4px' } }}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={[
+            { key: 'Field', label: 'Lĩnh vực', children: renderTable('Field') },
+            { key: 'Unit', label: 'Đơn vị', children: renderTable('Unit') },
+          ]}
+        />
+      </Card>
 
       <Modal
         title={modal.mode === 'create' ? 'Thêm danh mục' : 'Cập nhật danh mục'}
@@ -224,6 +240,6 @@ export default function Catalogs() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

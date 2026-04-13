@@ -1,0 +1,151 @@
+/* Reports page — Analytical Clarity Design
+   Accent: Teal/Cyan — evokes data, clarity, insight
+   Aesthetic: Structured grids, clean data presentation, information density
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Report Summary Strip ──────────────────── */
+.reports-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+  animation: civicSlideUp 0.5s ease-out both;
+}
+
+.reports-summary-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.reports-summary-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+.reports-summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.reports-summary-card--blue::before   { background: linear-gradient(90deg, #0284c7, #0891b2); }
+.reports-summary-card--green::before  { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.reports-summary-card--amber::before  { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.reports-summary-card--purple::before { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+
+.reports-summary-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.reports-summary-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #525252;
+}
+
+/* ── Generated At ──────────────────────────── */
+.reports-generated-at {
+  font-size: 12px;
+  color: #737373;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reports-generated-at strong {
+  color: #1a1a1a;
+}
+
+.reports-generated-at::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+/* ── Table Panel ───────────────────────────── */
+.reports-table-panel {
+  padding: 4px 0;
+}
+
+.reports-table__primary {
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: 'Nunito', sans-serif;
+}
+
+.reports-panel {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.reports-tabs .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+/* ── Export Bar ────────────────────────────── */
+.reports-export-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.reports-export-bar__label {
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* ── Summary Card Stagger ──────────────── */
+.reports-summary-card:nth-child(1) { animation: civicSlideUp 0.5s ease-out 0.05s both; }
+.reports-summary-card:nth-child(2) { animation: civicSlideUp 0.5s ease-out 0.1s both; }
+.reports-summary-card:nth-child(3) { animation: civicSlideUp 0.5s ease-out 0.15s both; }
+.reports-summary-card:nth-child(4) { animation: civicSlideUp 0.5s ease-out 0.2s both; }
+
+/* ── Table Strong Text ───────────────────── */
+.reports-table-panel strong {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .reports-summary-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .reports-summary-card__value { font-size: 24px; }
+}
+
+@media (max-width: 480px) {
+  .reports-summary-strip { grid-template-columns: repeat(2, 1fr); }
+}

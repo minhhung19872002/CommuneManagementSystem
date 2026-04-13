@@ -3,6 +3,7 @@ import { Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Progress, S
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { taskService } from '../services/taskService';
+import './Tasks.css';
 import { authService } from '../services/authService';
 import { catalogService } from '../services/catalogService';
 import { AppUser, CatalogItem, TaskItem, TaskKpiStats, WorkItem } from '../types';
@@ -174,16 +175,34 @@ export default function Tasks() {
   return (
     <>
       {contextHolder}
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Tổng nhiệm vụ', value: kpi?.totalTasks ?? 0, color: '#034AA0' },
-            { label: 'Tổng công việc', value: kpi?.totalWorks ?? 0, color: '#7C3AED' },
-            { label: 'KPI tổng hợp', value: `${kpi?.overallKpiScore ?? 0}%`, color: '#059669' },
-          ].map((card) => <Card key={card.label} style={{ borderRadius: 18 }}><div style={{ color: '#667085' }}>{card.label}</div><div style={{ fontSize: 30, fontWeight: 800, color: card.color }}>{card.value}</div></Card>)}
+      <div className="civic-page page-wrapper">
+        <div className="civic-page-hero">
+          <div className="civic-page-hero__inner">
+            <div className="civic-page-hero__left">
+              <div className="civic-page-hero__eyebrow">Điều hành / Nhiệm vụ</div>
+              <h1 className="civic-page-hero__title">Nhiệm vụ &amp; Công việc</h1>
+              <p className="civic-page-hero__subtitle">
+                Theo dõi tiến độ nhiệm vụ, công việc và chỉ số KPI của đội ngũ cán bộ.
+              </p>
+            </div>
+            <div className="civic-page-hero__stats">
+              <div className="civic-page-hero__stat">
+                <div className="civic-page-hero__stat-value">{kpi?.totalTasks ?? 0}</div>
+                <div className="civic-page-hero__stat-label">Nhiệm vụ</div>
+              </div>
+              <div className="civic-page-hero__stat">
+                <div className="civic-page-hero__stat-value">{kpi?.totalWorks ?? 0}</div>
+                <div className="civic-page-hero__stat-label">Công việc</div>
+              </div>
+              <div className="civic-page-hero__stat">
+                <div className="civic-page-hero__stat-value">{kpi?.overallKpiScore ?? 0}%</div>
+                <div className="civic-page-hero__stat-label">KPI</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Card style={{ borderRadius: 20 }}>
+        <Card className="civic-section" styles={{ body: { padding: '0 0 4px' } }}>
           <Tabs
             items={[
               {
@@ -191,15 +210,19 @@ export default function Tasks() {
                 label: 'Nhiệm vụ',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-                      <Space wrap>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+                      <div className="civic-toolbar__filters">
                         <Input placeholder="Tìm nhiệm vụ" value={taskFilter.search} onChange={(e) => setTaskFilter((c) => ({ ...c, search: e.target.value }))} allowClear style={{ width: 240 }} />
-                        <Select placeholder="Trạng thái" value={taskFilter.status || undefined} onChange={(value) => setTaskFilter((c) => ({ ...c, status: value || '' }))} allowClear style={{ width: 150 }} options={taskStatusOptions.map((value) => ({ label: value, value }))} />
-                        <Select placeholder="Ưu tiên" value={taskFilter.priority || undefined} onChange={(value) => setTaskFilter((c) => ({ ...c, priority: value || '' }))} allowClear style={{ width: 150 }} options={priorityOptions.map((value) => ({ label: value, value }))} />
-                      </Space>
-                      <Button type="primary" icon={<PlusOutlined />} onClick={() => openTaskModal()}>Thêm nhiệm vụ</Button>
+                        <Select placeholder="Trạng thái" value={taskFilter.status || undefined} onChange={(value) => setTaskFilter((c) => ({ ...c, status: value || '' }))} allowClear style={{ width: 140 }} options={taskStatusOptions.map((value) => ({ label: value, value }))} />
+                        <Select placeholder="Ưu tiên" value={taskFilter.priority || undefined} onChange={(value) => setTaskFilter((c) => ({ ...c, priority: value || '' }))} allowClear style={{ width: 140 }} options={priorityOptions.map((value) => ({ label: value, value }))} />
+                      </div>
+                      <div className="civic-toolbar__actions">
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => openTaskModal()}>Thêm nhiệm vụ</Button>
+                      </div>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={tasks} columns={taskColumns} pagination={{ pageSize: 8 }} scroll={{ x: 960 }} onRow={(record) => ({ onDoubleClick: () => setTaskDetailModal(record) })} />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table rowKey="id" loading={loading} dataSource={tasks} columns={taskColumns} pagination={{ pageSize: 8 }} scroll={{ x: 960 }} onRow={(record) => ({ onDoubleClick: () => setTaskDetailModal(record) })} />
+                    </div>
                   </>
                 ),
               },
@@ -208,17 +231,21 @@ export default function Tasks() {
                 label: 'Công việc',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-                      <Space wrap>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+                      <div className="civic-toolbar__filters">
                         <Input placeholder="Tìm công việc" value={workFilter.search} onChange={(e) => setWorkFilter((c) => ({ ...c, search: e.target.value }))} allowClear style={{ width: 220 }} />
                         <Select placeholder="Trạng thái" value={workFilter.status || undefined} onChange={(value) => setWorkFilter((c) => ({ ...c, status: value || '' }))} allowClear style={{ width: 140 }} options={taskStatusOptions.map((value) => ({ label: value, value }))} />
                         <Select placeholder="Ưu tiên" value={workFilter.priority || undefined} onChange={(value) => setWorkFilter((c) => ({ ...c, priority: value || '' }))} allowClear style={{ width: 140 }} options={priorityOptions.map((value) => ({ label: value, value }))} />
                         <Select placeholder="Lĩnh vực" value={workFilter.fieldCode || undefined} onChange={(value) => setWorkFilter((c) => ({ ...c, fieldCode: value || '' }))} allowClear style={{ width: 140 }} options={fields.map((item) => ({ label: item.name, value: item.code }))} />
                         <Select placeholder="Đơn vị" value={workFilter.unitCode || undefined} onChange={(value) => setWorkFilter((c) => ({ ...c, unitCode: value || '' }))} allowClear style={{ width: 140 }} options={units.map((item) => ({ label: item.name, value: item.code }))} />
-                      </Space>
-                      <Button type="primary" icon={<PlusOutlined />} onClick={() => openWorkModal()}>Thêm công việc</Button>
+                      </div>
+                      <div className="civic-toolbar__actions">
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => openWorkModal()}>Thêm công việc</Button>
+                      </div>
                     </div>
-                    <Table rowKey="id" loading={loading} dataSource={works} columns={workColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1100 }} onRow={(record) => ({ onDoubleClick: () => setWorkDetailModal(record) })} />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table rowKey="id" loading={loading} dataSource={works} columns={workColumns} pagination={{ pageSize: 8 }} scroll={{ x: 1100 }} onRow={(record) => ({ onDoubleClick: () => setWorkDetailModal(record) })} />
+                    </div>
                   </>
                 ),
               },
@@ -226,18 +253,20 @@ export default function Tasks() {
                 key: 'kpi',
                 label: 'KPI',
                 children: (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
-                    {[
-                      { label: 'Tỉ lệ hoàn thành nhiệm vụ', value: kpi?.taskCompletionRate ?? 0, color: '#034AA0' },
-                      { label: 'Tỉ lệ hoàn thành công việc', value: kpi?.workCompletionRate ?? 0, color: '#7C3AED' },
-                      { label: 'Nhiệm vụ quá hạn', value: kpi?.overdueTasks ?? 0, color: '#DC2626', suffix: '' },
-                      { label: 'Công việc quá hạn', value: kpi?.overdueWorks ?? 0, color: '#D97706', suffix: '' },
-                    ].map((card) => (
-                      <Card key={card.label} style={{ borderRadius: 18 }}>
-                        <div style={{ color: '#667085', marginBottom: 8 }}>{card.label}</div>
-                        <div style={{ fontSize: 30, fontWeight: 800, color: card.color }}>{card.value}{card.suffix ?? '%'}</div>
-                      </Card>
-                    ))}
+                  <div style={{ padding: '16px 20px' }}>
+                    <div className="tasks-kpi-grid">
+                      {[
+                        { label: 'Tỉ lệ hoàn thành nhiệm vụ', value: `${kpi?.taskCompletionRate ?? 0}%`, colorClass: 'tasks-kpi-grid-card--blue' },
+                        { label: 'Tỉ lệ hoàn thành công việc', value: `${kpi?.workCompletionRate ?? 0}%`, colorClass: 'tasks-kpi-grid-card--purple' },
+                        { label: 'Nhiệm vụ quá hạn', value: `${kpi?.overdueTasks ?? 0}`, colorClass: 'tasks-kpi-grid-card--red' },
+                        { label: 'Công việc quá hạn', value: `${kpi?.overdueWorks ?? 0}`, colorClass: 'tasks-kpi-grid-card--amber' },
+                      ].map((card) => (
+                        <div key={card.label} className={`tasks-kpi-grid-card ${card.colorClass}`}>
+                          <div className="tasks-kpi-grid-card__value">{card.value}</div>
+                          <div className="tasks-kpi-grid-card__label">{card.label}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ),
               },

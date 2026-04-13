@@ -1,0 +1,198 @@
+/* Projects page — Blueprint Design
+   Accent: Slate Blue — evokes architecture, planning, structure
+   Aesthetic: Precise, layered, professional with depth
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── KPI Row ───────────────────────────────── */
+.projects-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.projects-kpi-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 20px;
+  padding: 22px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  animation: civicSlideUp 0.5s ease-out both;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: default;
+}
+
+.projects-kpi-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.projects-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+}
+
+.projects-kpi-card--blue::before   { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.projects-kpi-card--amber::before   { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.projects-kpi-card--purple::before { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+.projects-kpi-card--red::before     { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.projects-kpi-card--green::before  { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.projects-kpi-card--cyan::before   { background: linear-gradient(90deg, #0891b2, #06b6d4); }
+
+.projects-kpi-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.projects-kpi-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #525252;
+  line-height: 1.3;
+}
+
+.projects-kpi-card__sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ── Detail Hero Card ──────────────────────── */
+.projects-detail-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.projects-detail-hero {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-radius: 16px;
+  padding: 16px 20px;
+  border: 1px solid #bfdbfe;
+  position: relative;
+  overflow: hidden;
+}
+
+.projects-detail-hero::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.06);
+  pointer-events: none;
+}
+
+.projects-detail-hero__label {
+  font-size: 12px;
+  color: #525252;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.projects-detail-hero__value {
+  font-size: 14px;
+  color: #1a1a1a;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.projects-detail-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.projects-detail-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e5e2d9;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.projects-detail-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+}
+
+.projects-detail-card__label {
+  font-size: 11px;
+  color: #737373;
+  margin-bottom: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.projects-detail-card__value {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+/* ── Status Pill ───────────────────────────── */
+.projects-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.projects-status-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+.projects-status-pill--Planning  { background: #f0f9ff; color: #0284c7; }
+.projects-status-pill--Active    { background: #f0fdf4; color: #16a34a; }
+.projects-status-pill--Completed { background: #faf5ff; color: #7c3aed; }
+.projects-status-pill--OnHold    { background: #fffbeb; color: #d97706; }
+
+/* ── Detail Card Stagger ──────────────────── */
+.projects-detail-card:nth-child(1) { animation: civicFadeIn 0.3s ease-out 0.05s both; }
+.projects-detail-card:nth-child(2) { animation: civicFadeIn 0.3s ease-out 0.1s both; }
+.projects-detail-card:nth-child(3) { animation: civicFadeIn 0.3s ease-out 0.15s both; }
+.projects-detail-card:nth-child(4) { animation: civicFadeIn 0.3s ease-out 0.2s both; }
+.projects-detail-card:nth-child(5) { animation: civicFadeIn 0.3s ease-out 0.25s both; }
+.projects-detail-card:nth-child(6) { animation: civicFadeIn 0.3s ease-out 0.3s both; }
+.projects-detail-card:nth-child(7) { animation: civicFadeIn 0.3s ease-out 0.35s both; }
+
+/* ── Active Status Pulse ─────────────────── */
+.projects-status-pill--Active::before {
+  animation: civicPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .projects-kpi-card__value { font-size: 24px; }
+  .projects-detail-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .projects-kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .projects-detail-row { grid-template-columns: 1fr; }
+}

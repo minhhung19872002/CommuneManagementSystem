@@ -1,0 +1,238 @@
+/* Backup page — Vault Design
+   Accent: Emerald/Slate — evokes security, trust, reliability
+   Aesthetic: Vault/safety-deposit feel — protective, structured, reassuring
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Three-Column Layout ─────────────────── */
+.backup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 340px;
+  gap: 20px;
+  animation: civicSlideUp 0.5s ease-out both;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .backup-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .backup-side-column {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .backup-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Vault Card ─────────────────────────────── */
+.backup-card {
+  border-radius: 20px;
+  border: 1px solid #e5e2d9;
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.backup-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.backup-card .ant-card-head {
+  background: linear-gradient(135deg, #f0fdfa 0%, #fafaf7 100%);
+  border-bottom: 1px solid #e5e2d9;
+  padding: 16px 20px;
+}
+
+.backup-card .ant-card-head-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backup-card__head-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.backup-card__body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.backup-card__text {
+  font-size: 13px;
+  color: #525252;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.backup-card__action {
+  align-self: flex-start;
+}
+
+/* ── Backup Result ─────────────────────────── */
+.backup-result {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%);
+  border: 1px solid #99f6e4;
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.backup-result::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.06);
+}
+
+.backup-result__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  color: #0d9488;
+  margin-bottom: 12px;
+  font-size: 13px;
+  position: relative;
+}
+
+.backup-result__label {
+  font-size: 11px;
+  color: #737373;
+  font-weight: 500;
+}
+
+.backup-result__value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* ── Side Column ───────────────────────────── */
+.backup-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Protection Item ──────────────────────── */
+.backup-protection-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0ede8;
+}
+
+.backup-protection-item:last-child { border-bottom: none; }
+
+.backup-protection-item__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.backup-protection-item__text {
+  font-size: 12.5px;
+  color: #525252;
+  line-height: 1.5;
+}
+
+/* ── Vault Hero ───────────────────────────── */
+.backup-vault-hero {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 50%, #f0fdf4 100%);
+  border: 1px solid #99f6e4;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.backup-vault-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% -20%, rgba(13,148,136,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.backup-vault-hero__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(13,148,136,0.3);
+}
+
+.backup-vault-hero__title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+  position: relative;
+}
+
+.backup-vault-hero__subtitle {
+  font-size: 12px;
+  color: #525252;
+  margin: 0;
+  position: relative;
+}
+
+/* ── Card Stagger Animations ─────────────── */
+.backup-card:nth-child(1) { animation: civicSlideUp 0.5s ease-out 0.05s both; }
+.backup-card:nth-child(2) { animation: civicSlideUp 0.5s ease-out 0.1s both; }
+
+.backup-side-column .backup-card:nth-child(1) { animation: civicSlideUp 0.5s ease-out 0.15s both; }
+.backup-side-column .backup-card:nth-child(2) { animation: civicSlideUp 0.5s ease-out 0.2s both; }
+
+/* ── Protection Item Stagger ─────────────── */
+.backup-protection-item:nth-child(1) { animation: civicFadeIn 0.4s ease-out 0.1s both; }
+.backup-protection-item:nth-child(2) { animation: civicFadeIn 0.4s ease-out 0.15s both; }
+.backup-protection-item:nth-child(3) { animation: civicFadeIn 0.4s ease-out 0.2s both; }
+.backup-protection-item:nth-child(4) { animation: civicFadeIn 0.4s ease-out 0.25s both; }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .backup-card__body { padding: 16px; }
+}

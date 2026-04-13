@@ -1,0 +1,156 @@
+/* LoginHistory page — Session Monitor Design
+   Accent: Green/Slate — evokes access, sessions, trust
+   Aesthetic: Timeline-style session records, success/failure distinction
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Session Item ─────────────────────────── */
+.login-session-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0ede8;
+  align-items: flex-start;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.login-session-item:last-child { border-bottom: none; }
+
+.login-session-item:hover {
+  background: #fafaf7;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 8px;
+}
+
+.login-session-item__result-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.login-session-item__result-icon--Success {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.login-session-item__result-icon--Failed {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.login-session-item__body { flex: 1; min-width: 0; }
+
+.login-session-item__username {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+}
+
+.login-session-item__detail {
+  font-size: 12px;
+  color: #525252;
+  margin-bottom: 5px;
+}
+
+.login-session-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.login-session-item__time {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.login-session-item__ip {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 11px;
+  color: #737373;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ── Result Tag ───────────────────────────── */
+.login-result-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-result-tag::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.login-result-tag--Success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.login-result-tag--Failed  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+/* ── Timeline ──────────────────────────────── */
+.login-timeline {
+  position: relative;
+  padding-left: 16px;
+}
+
+.login-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, #16a34a, #f59e0b);
+  border-radius: 2px;
+  opacity: 0.25;
+}
+
+/* ── Toggle Bar ───────────────────────────── */
+.login-toggle-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Result Tag Pulse ─────────────────────── */
+.login-result-tag--Success::before {
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+/* ── Session Item Animation ──────────────── */
+.login-session-item {
+  animation: civicFadeIn 0.3s ease-out both;
+}
+
+.login-session-item:nth-child(1) { animation-delay: 0.03s; }
+.login-session-item:nth-child(2) { animation-delay: 0.06s; }
+.login-session-item:nth-child(3) { animation-delay: 0.09s; }
+.login-session-item:nth-child(4) { animation-delay: 0.12s; }
+.login-session-item:nth-child(5) { animation-delay: 0.15s; }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .login-session-item { gap: 10px; }
+  .login-session-item__result-icon { width: 32px; height: 32px; }
+}

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import './Households.css';
 import {
   ApartmentOutlined,
   DeleteOutlined,
@@ -278,72 +279,71 @@ export default function Households() {
   ];
 
   return (
-    <div className="management-page" data-testid="households-page">
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <section className="management-page__hero">
-        <div className="management-page__copy">
-          <p className="management-page__eyebrow">Dân cư / Hộ khẩu</p>
-          <h1 className="management-page__title">Hồ sơ hộ gia đình</h1>
-          <p className="management-page__subtitle">
-            Quản lý số hộ, địa chỉ cư trú, luồng tách hộ và chuyển hộ trong phạm vi xã.
-          </p>
-        </div>
-
-        <div className="management-page__meta">
-          <div className="management-page__stat">
-            <span className="management-page__stat-value">{data.length}</span>
-            <span className="management-page__stat-label">Hộ khẩu hiện có</span>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Dân cư / Hộ khẩu</div>
+            <h1 className="civic-page-hero__title">Hồ sơ hộ gia đình</h1>
+            <p className="civic-page-hero__subtitle">
+              Quản lý số hộ, địa chỉ cư trú, luồng tách hộ và chuyển hộ trong phạm vi xã.
+            </p>
           </div>
-          <div className="management-page__stat">
-            <span className="management-page__stat-value">{activeCount}</span>
-            <span className="management-page__stat-label">Đang hoạt động</span>
-          </div>
-          <div className="management-page__actions">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                form.resetFields();
-                setModal({ open: true, mode: 'create' });
-              }}
-            >
-              Thêm hộ khẩu
-            </Button>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{data.length}</div>
+              <div className="civic-page-hero__stat-label">Hộ khẩu</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{activeCount}</div>
+              <div className="civic-page-hero__stat-label">Hoạt động</div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="management-toolbar">
-        <Input
-          data-testid="households-search-input"
-          className="management-toolbar__grow"
-          prefix={<SearchOutlined />}
-          placeholder="Tìm theo số hộ hoặc địa chỉ"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          allowClear
-          onPressEnter={() => void load()}
-        />
+      <div className="civic-toolbar">
+        <div className="civic-toolbar__filters">
+          <Input
+            data-testid="households-search-input"
+            prefix={<SearchOutlined />}
+            placeholder="Tìm theo số hộ hoặc địa chỉ"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            allowClear
+            onPressEnter={() => void load()}
+            style={{ width: 280 }}
+          />
+          <Select
+            placeholder="Trạng thái"
+            value={statusFilter || undefined}
+            onChange={(value) => setStatusFilter(value || '')}
+            allowClear
+            style={{ width: 160 }}
+            options={[
+              { label: 'Hoạt động', value: 'Active' },
+              { label: 'Đã chuyển', value: 'Moved' },
+            ]}
+          />
+        </div>
+        <div className="civic-toolbar__actions">
+          <Button icon={<ReloadOutlined />} onClick={() => void load()}>Làm mới</Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              form.resetFields();
+              setModal({ open: true, mode: 'create' });
+            }}
+          >
+            Thêm hộ khẩu
+          </Button>
+        </div>
+      </div>
 
-        <Select
-          placeholder="Trạng thái"
-          value={statusFilter || undefined}
-          onChange={(value) => setStatusFilter(value || '')}
-          allowClear
-          style={{ width: 180 }}
-          options={[
-            { label: 'Hoạt động', value: 'Active' },
-            { label: 'Đã chuyển', value: 'Moved' },
-          ]}
-        />
-
-        <Button icon={<ReloadOutlined />} onClick={() => void load()}>
-          Làm mới
-        </Button>
-      </section>
-
-      <Card className="management-table-card">
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
         <Table
           columns={columns}
           dataSource={data}
@@ -419,15 +419,16 @@ export default function Households() {
         width={720}
       >
         {detailModal.household && (
-          <div className="management-section">
+          <div>
             <Descriptions
               column={2}
               size="small"
+              style={{ marginBottom: 20 }}
               items={[
                 {
                   key: 'householdNumber',
                   label: 'Số hộ',
-                  children: <span className="table-primary-text">{detailModal.household.householdNumber}</span>,
+                  children: <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{detailModal.household.householdNumber}</span>,
                 },
                 {
                   key: 'status',
@@ -447,18 +448,18 @@ export default function Households() {
             />
 
             <div>
-              <p className="management-page__eyebrow" style={{ marginBottom: '0.75rem' }}>
+              <div className="civic-page-hero__eyebrow" style={{ marginBottom: '12px' }}>
                 Thành viên trong hộ
-              </p>
+              </div>
 
               {detailModal.members.length > 0 ? (
-                <div className="management-members-grid">
+                <div className="households-members-grid">
                   {detailModal.members.map((member) => (
-                    <div key={member.id} className="management-member-card">
-                      <Avatar style={{ background: '#155DFC', fontWeight: 800 }}>{member.fullName.charAt(0)}</Avatar>
-                      <div className="management-member-card__copy">
-                        <p className="management-member-card__name">{member.fullName}</p>
-                        <p className="management-member-card__meta">
+                    <div key={member.id} className="households-member-card">
+                      <Avatar style={{ background: '#2563eb', fontWeight: 800, flexShrink: 0 }}>{member.fullName.charAt(0)}</Avatar>
+                      <div>
+                        <p className="households-member-name">{member.fullName}</p>
+                        <p className="households-member-meta">
                           {member.relationshipToHead || 'Thành viên'} · {member.gender}
                         </p>
                       </div>
@@ -466,7 +467,7 @@ export default function Households() {
                   ))}
                 </div>
               ) : (
-                <div className="management-empty-state">Chưa có thành viên nào trong hộ này.</div>
+                <div className="civic-empty-state">Chưa có thành viên nào trong hộ này.</div>
               )}
             </div>
           </div>
@@ -485,7 +486,7 @@ export default function Households() {
         width={620}
       >
         <Form form={splitForm} layout="vertical">
-          <div className="form-grid-two">
+          <div className="civic-form-grid">
             <Form.Item
               name="newHouseholdNumber"
               label="Số hộ khẩu mới"

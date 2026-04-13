@@ -1,0 +1,104 @@
+/* Meetings page — Calendar Agenda Design
+   Accent: Green/Emerald — evokes scheduling, coordination, team
+   Aesthetic: Clean agenda view, time-driven, status progression
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Form Grid ──────────────────────────────── */
+.meetings-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+/* ── Meeting Card ─────────────────────────────── */
+.meetings-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  animation: civicSlideUp 0.5s ease-out both;
+}
+
+.meetings-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+/* ── Meeting Status Pill ─────────────────────── */
+.meetings-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meetings-status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.meetings-status-pill--Scheduled { background: #eff6ff; color: #2563eb; }
+.meetings-status-pill--Ongoing   { background: #f0fdf4; color: #16a34a; }
+.meetings-status-pill--Completed { background: #f5f5f5; color: #525252; }
+.meetings-status-pill--Cancelled { background: #fef2f2; color: #dc2626; }
+
+/* ── Session Badge ───────────────────────────── */
+.meetings-session-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.meetings-session-badge--Sang  { background: #fffbeb; color: #d97706; }
+.meetings-session-badge--Chieu { background: #eff6ff; color: #2563eb; }
+.meetings-session-badge--Toi   { background: #faf5ff; color: #7c3aed; }
+
+/* ── Registration Count ──────────────────────── */
+.meetings-reg-count {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meetings-reg-count--registered {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+/* ── Session Badge Stagger ──────────────── */
+.meetings-session-badge:nth-child(1) { animation: civicFadeIn 0.3s ease-out 0.1s both; }
+.meetings-session-badge:nth-child(2) { animation: civicFadeIn 0.3s ease-out 0.15s both; }
+.meetings-session-badge:nth-child(3) { animation: civicFadeIn 0.3s ease-out 0.2s both; }
+
+/* ── Meeting Status Pulse ──────────────── */
+.meetings-status-pill--Ongoing::before {
+  animation: civicPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .meetings-form-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,178 @@
+/* Tasks page — Command Center Design
+   Accent: Deep Violet — evokes mission control / operations
+   Aesthetic: Structured, purposeful, data-forward
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── KPI Row ───────────────────────────────── */
+.tasks-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.tasks-kpi-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 20px;
+  padding: 22px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  animation: civicSlideUp 0.5s ease-out both;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: default;
+}
+
+.tasks-kpi-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.tasks-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+}
+
+.tasks-kpi-card--blue::before   { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.tasks-kpi-card--purple::before  { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+.tasks-kpi-card--green::before   { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.tasks-kpi-card--red::before     { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.tasks-kpi-card--amber::before   { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.tasks-kpi-card--cyan::before    { background: linear-gradient(90deg, #0891b2, #06b6d4); }
+
+.tasks-kpi-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 34px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.tasks-kpi-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #525252;
+  line-height: 1.3;
+}
+
+.tasks-kpi-card__sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ── KPI Grid (KPI tab) ─────────────────────── */
+.tasks-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.tasks-kpi-grid-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 20px;
+  padding: 22px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  animation: civicSlideUp 0.5s ease-out both;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.tasks-kpi-grid-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.tasks-kpi-grid-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+}
+
+.tasks-kpi-grid-card--blue::before   { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.tasks-kpi-grid-card--purple::before  { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+.tasks-kpi-grid-card--green::before   { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.tasks-kpi-grid-card--red::before     { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.tasks-kpi-grid-card--amber::before   { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+.tasks-kpi-grid-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.tasks-kpi-grid-card__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #525252;
+  line-height: 1.4;
+}
+
+/* ── Task Item Row ──────────────────────────── */
+.tasks-row-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0ede8;
+  transition: background 0.15s;
+}
+
+.tasks-row-item:last-child { border-bottom: none; }
+.tasks-row-item:hover { background: #fafaf7; }
+
+.tasks-row-item__priority {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tasks-row-item__priority--High   { background: #dc2626; animation: civicPulse 1.5s ease-in-out infinite; }
+.tasks-row-item__priority--Medium { background: #d97706; }
+.tasks-row-item__priority--Low   { background: #16a34a; }
+
+/* ── KPI Grid Card Stagger ─────────────────── */
+.tasks-kpi-grid-card:nth-child(1) { animation-delay: 0.05s; }
+.tasks-kpi-grid-card:nth-child(2) { animation-delay: 0.1s; }
+.tasks-kpi-grid-card:nth-child(3) { animation-delay: 0.15s; }
+.tasks-kpi-grid-card:nth-child(4) { animation-delay: 0.2s; }
+
+/* ── Progress Enhancement ──────────────────── */
+.civic-section .ant-progress-bg {
+  border-radius: 20px;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+}
+
+.civic-section .ant-progress-success-bg {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .tasks-kpi-card__value { font-size: 28px; }
+  .tasks-kpi-row { gap: 10px; }
+  .tasks-kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .tasks-kpi-grid-card__value { font-size: 28px; }
+}
+
+@media (max-width: 480px) {
+  .tasks-kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .tasks-kpi-grid { grid-template-columns: 1fr 1fr; }
+}

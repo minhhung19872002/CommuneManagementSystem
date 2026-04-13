@@ -1,0 +1,64 @@
+/* Catalogs page — Registry Design
+   Accent: Blue/Slate — evokes organization, classification, structure
+   Aesthetic: Clean tabbed registry with code/name pairs
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Catalog Code Cell ────────────────────────── */
+.catalogs-code {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+/* ── Type Badge ──────────────────────────────── */
+.catalogs-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.catalogs-type-badge--Field { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.catalogs-type-badge--Unit  { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+/* ── Status Pill ─────────────────────────────── */
+.catalogs-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.catalogs-status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.catalogs-status-pill--active   { background: #f0fdf4; color: #16a34a; }
+.catalogs-status-pill--inactive { background: #f5f5f5; color: #525252; }
+
+/* ── Active Status Pulse ──────────────────── */
+.catalogs-status-pill--active::before {
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .catalogs-code { font-size: 12px; }
+}

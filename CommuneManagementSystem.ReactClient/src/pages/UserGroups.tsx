@@ -4,6 +4,7 @@ import { DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined } from '@ant-d
 import { userGroupService } from '../services/userGroupService';
 import { userService } from '../services/userService';
 import { AppUser, UserGroup } from '../types';
+import './UserGroups.css';
 
 type GroupFormValues = {
   name: string;
@@ -87,63 +88,68 @@ export default function UserGroups() {
   };
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#18212F' }}>Nhóm người dùng</h1>
-            <p style={{ margin: '4px 0 0', color: '#667085' }}>{groups.length} nhóm đang hoạt động</p>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Hệ thống / Nhóm</div>
+            <h1 className="civic-page-hero__title">Nhóm người dùng</h1>
+            <p className="civic-page-hero__subtitle">
+              Tạo và quản lý nhóm người dùng để phân quyền truy cập hệ thống.
+            </p>
           </div>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            Tạo nhóm
-          </Button>
+          <div className="civic-page-hero__actions">
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+              Tạo nhóm
+            </Button>
+          </div>
         </div>
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
-          {groups.map((group) => (
-            <Card
-              key={group.id}
-              loading={loading}
-              style={{ borderRadius: 20 }}
-              actions={[
-                <Button key="edit" type="link" icon={<EditOutlined />} onClick={() => openEdit(group)}>
-                  Sửa
-                </Button>,
-                <Popconfirm key="delete" title="Xóa nhóm này?" onConfirm={() => void handleDelete(group.id)} okText="Xóa">
-                  <Button type="link" danger icon={<DeleteOutlined />}>
-                    Xóa
-                  </Button>
-                </Popconfirm>,
-              ]}
-            >
-              <div style={{ display: 'grid', gap: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: 18 }}>{group.name}</div>
-                    <div style={{ color: '#667085', marginTop: 4 }}>{group.description}</div>
-                  </div>
-                  <Tag color="blue" icon={<TeamOutlined />}>
-                    {group.memberCount} thành viên
-                  </Tag>
-                </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {group.userNames.map((memberName) => (
-                    <Tag key={memberName} style={{ padding: '4px 8px' }}>
-                      <Avatar size="small" style={{ marginRight: 6 }}>
-                        {memberName.slice(0, 1).toUpperCase()}
-                      </Avatar>
-                      {memberName}
-                    </Tag>
-                  ))}
-                  {group.userNames.length === 0 && <span style={{ color: '#98A2B3' }}>Chưa có thành viên.</span>}
-                </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
+        {groups.map((group) => (
+          <Card
+            key={group.id}
+            loading={loading}
+            className="ug-card"
+            styles={{ body: { padding: 0 } }}
+          >
+            <div className="ug-card__header">
+              <div>
+                <div className="ug-card__name">{group.name}</div>
+                <div className="ug-card__desc">{group.description}</div>
               </div>
-            </Card>
-          ))}
-        </div>
+              <Tag color="blue" icon={<TeamOutlined />}>
+                {group.memberCount} thành viên
+              </Tag>
+            </div>
+
+            <div className="ug-card__members">
+              {group.userNames.map((memberName) => (
+                <Tag key={memberName} className="ug-card__member-tag">
+                  <Avatar size="small" style={{ marginRight: 6 }}>
+                    {memberName.slice(0, 1).toUpperCase()}
+                  </Avatar>
+                  {memberName}
+                </Tag>
+              ))}
+              {group.userNames.length === 0 && <span style={{ color: '#98A2B3' }}>Chưa có thành viên.</span>}
+            </div>
+
+            <div style={{ display: 'flex', borderTop: '1px solid #f0f0f0' }}>
+              <Button type="link" icon={<EditOutlined />} onClick={() => openEdit(group)}>
+                Sửa
+              </Button>
+              <Popconfirm title="Xóa nhóm này?" onConfirm={() => void handleDelete(group.id)} okText="Xóa">
+                <Button type="link" danger icon={<DeleteOutlined />}>
+                  Xóa
+                </Button>
+              </Popconfirm>
+            </div>
+          </Card>
+        ))}
       </div>
 
       <Modal
@@ -177,6 +183,6 @@ export default function UserGroups() {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }

@@ -1,0 +1,139 @@
+/* Households page — Registry Ledger Design
+   Accent: Blue/Emerald — evokes residency, family, community roots
+   Aesthetic: Structured registry ledger with member visualization
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── KPI Row ──────────────────────────────── */
+.households-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.households-kpi-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  animation: civicSlideUp 0.5s ease-out both;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.households-kpi-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.households-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.households-kpi-card--blue::before  { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.households-kpi-card--green::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.households-kpi-card--amber::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.households-kpi-card--red::before   { background: linear-gradient(90deg, #dc2626, #ef4444); }
+
+.households-kpi-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.households-kpi-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #525252;
+}
+
+/* ── Members grid inside detail modal ────── */
+.households-members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.households-member-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #f8fafc 0%, #fafaf7 100%);
+  border: 1px solid #e5e2d9;
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  animation: civicSlideUp 0.4s ease-out both;
+}
+
+.households-member-card:nth-child(1) { animation-delay: 0.05s; }
+.households-member-card:nth-child(2) { animation-delay: 0.1s; }
+.households-member-card:nth-child(3) { animation-delay: 0.15s; }
+.households-member-card:nth-child(4) { animation-delay: 0.2s; }
+.households-member-card:nth-child(5) { animation-delay: 0.25s; }
+.households-member-card:nth-child(6) { animation-delay: 0.3s; }
+
+.households-member-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.08);
+  transform: translateY(-1px);
+}
+
+.households-member-name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.households-member-meta {
+  font-size: 11px;
+  color: #737373;
+  margin: 2px 0 0;
+}
+
+/* ── Status Pill ──────────────────────────── */
+.households-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.households-status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.households-status-pill--Active { background: #f0fdf4; color: #16a34a; }
+.households-status-pill--Moved  { background: #fffbeb; color: #d97706; }
+.households-status-pill--Deleted { background: #f5f5f5; color: #525252; }
+
+/* ── Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  .households-members-grid { grid-template-columns: 1fr; }
+  .households-kpi-card__value { font-size: 24px; }
+}

@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Input, Select, Tag, message, Modal, Descriptions } from 'antd';
+import { Card, Table, Button, Input, Select, Tag, message, Modal, Descriptions } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { userService } from '../services/userService';
 import { SystemLog } from '../types';
+import './Logs.css';
 
 const moduleConfig: Record<string, { tagColor: string }> = {
   HoKhau:   { tagColor: 'green' },
@@ -67,48 +68,54 @@ export default function Logs() {
   ];
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      {/* Page Header */}
-      <div data-testid="logs-page" style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#32373C', margin: 0, lineHeight: 1.2 }}>Nhật ký Hệ thống</h1>
-            <p style={{ fontSize: '13px', color: '#737373', margin: '4px 0 0' }}>{filteredLogs.length} bản ghi</p>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Hệ thống / Nhật ký</div>
+            <h1 className="civic-page-hero__title">Nhật ký Hệ thống</h1>
+            <p className="civic-page-hero__subtitle">
+              Theo dõi toàn bộ hoạt động nghiệp vụ và đăng nhập trong hệ thống.
+            </p>
           </div>
-          <Button icon={<ReloadOutlined />} onClick={load}>Làm mới</Button>
+          <div className="civic-page-hero__actions">
+            <Button icon={<ReloadOutlined />} onClick={() => void load()}>Làm mới</Button>
+          </div>
+        </div>
+      </div>
+
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <Input
+                prefix={<SearchOutlined style={{ color: '#737373' }} />}
+                placeholder="Tìm hành động, người dùng..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ width: '260px' }}
+                allowClear
+              />
+              <Select
+                placeholder="Lọc theo module"
+                value={moduleFilter || undefined}
+                onChange={v => setModuleFilter(v || '')}
+                allowClear
+                style={{ width: '160px' }}
+                options={Object.keys(moduleConfig).map(k => ({ label: k, value: k }))}
+              />
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {Object.entries(moduleConfig).map(([k, v]) => (
+                  <Tag key={k} color={v.tagColor} style={{ fontWeight: 600, cursor: 'default' }}>{k}</Tag>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Module Legend */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-          {Object.entries(moduleConfig).map(([k, v]) => (
-            <Tag key={k} color={v.tagColor} style={{ fontWeight: 600, cursor: 'default' }}>{k}</Tag>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <Input
-            prefix={<SearchOutlined style={{ color: '#737373' }} />}
-            placeholder="Tìm hành động, người dùng..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ width: '260px' }}
-            allowClear
-          />
-          <Select
-            placeholder="Lọc theo module"
-            value={moduleFilter || undefined}
-            onChange={v => setModuleFilter(v || '')}
-            allowClear
-            style={{ width: '160px' }}
-            options={Object.keys(moduleConfig).map(k => ({ label: k, value: k }))}
-          />
-        </div>
-
-        {/* Table */}
-        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+        <div style={{ padding: '0 20px 20px' }}>
           <Table
             columns={columns}
             dataSource={filteredLogs}
@@ -121,7 +128,7 @@ export default function Logs() {
             })}
           />
         </div>
-      </div>
+      </Card>
 
       <Modal
         title="Chi tiết nhật ký"
@@ -147,6 +154,6 @@ export default function Logs() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

@@ -22,6 +22,7 @@ import {
   Tag,
   message,
 } from 'antd';
+import './Meetings.css';
 import type { ColumnsType } from 'antd/es/table';
 import { meetingService } from '../services/meetingService';
 import { userService } from '../services/userService';
@@ -382,33 +383,45 @@ export default function Meetings() {
   ];
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Lịch họp', value: meetings.length, color: '#034AA0' },
-            { label: 'Cần đăng ký', value: meetings.filter((item) => !item.isRegistered).length, color: '#DC2626' },
-            { label: 'Lịch làm việc', value: schedules.length, color: '#059669' },
-          ].map((card) => (
-            <Card key={card.label} style={{ borderRadius: 18 }}>
-              <div style={{ color: '#667085', fontSize: 13 }}>{card.label}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: card.color, marginTop: 4 }}>{card.value}</div>
-            </Card>
-          ))}
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Quản lý / Lịch họp</div>
+            <h1 className="civic-page-hero__title">Lịch họp &amp; Lịch làm việc</h1>
+            <p className="civic-page-hero__subtitle">
+              Quản lý cuộc họp, đăng ký tham dự, tạo lịch làm việc và phân công nhiệm vụ cho cán bộ.
+            </p>
+          </div>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{meetings.length}</div>
+              <div className="civic-page-hero__stat-label">Lịch họp</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{meetings.filter((item) => !item.isRegistered).length}</div>
+              <div className="civic-page-hero__stat-label">Cần đăng ký</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{schedules.length}</div>
+              <div className="civic-page-hero__stat-label">Lịch làm việc</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <Card style={{ borderRadius: 20 }}>
-          <Tabs
-            items={[
+      <Card className="civic-section" styles={{ body: { padding: '0 0 4px' } }}>
+        <Tabs
+          items={[
               {
                 key: 'meetings',
                 label: 'Lịch họp',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-                      <Space wrap>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+                      <div className="civic-toolbar__filters">
                         <Input
                           placeholder="Tìm theo tên họp, địa điểm"
                           value={meetingFilters.search}
@@ -427,22 +440,24 @@ export default function Meetings() {
                             value,
                           }))}
                         />
-                      </Space>
-
-                      <Button type="primary" icon={<PlusOutlined />} onClick={openMeetingCreate}>
-                        Tạo lịch họp
-                      </Button>
+                      </div>
+                      <div className="civic-toolbar__actions">
+                        <Button type="primary" icon={<PlusOutlined />} onClick={openMeetingCreate}>
+                          Tạo lịch họp
+                        </Button>
+                      </div>
                     </div>
-
-                    <Table
-                      rowKey="id"
-                      loading={loadingMeetings}
-                      dataSource={meetings}
-                      columns={meetingColumns}
-                      pagination={{ pageSize: 8 }}
-                      scroll={{ x: 1100 }}
-                      onRow={(record) => ({ onDoubleClick: () => setMeetingDetailModal(record) })}
-                    />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table
+                        rowKey="id"
+                        loading={loadingMeetings}
+                        dataSource={meetings}
+                        columns={meetingColumns}
+                        pagination={{ pageSize: 8 }}
+                        scroll={{ x: 1100 }}
+                        onRow={(record) => ({ onDoubleClick: () => setMeetingDetailModal(record) })}
+                      />
+                    </div>
                   </>
                 ),
               },
@@ -451,8 +466,8 @@ export default function Meetings() {
                 label: 'Lịch làm việc',
                 children: (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-                      <Space wrap>
+                    <div className="civic-toolbar" style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none', margin: 0 }}>
+                      <div className="civic-toolbar__filters">
                         <Input
                           placeholder="Tìm nội dung công việc"
                           value={scheduleFilters.search}
@@ -472,29 +487,30 @@ export default function Meetings() {
                           onChange={(event) => setScheduleFilters((current) => ({ ...current, toDate: event.target.value }))}
                           style={{ width: 170 }}
                         />
-                      </Space>
-
-                      <Button type="primary" icon={<CalendarOutlined />} onClick={openScheduleCreate}>
-                        Tạo lịch làm việc
-                      </Button>
+                      </div>
+                      <div className="civic-toolbar__actions">
+                        <Button type="primary" icon={<CalendarOutlined />} onClick={openScheduleCreate}>
+                          Tạo lịch làm việc
+                        </Button>
+                      </div>
                     </div>
-
-                    <Table
-                      rowKey="id"
-                      loading={loadingSchedules}
-                      dataSource={schedules}
-                      columns={scheduleColumns}
-                      pagination={{ pageSize: 8 }}
-                      scroll={{ x: 980 }}
-                      onRow={(record) => ({ onDoubleClick: () => setScheduleDetailModal(record) })}
-                    />
+                    <div className="civic-table-wrapper" style={{ padding: '0 16px 16px' }}>
+                      <Table
+                        rowKey="id"
+                        loading={loadingSchedules}
+                        dataSource={schedules}
+                        columns={scheduleColumns}
+                        pagination={{ pageSize: 8 }}
+                        scroll={{ x: 980 }}
+                        onRow={(record) => ({ onDoubleClick: () => setScheduleDetailModal(record) })}
+                      />
+                    </div>
                   </>
                 ),
               },
             ]}
           />
         </Card>
-      </div>
 
       <Modal
         title={meetingEditor.mode === 'create' ? 'Tạo lịch họp' : 'Cập nhật lịch họp'}
@@ -514,7 +530,7 @@ export default function Meetings() {
           <Form.Item name="agenda" label="Nội dung họp" rules={[{ required: true, message: 'Nhập nội dung họp.' }]}>
             <Input.TextArea rows={4} />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+          <div className="meetings-form-grid">
             <Form.Item name="location" label="Địa điểm" rules={[{ required: true, message: 'Nhập địa điểm họp.' }]}>
               <Input />
             </Form.Item>
@@ -573,7 +589,7 @@ export default function Meetings() {
           <Form.Item name="content" label="Nội dung" rules={[{ required: true, message: 'Nhập nội dung công việc.' }]}>
             <Input.TextArea rows={4} />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+          <div className="meetings-form-grid">
             <Form.Item name="workDate" label="Ngày làm việc" rules={[{ required: true, message: 'Chọn ngày.' }]}>
               <Input type="date" />
             </Form.Item>
@@ -645,6 +661,6 @@ export default function Meetings() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

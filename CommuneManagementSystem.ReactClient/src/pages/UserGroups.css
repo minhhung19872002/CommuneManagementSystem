@@ -1,0 +1,153 @@
+/* UserGroups page — Team Directory Design
+   Accent: Purple/Violet — evokes community, groups, organization
+   Aesthetic: Group cards with member chips, team visualization
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Group Card ────────────────────────────── */
+.ug-card {
+  border-radius: 20px;
+  border: 1px solid #e5e2d9;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  animation: civicSlideUp 0.5s ease-out both;
+  background: var(--color-surface);
+}
+
+.ug-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.ug-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid #f0ede8;
+  background: linear-gradient(135deg, #faf5ff 0%, #fafaf7 100%);
+}
+
+.ug-card__name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.ug-card__desc {
+  font-size: 12px;
+  color: #525252;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ug-card__members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px 20px 16px;
+}
+
+.ug-card__member-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 20px;
+  background: #faf5ff;
+  color: #7c3aed;
+  border: 1px solid #e9d5ff;
+  font-weight: 500;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ug-card__member-tag:hover {
+  background: #f5f3ff;
+  border-color: #a78bfa;
+}
+
+.ug-card__member-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ug-card__footer {
+  display: flex;
+  border-top: 1px solid #f0ede8;
+}
+
+/* ── Empty State ──────────────────────────── */
+.ug-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.ug-empty__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #f5f5f5;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ug-empty__text {
+  font-size: 13px;
+}
+
+/* ── Member Count Badge ─────────────────── */
+.ug-member-count {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #faf5ff;
+  color: #7c3aed;
+  border: 1px solid #e9d5ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Card Stagger Animations ─────────────── */
+.ug-card:nth-child(1) { animation-delay: 0.04s; }
+.ug-card:nth-child(2) { animation-delay: 0.08s; }
+.ug-card:nth-child(3) { animation-delay: 0.12s; }
+.ug-card:nth-child(4) { animation-delay: 0.16s; }
+.ug-card:nth-child(5) { animation-delay: 0.2s; }
+.ug-card:nth-child(6) { animation-delay: 0.24s; }
+
+/* ── Member Tag Stagger ─────────────────── */
+.ug-card__member-tag:nth-child(1) { animation: civicFadeIn 0.3s ease-out 0.1s both; }
+.ug-card__member-tag:nth-child(2) { animation: civicFadeIn 0.3s ease-out 0.15s both; }
+.ug-card__member-tag:nth-child(3) { animation: civicFadeIn 0.3s ease-out 0.2s both; }
+.ug-card__member-tag:nth-child(4) { animation: civicFadeIn 0.3s ease-out 0.25s both; }
+.ug-card__member-tag:nth-child(5) { animation: civicFadeIn 0.3s ease-out 0.3s both; }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .ug-card__header { padding: 16px; gap: 10px; }
+  .ug-card__members { padding: 12px 16px 14px; }
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CheckCircleFilled, CloudDownloadOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Descriptions, List, message } from 'antd';
 import { userService } from '../services/userService';
+import './Backup.css';
 
 type BackupResponse = {
   message?: string;
@@ -69,18 +70,20 @@ export default function Backup() {
   };
 
   return (
-    <div className="page-stack">
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <section className="page-hero" data-testid="backup-page">
-        <div>
-          <p className="page-kicker">An toàn dữ liệu</p>
-          <h1 className="page-title">Sao lưu và phục hồi</h1>
-          <p className="page-subtitle">
-            Tạo snapshot JSON đầy đủ cho cơ sở dữ liệu và tài liệu đính kèm để phục vụ đối soát hoặc khôi phục.
-          </p>
+      <div className="civic-page-hero" data-testid="backup-page">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">An toàn dữ liệu</div>
+            <h1 className="civic-page-hero__title">Sao lưu và phục hồi</h1>
+            <p className="civic-page-hero__subtitle">
+              Tạo snapshot JSON đầy đủ cho cơ sở dữ liệu và tài liệu đính kèm để phục vụ đối soát hoặc khôi phục.
+            </p>
+          </div>
         </div>
-      </section>
+      </div>
 
       <div className="backup-grid">
         <Card title="Sao lưu dữ liệu" className="backup-card">

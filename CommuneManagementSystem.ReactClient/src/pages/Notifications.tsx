@@ -6,6 +6,7 @@ import {
   PlusOutlined,
   SendOutlined,
 } from '@ant-design/icons';
+import './Notifications.css';
 import {
   Button,
   Card,
@@ -268,25 +269,38 @@ export default function Notifications() {
   const publishedCount = items.filter((item) => item.status === 'Published').length;
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Tổng thông báo', value: items.length, color: '#034AA0' },
-            { label: 'Bản nháp', value: draftCount, color: '#D97706' },
-            { label: 'Đã đăng', value: publishedCount, color: '#059669' },
-          ].map((card) => (
-            <Card key={card.label} style={{ borderRadius: 18 }}>
-              <div style={{ color: '#667085', fontSize: 13 }}>{card.label}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: card.color, marginTop: 4 }}>{card.value}</div>
-            </Card>
-          ))}
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Quản lý / Thông báo</div>
+            <h1 className="civic-page-hero__title">Thông báo hệ thống</h1>
+            <p className="civic-page-hero__subtitle">
+              Tạo, duyệt và quản lý thông báo cho các nhóm người dùng trong hệ thống.
+            </p>
+          </div>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{items.length}</div>
+              <div className="civic-page-hero__stat-label">Tổng thông báo</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{draftCount}</div>
+              <div className="civic-page-hero__stat-label">Bản nháp</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{publishedCount}</div>
+              <div className="civic-page-hero__stat-label">Đã đăng</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <Card style={{ borderRadius: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">
             <Space wrap>
               <Input
                 placeholder="Tìm tiêu đề hoặc nội dung"
@@ -312,12 +326,15 @@ export default function Notifications() {
                 <span style={{ color: '#667085' }}>Chỉ hiển của tôi</span>
               </div>
             </Space>
-
+          </div>
+          <div className="civic-toolbar__actions">
             <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
               Tạo thông báo
             </Button>
           </div>
+        </div>
 
+        <div style={{ padding: '0 20px 20px' }}>
           <Table
             rowKey="id"
             loading={loading}
@@ -329,8 +346,8 @@ export default function Notifications() {
               onDoubleClick: () => setDetailModal({ open: true, item: record }),
             })}
           />
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       <Modal
         title={editor.mode === 'create' ? 'Tạo thông báo' : 'Cập nhật thông báo'}
@@ -429,6 +446,6 @@ export default function Notifications() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

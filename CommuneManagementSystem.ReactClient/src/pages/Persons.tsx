@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import './Persons.css';
 import {
   DeleteOutlined,
   DownloadOutlined,
@@ -315,78 +316,73 @@ export default function Persons() {
   ];
 
   return (
-    <div className="management-page" data-testid="persons-page">
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <section className="management-page__hero">
-        <div className="management-page__copy">
-          <p className="management-page__eyebrow">Dân cư / Nhân khẩu</p>
-          <h1 className="management-page__title">Hồ sơ công dân</h1>
-          <p className="management-page__subtitle">
-            Quản lý thông tin định danh, quan hệ hộ khẩu, khai sinh, khai tử và tài liệu đính kèm.
-          </p>
-        </div>
-
-        <div className="management-page__meta">
-          <div className="management-page__stat">
-            <span className="management-page__stat-value">{data.length}</span>
-            <span className="management-page__stat-label">Nhân khẩu hiện có</span>
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Dân cư / Nhân khẩu</div>
+            <h1 className="civic-page-hero__title">Hồ sơ công dân</h1>
+            <p className="civic-page-hero__subtitle">
+              Quản lý thông tin định danh, quan hệ hộ khẩu, khai sinh, khai tử và tài liệu đính kèm.
+            </p>
           </div>
-          <div className="management-page__stat">
-            <span className="management-page__stat-value">{aliveCount}</span>
-            <span className="management-page__stat-label">Đang sống</span>
-          </div>
-          <div className="management-page__actions">
-            <Button onClick={() => { regForm.resetFields(); setRegModal({ open: true, type: 'birth' }); }}>
-              Đăng ký khai sinh
-            </Button>
-            <Button danger onClick={() => { regForm.resetFields(); setRegModal({ open: true, type: 'death' }); }}>
-              Đăng ký khai tử
-            </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                form.resetFields();
-                setModal({ open: true, mode: 'create' });
-              }}
-            >
-              Thêm nhân khẩu
-            </Button>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{data.length}</div>
+              <div className="civic-page-hero__stat-label">Nhân khẩu</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{aliveCount}</div>
+              <div className="civic-page-hero__stat-label">Đang sống</div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="management-toolbar">
-        <Input
-          className="management-toolbar__grow"
-          prefix={<SearchOutlined />}
-          placeholder="Tìm theo họ tên hoặc CCCD"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          allowClear
-          onPressEnter={() => void load()}
-        />
+      <div className="civic-toolbar">
+        <div className="civic-toolbar__filters">
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Tìm theo họ tên hoặc CCCD"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            allowClear
+            onPressEnter={() => void load()}
+            style={{ width: 260 }}
+          />
+          <Select
+            placeholder="Trạng thái"
+            value={statusFilter || undefined}
+            onChange={(value) => setStatusFilter(value || '')}
+            allowClear
+            style={{ width: 160 }}
+            options={[
+              { label: 'Đang sống', value: 'Alive' },
+              { label: 'Đã mất', value: 'Dead' },
+              { label: 'Đã chuyển', value: 'Moved' },
+            ]}
+          />
+        </div>
+        <div className="civic-toolbar__actions">
+          <Button icon={<ReloadOutlined />} onClick={() => void load()}>Làm mới</Button>
+          <Button onClick={() => { regForm.resetFields(); setRegModal({ open: true, type: 'birth' }); }}>Khai sinh</Button>
+          <Button danger onClick={() => { regForm.resetFields(); setRegModal({ open: true, type: 'death' }); }}>Khai tử</Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              form.resetFields();
+              setModal({ open: true, mode: 'create' });
+            }}
+          >
+            Thêm nhân khẩu
+          </Button>
+        </div>
+      </div>
 
-        <Select
-          placeholder="Trạng thái"
-          value={statusFilter || undefined}
-          onChange={(value) => setStatusFilter(value || '')}
-          allowClear
-          style={{ width: 180 }}
-          options={[
-            { label: 'Đang sống', value: 'Alive' },
-            { label: 'Đã mất', value: 'Dead' },
-            { label: 'Đã chuyển', value: 'Moved' },
-          ]}
-        />
-
-        <Button icon={<ReloadOutlined />} onClick={() => void load()}>
-          Làm mới
-        </Button>
-      </section>
-
-      <Card className="management-table-card">
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
         <Table
           columns={columns}
           dataSource={data}
@@ -416,7 +412,7 @@ export default function Persons() {
         width={680}
       >
         <Form form={form} layout="vertical">
-          <div className="form-grid-two">
+          <div className="civic-form-grid">
             <Form.Item name="fullName" label="Họ tên" rules={[{ required: true, message: 'Vui lòng nhập họ tên.' }]}>
               <Input placeholder="Nguyễn Văn A" />
             </Form.Item>
@@ -600,7 +596,7 @@ export default function Persons() {
               label: 'Khai sinh',
               children: (
                 <Form form={regForm} layout="vertical">
-                  <div className="form-grid-two">
+                  <div className="civic-form-grid">
                     <Form.Item
                       name="fullName"
                       label="Họ tên trẻ"
@@ -642,7 +638,7 @@ export default function Persons() {
               label: 'Khai tử',
               children: (
                 <Form form={regForm} layout="vertical">
-                  <div className="form-grid-two">
+                  <div className="civic-form-grid">
                     <Form.Item
                       name="personId"
                       label="Nhân khẩu"

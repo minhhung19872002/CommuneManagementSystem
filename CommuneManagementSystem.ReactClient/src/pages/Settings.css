@@ -1,0 +1,113 @@
+/* Settings page — Control Panel Design
+   Accent: Slate Blue — evokes configuration, precision, infrastructure
+   Aesthetic: Clean form layout, key-value pairs, system parameters
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Settings Item Card ─────────────────────── */
+.settings-item-card {
+  border-radius: 16px;
+  border: 1px solid #e5e2d9;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: var(--color-surface);
+}
+
+.settings-item-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+}
+
+.settings-item__key {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.settings-item__key::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2563eb;
+  flex-shrink: 0;
+}
+
+.settings-item__desc {
+  font-size: 12px;
+  color: #525252;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.settings-item__meta {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Setting Value Input ────────────────────── */
+.settings-value-input {
+  border-radius: 8px !important;
+  border-color: #e5e2d9 !important;
+  transition: border-color 0.15s !important;
+}
+
+.settings-value-input:focus,
+.settings-value-input:hover {
+  border-color: #2563eb !important;
+}
+
+/* ── Category Header ────────────────────────── */
+.settings-category-header {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e2d9;
+}
+
+.settings-category-header__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Settings Item Animation ──────────────── */
+.settings-item-card {
+  animation: civicSlideUp 0.4s ease-out both;
+}
+
+.settings-item-card:nth-child(1) { animation-delay: 0.04s; }
+.settings-item-card:nth-child(2) { animation-delay: 0.08s; }
+.settings-item-card:nth-child(3) { animation-delay: 0.12s; }
+.settings-item-card:nth-child(4) { animation-delay: 0.16s; }
+.settings-item-card:nth-child(5) { animation-delay: 0.2s; }
+
+/* ── Active Setting Indicator ────────────── */
+.settings-item-card:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .settings-item-card__body { padding: 14px 16px; }
+}

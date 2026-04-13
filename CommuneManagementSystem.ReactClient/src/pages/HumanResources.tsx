@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { hrService } from '../services/hrService';
 import { authService } from '../services/authService';
 import { AppUser, BaseSalaryRate, HrPayrollStats, PayrollEntry, SalaryTransfer, StaffProfile } from '../types';
+import './HumanResources.css';
 
 type StaffFormValues = {
   userId?: number;
@@ -444,28 +445,37 @@ export default function HumanResources() {
   };
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-          {[
-            { label: 'Tổng cán bộ', value: stats?.staffCount ?? 0, color: '#034AA0' },
-            { label: 'Cán bộ hoạt động', value: stats?.activeStaffCount ?? 0, color: '#10B981' },
-            { label: 'Tổng bảng lương', value: stats?.payrollCount ?? 0, color: '#7C3AED' },
-            { label: 'Đã chuyển lương', value: stats?.transferredPayrollCount ?? 0, color: '#059669' },
-            { label: 'Lương cơ sở hiện tại', value: formatCurrency(stats?.currentBaseSalary ?? 0), color: '#2563EB' },
-            { label: 'Tổng quỹ lương tháng', value: formatCurrency(stats?.monthlyPayrollTotal ?? 0), color: '#D97706' },
-          ].map((card) => (
-            <Card key={card.label} style={{ borderRadius: 18 }}>
-              <div style={{ color: '#667085' }}>{card.label}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: card.color }}>{card.value}</div>
-            </Card>
-          ))}
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Quản lý / Nhân sự</div>
+            <h1 className="civic-page-hero__title">Nhân sự &amp; Lương</h1>
+            <p className="civic-page-hero__subtitle">
+              Quản lý hồ sơ cán bộ, bảng lương, chuyển lương và các thông tin nhân sự khác.
+            </p>
+          </div>
+          <div className="civic-page-hero__stats">
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{stats?.staffCount ?? 0}</div>
+              <div className="civic-page-hero__stat-label">Tổng cán bộ</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{stats?.activeStaffCount ?? 0}</div>
+              <div className="civic-page-hero__stat-label">Hoạt động</div>
+            </div>
+            <div className="civic-page-hero__stat">
+              <div className="civic-page-hero__stat-value">{stats?.payrollCount ?? 0}</div>
+              <div className="civic-page-hero__stat-label">Bảng lương</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <Card style={{ borderRadius: 20 }}>
-          <Tabs
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <Tabs
             items={[
               {
                 key: 'staffs',
@@ -570,7 +580,6 @@ export default function HumanResources() {
             ]}
           />
         </Card>
-      </div>
 
       <Modal
         title={staffModal.item ? 'Cập nhật cán bộ' : 'Thêm cán bộ'}
@@ -581,7 +590,7 @@ export default function HumanResources() {
         width={760}
       >
         <Form form={staffForm} layout="vertical" style={{ marginTop: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          <div className="civic-form-grid">
             <Form.Item name="userId" label="Liên kết tài khoản">
               <Select allowClear options={userOptions} />
             </Form.Item>
@@ -650,7 +659,7 @@ export default function HumanResources() {
           <Form.Item name="staffProfileId" label="Cán bộ" rules={[{ required: true, message: 'Chọn cán bộ.' }]}>
             <Select options={staffOptions} />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          <div className="civic-form-grid">
             <Form.Item name="month" label="Kỳ lương" rules={[{ required: true, message: 'Nhập kỳ lương.' }]}>
               <Input type="month" />
             </Form.Item>
@@ -681,7 +690,7 @@ export default function HumanResources() {
           <Form.Item name="payrollEntryId" label="Bảng lương" rules={[{ required: true, message: 'Chọn bảng lương.' }]}>
             <Select options={payrollOptions} />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          <div className="civic-form-grid">
             <Form.Item name="transferDate" label="Ngày chuyển" rules={[{ required: true, message: 'Chọn ngày chuyển.' }]}>
               <Input type="date" />
             </Form.Item>
@@ -787,6 +796,6 @@ export default function HumanResources() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

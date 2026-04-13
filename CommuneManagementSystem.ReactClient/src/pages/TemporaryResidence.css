@@ -1,0 +1,141 @@
+/* TemporaryResidence page — Registry Design
+   Accent: Teal/Cyan — evokes residency, stability, community
+   Aesthetic: Clean registry, status-driven cards, address-centric
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Residence Card ──────────────────────── */
+.tmp-residence-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  animation: civicSlideUp 0.5s ease-out both;
+  cursor: pointer;
+}
+
+.tmp-residence-card:last-child { margin-bottom: 0; }
+
+.tmp-residence-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+  border-color: #0891b2;
+}
+
+.tmp-residence-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.tmp-residence-card__person {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 2px;
+}
+
+.tmp-residence-card__address {
+  font-size: 12px;
+  color: #525252;
+  line-height: 1.4;
+}
+
+.tmp-residence-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* ── Status Pill ───────────────────────────── */
+.tmp-res-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tmp-res-status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+.tmp-res-status-pill--Active   { background: #eff6ff; color: #2563eb; }
+.tmp-res-status-pill--Expired  { background: #fffbeb; color: #d97706; }
+.tmp-res-status-pill--Returned { background: #f0fdf4; color: #16a34a; }
+.tmp-res-status-pill--Cancelled { background: #f5f5f5; color: #525252; }
+
+/* ── Date Range ────────────────────────────── */
+.tmp-res-date-range {
+  font-size: 12px;
+  color: #525252;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tmp-res-date-range__from,
+.tmp-res-date-range__to {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.tmp-res-date-range__sep {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+/* ── Days Remaining Badge ─────────────────── */
+.tmp-res-days-badge {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f5f5f5;
+  color: #525252;
+}
+
+.tmp-res-days-badge--soon {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.tmp-res-days-badge--expired {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ── Card Stagger ─────────────────────────── */
+.tmp-residence-card:nth-child(1) { animation-delay: 0.04s; }
+.tmp-residence-card:nth-child(2) { animation-delay: 0.08s; }
+.tmp-residence-card:nth-child(3) { animation-delay: 0.12s; }
+.tmp-residence-card:nth-child(4) { animation-delay: 0.16s; }
+.tmp-residence-card:nth-child(5) { animation-delay: 0.2s; }
+
+/* ── Active Status Emphasis ──────────────── */
+.tmp-res-status-pill--Active::before {
+  animation: civicPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .tmp-residence-card { padding: 14px 16px; margin-bottom: 10px; }
+  .tmp-residence-card__header { flex-direction: column; gap: 8px; }
+}

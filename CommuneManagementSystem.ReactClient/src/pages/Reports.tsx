@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Card, Descriptions, Input, Modal, Select, Space, Table, Tabs, Tag, message } from 'antd';
+import './Reports.css';
 import { householdService } from '../services/householdService';
 import { reportService } from '../services/reportService';
 import { Household, PopulationStats } from '../types';
@@ -442,65 +443,70 @@ export default function Reports() {
   ];
 
   return (
-    <div className="page-stack">
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <section className="page-hero" data-testid="reports-page">
-        <div>
-          <p className="page-kicker">Trung tâm báo cáo</p>
-          <h1 className="page-title">Báo cáo và thống kê</h1>
-          <p className="page-subtitle">
-            Tạo báo cáo theo bộ lọc tùy chọn và xuất dữ liệu nhanh dưới dạng JSON hoặc CSV.
-          </p>
+      <div className="civic-page-hero" data-testid="reports-page">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Trung tâm báo cáo</div>
+            <h1 className="civic-page-hero__title">Báo cáo và thống kê</h1>
+            <p className="civic-page-hero__subtitle">
+              Tạo báo cáo theo bộ lọc tùy chọn và xuất dữ liệu nhanh dưới dạng JSON hoặc CSV.
+            </p>
+          </div>
+          <div className="civic-page-hero__actions">
+            <Button icon={<DownloadOutlined />} onClick={exportCsv} disabled={!reportData?.data?.length}>
+              Xuất CSV
+            </Button>
+            <Button
+              data-testid="reports-export-json"
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={exportJson}
+              disabled={!reportData}
+            >
+              Xuất JSON
+            </Button>
+          </div>
         </div>
-
-        <div className="page-actions">
-          <Button icon={<DownloadOutlined />} onClick={exportCsv} disabled={!reportData?.data?.length}>
-            Xuất CSV
-          </Button>
-          <Button
-            data-testid="reports-export-json"
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={exportJson}
-            disabled={!reportData}
-          >
-            Xuất JSON
-          </Button>
-        </div>
-      </section>
+      </div>
 
       {stats && (
-        <div className="summary-grid">
+        <div className="civic-kpi-row">
           {buildSummaryCards(stats).map((card) => (
-            <Card key={card.testId} className="summary-card" data-testid={card.testId}>
-              <div className="summary-card-value" style={{ color: card.color }}>
-                {card.value.toLocaleString('vi-VN')}
+            <div key={card.testId} className="civic-kpi-card civic-kpi-card--blue" data-testid={card.testId}>
+              <div className="civic-kpi-card__body">
+                <div className="civic-kpi-card__value" style={{ color: card.color }}>
+                  {card.value.toLocaleString('vi-VN')}
+                </div>
+                <div className="civic-kpi-card__label">{card.label}</div>
               </div>
-              <div className="summary-card-label">{card.label}</div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
 
-      <Card className="surface-panel surface-panel--flush reports-panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
-          {filterBar}
-          <Space wrap>
+      <Card className="civic-section reports-panel" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">{filterBar}</div>
+          <div className="civic-toolbar__actions">
             <Button onClick={() => void loadReport(activeTab)}>Áp dụng bộ lọc</Button>
             <Button data-testid="reports-refresh" icon={<ReloadOutlined />} onClick={() => void loadReport(activeTab)}>
               Làm mới
             </Button>
-          </Space>
+          </div>
         </div>
 
-        <Tabs
-          data-testid="reports-tabs"
-          items={tabItems}
-          activeKey={activeTab}
-          onChange={(key) => void loadReport(key)}
-          className="reports-tabs"
-        />
+        <div style={{ padding: '0 20px 20px' }}>
+          <Tabs
+            data-testid="reports-tabs"
+            items={tabItems}
+            activeKey={activeTab}
+            onChange={(key) => void loadReport(key)}
+            className="reports-tabs"
+          />
+        </div>
       </Card>
 
       <Modal

@@ -1,0 +1,105 @@
+/* Persons page — Citizen Identity Design
+   Accent: Blue/Indigo — evokes identity, documentation, personal records
+   Aesthetic: Clean identity registry with avatar-driven table rows
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── KPI Row ──────────────────────────────── */
+.persons-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.persons-kpi-card {
+  background: var(--color-surface);
+  border: 1px solid #e5e2d9;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  animation: civicSlideUp 0.5s ease-out both;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.persons-kpi-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.persons-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.persons-kpi-card--blue::before   { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.persons-kpi-card--green::before  { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.persons-kpi-card--amber::before  { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.persons-kpi-card--purple::before { background: linear-gradient(90deg, #9333ea, #a855f7); }
+
+.persons-kpi-card__value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.persons-kpi-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #525252;
+}
+
+/* ── Detail Modal Section ─────────────────── */
+.management-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.management-page__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.management-page__eyebrow::before {
+  content: '';
+  width: 16px;
+  height: 2px;
+  background: #2563eb;
+  border-radius: 2px;
+}
+
+/* ── Document List ────────────────────────── */
+.persons-doc-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0ede8;
+  transition: background 0.15s;
+}
+
+.persons-doc-item:last-child { border-bottom: none; }
+
+.persons-doc-item:hover {
+  background: #fafaf7;
+}
+
+/* ── Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  .persons-kpi-card__value { font-size: 24px; }
+}

@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { authService } from '../services/authService';
 import { SystemLog } from '../types';
 import { useAuth } from '../context/AuthContext';
+import './LoginHistory.css';
 
 export default function LoginHistory() {
   const { user } = useAuth();
@@ -88,20 +89,29 @@ export default function LoginHistory() {
   ];
 
   return (
-    <>
+    <div className="civic-page page-wrapper">
       {contextHolder}
 
-      <div style={{ padding: '24px 24px 0' }}>
-        <Card
-          style={{ borderRadius: 20 }}
-          title="Lịch sử đăng nhập"
-          extra={
+      <div className="civic-page-hero">
+        <div className="civic-page-hero__inner">
+          <div className="civic-page-hero__left">
+            <div className="civic-page-hero__eyebrow">Hệ thống / Đăng nhập</div>
+            <h1 className="civic-page-hero__title">Lịch sử đăng nhập</h1>
+            <p className="civic-page-hero__subtitle">
+              Theo dõi các lần đăng nhập thành công và thất bại trong hệ thống.
+            </p>
+          </div>
+          <div className="civic-page-hero__actions">
             <Button icon={<ReloadOutlined />} onClick={() => void load()}>
               Tải lại
             </Button>
-          }
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+          </div>
+        </div>
+      </div>
+
+      <Card className="civic-section" styles={{ body: { padding: 0 } }}>
+        <div className="civic-toolbar" style={{ marginBottom: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+          <div className="civic-toolbar__filters">
             <Space wrap>
               <Input
                 prefix={<SearchOutlined />}
@@ -123,7 +133,8 @@ export default function LoginHistory() {
                 ]}
               />
             </Space>
-
+          </div>
+          <div className="civic-toolbar__actions">
             {isAdmin && (
               <Select
                 value={showAll ? 'all' : 'mine'}
@@ -136,7 +147,9 @@ export default function LoginHistory() {
               />
             )}
           </div>
+        </div>
 
+        <div style={{ padding: '0 20px 20px' }}>
           <Table
             rowKey="id"
             loading={loading}
@@ -148,8 +161,8 @@ export default function LoginHistory() {
               onDoubleClick: () => setDetailModal({ open: true, item: record }),
             })}
           />
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       <Modal
         title="Chi tiết đăng nhập"
@@ -174,6 +187,6 @@ export default function LoginHistory() {
           </Descriptions>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

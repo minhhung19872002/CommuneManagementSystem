@@ -1,0 +1,150 @@
+/* Users page — Identity Directory Design
+   Accent: Rose/Pink — evokes people, identity, profiles
+   Aesthetic: Identity cards with gradient headers, role badges
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── User Card ──────────────────────────────── */
+.users-card {
+  border-radius: 20px;
+  border: 1px solid #e5e2d9;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  animation: civicSlideUp 0.5s ease-out both;
+  background: var(--color-surface);
+}
+
+.users-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.users-card__header {
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-bottom: 1px solid #f0ede8;
+  transition: background 0.2s;
+}
+
+.users-card__header:hover {
+  filter: brightness(0.98);
+}
+
+.users-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.users-card__info { flex: 1; overflow: hidden; }
+
+.users-card__name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.users-card__tags {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.users-card__body {
+  padding: 14px 20px 16px;
+}
+
+.users-card__meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.users-card__meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.users-card__meta-label {
+  font-size: 12px;
+  color: #737373;
+}
+
+.users-card__meta-value {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.users-card__meta-value--username {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 12px;
+  color: #525252;
+}
+
+/* ── Role Avatar Gradients ─────────────────── */
+.users-card__avatar--Admin    { background: linear-gradient(135deg, #7c3aed, #9333ea); }
+.users-card__avatar--NhanKhau  { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+.users-card__avatar--HoKhau   { background: linear-gradient(135deg, #16a34a, #22c55e); }
+.users-card__avatar--default   { background: linear-gradient(135deg, #525252, #737373); }
+
+/* ── Status Dot ───────────────────────────── */
+.users-status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+.users-status-dot--Active   { background: #16a34a; }
+.users-status-dot--Inactive { background: #94a3b8; }
+
+/* ── Card Actions ─────────────────────────── */
+.users-card__actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid #f0ede8;
+  flex-wrap: wrap;
+}
+
+.users-card__actions--full {
+  margin-left: auto;
+}
+
+/* ── Card Stagger Animations ─────────────── */
+.users-card:nth-child(1) { animation-delay: 0.04s; }
+.users-card:nth-child(2) { animation-delay: 0.08s; }
+.users-card:nth-child(3) { animation-delay: 0.12s; }
+.users-card:nth-child(4) { animation-delay: 0.16s; }
+.users-card:nth-child(5) { animation-delay: 0.2s; }
+.users-card:nth-child(6) { animation-delay: 0.24s; }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .users-card__header { padding: 16px; gap: 10px; }
+  .users-card__body { padding: 12px 16px 14px; }
+  .users-card__avatar { width: 40px; height: 40px; font-size: 16px; border-radius: 10px; }
+}

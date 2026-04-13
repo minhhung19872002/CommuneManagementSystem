@@ -1,0 +1,142 @@
+/* TemporaryAbsence page — Registry Design
+   Accent: Amber — evokes travel, departure, motion
+   Aesthetic: Timeline/card-based registry for absence records
+   ============================================ */
+@import './civic-shared.css';
+
+/* ── Absence Timeline Item ─────────────────── */
+.tmp-absence-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0ede8;
+  align-items: flex-start;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.tmp-absence-item:last-child { border-bottom: none; }
+
+.tmp-absence-item:hover {
+  background: #fafaf7;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 8px;
+}
+
+.tmp-absence-item__icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tmp-absence-item__icon-wrap--Active   { background: #fffbeb; color: #d97706; }
+.tmp-absence-item__icon-wrap--Returned { background: #f0fdf4; color: #16a34a; }
+.tmp-absence-item__icon-wrap--Cancelled { background: #f5f5f5; color: #525252; }
+
+.tmp-absence-item__body { flex: 1; min-width: 0; }
+
+.tmp-absence-item__person {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+}
+
+.tmp-absence-item__dates {
+  font-size: 12px;
+  color: #525252;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tmp-absence-item__date-sep {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.tmp-absence-item__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Status Pill ───────────────────────────── */
+.tmp-absence-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tmp-absence-status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: civicPulse 2s ease-in-out infinite;
+}
+
+.tmp-absence-status-pill--Active   { background: #fffbeb; color: #d97706; }
+.tmp-absence-status-pill--Returned { background: #f0fdf4; color: #16a34a; }
+.tmp-absence-status-pill--Cancelled { background: #f5f5f5; color: #525252; }
+
+/* ── Days Counter ──────────────────────────── */
+.tmp-absence-days {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tmp-absence-days__num {
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+.tmp-absence-days__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Active Status Emphasis ──────────────── */
+.tmp-absence-status-pill--Active::before {
+  animation: civicPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Absence Item Animation ──────────────── */
+.tmp-absence-item {
+  animation: civicFadeIn 0.3s ease-out both;
+}
+
+.tmp-absence-item:nth-child(1) { animation-delay: 0.04s; }
+.tmp-absence-item:nth-child(2) { animation-delay: 0.08s; }
+.tmp-absence-item:nth-child(3) { animation-delay: 0.12s; }
+.tmp-absence-item:nth-child(4) { animation-delay: 0.16s; }
+.tmp-absence-item:nth-child(5) { animation-delay: 0.2s; }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .tmp-absence-item { gap: 10px; }
+  .tmp-absence-item__icon-wrap { width: 36px; height: 36px; }
+  .tmp-absence-days__num { font-size: 16px; }
+}

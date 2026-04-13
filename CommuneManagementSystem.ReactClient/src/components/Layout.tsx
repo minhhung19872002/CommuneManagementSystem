@@ -49,6 +49,7 @@ type ProfileValues = {
 export default function Layout() {
   const { user, logout, updateUser } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -180,6 +181,8 @@ export default function Layout() {
       <Sidebar
         onNavigate={() => {}}
         userRole={user?.role}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(v => !v)}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
       />
