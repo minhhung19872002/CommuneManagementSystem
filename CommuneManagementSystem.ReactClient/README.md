@@ -48,3 +48,17 @@ You can override them with:
 - `E2E_API_READY_URL`
 - `E2E_USERNAME`
 - `E2E_PASSWORD`
+
+## Vercel Deployment
+
+This repository deploys the frontend from the repo root via [`vercel.json`](../vercel.json).
+
+- Build source: `CommuneManagementSystem.ReactClient`
+- Output directory: `CommuneManagementSystem.ReactClient/dist`
+- SPA routing is handled with a rewrite to `index.html`
+
+Important:
+
+- The frontend defaults to `'/api'`, which only works in local development when Vite proxies requests to the .NET API.
+- For Vercel, set `VITE_API_BASE_URL` to your public backend URL, for example: `https://your-api-host.example.com/api`
+- If you do not deploy the backend separately, the frontend can load but login and all data requests will fail

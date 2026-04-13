@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm install --prefix CommuneManagementSystem.ReactClient",
+  "buildCommand": "npm run build --prefix CommuneManagementSystem.ReactClient",
+  "outputDirectory": "CommuneManagementSystem.ReactClient/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
