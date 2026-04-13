@@ -4,7 +4,7 @@ Frontend for the commune management app. The repo now includes runnable E2E smok
 
 ## Prerequisites
 
-- Node.js `22.12+` is recommended. The current repo still builds on `22.11.0`, but Vite warns about that version.
+- Node.js `22.13+` is recommended. The repo root includes `.nvmrc` so Vercel and local version managers can pick a compatible Node release for Vite 8.
 - .NET SDK `9.x`
 - Playwright browser binaries: run `npm run playwright:install` once after installing dependencies
 

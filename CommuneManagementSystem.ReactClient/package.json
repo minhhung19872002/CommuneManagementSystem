@@ -23,7 +23,6 @@
   "dependencies": {
     "@ant-design/cssinjs": "^2.1.2",
     "@ant-design/icons": "^6.1.1",
-    "@rolldown/binding-win32-x64-msvc": "^1.0.0-rc.13",
     "antd": "^6.3.5",
     "axios": "^1.14.0",
     "lucide-react": "^1.7.0",

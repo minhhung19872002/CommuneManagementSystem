@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "npm install --prefix CommuneManagementSystem.ReactClient",
+  "installCommand": "CYPRESS_INSTALL_BINARY=0 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --prefix CommuneManagementSystem.ReactClient",
   "buildCommand": "npm run build --prefix CommuneManagementSystem.ReactClient",
   "outputDirectory": "CommuneManagementSystem.ReactClient/dist",
   "rewrites": [
