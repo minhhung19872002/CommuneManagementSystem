@@ -73,7 +73,7 @@ public class LibraryDocumentsController : ControllerBase
         var originalFileName = Path.GetFileName(file.FileName);
         var storedFileName = $"{Guid.NewGuid():N}{Path.GetExtension(originalFileName)}";
         var relativeDirectory = Path.Combine("Storage", "library-documents");
-        var physicalDirectory = Path.Combine(_environment.ContentRootPath, relativeDirectory);
+        var physicalDirectory = AppDataPaths.ResolveStoragePath(_environment, relativeDirectory);
         Directory.CreateDirectory(physicalDirectory);
         var physicalPath = Path.Combine(physicalDirectory, storedFileName);
 
@@ -136,7 +136,7 @@ public class LibraryDocumentsController : ControllerBase
             return File(Array.Empty<byte>(), item.ContentType, item.FileName);
         }
 
-        var fullPath = Path.Combine(_environment.ContentRootPath, item.StoredPath);
+        var fullPath = AppDataPaths.ResolveStoragePath(_environment, item.StoredPath);
         if (!System.IO.File.Exists(fullPath))
         {
             return NotFound("Khong tim thay tep da tai len.");
@@ -157,7 +157,7 @@ public class LibraryDocumentsController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(item.StoredPath))
         {
-            var fullPath = Path.Combine(_environment.ContentRootPath, item.StoredPath);
+            var fullPath = AppDataPaths.ResolveStoragePath(_environment, item.StoredPath);
             if (System.IO.File.Exists(fullPath))
             {
                 System.IO.File.Delete(fullPath);

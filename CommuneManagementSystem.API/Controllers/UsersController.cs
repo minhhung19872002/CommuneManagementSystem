@@ -449,7 +449,7 @@ public class UsersController : ControllerBase
             return null;
         }
 
-        var fullPath = Path.Combine(_environment.ContentRootPath, storedPath);
+        var fullPath = AppDataPaths.ResolveStoragePath(_environment, storedPath);
         if (!System.IO.File.Exists(fullPath))
         {
             return null;
@@ -465,7 +465,7 @@ public class UsersController : ControllerBase
             return;
         }
 
-        var fullPath = Path.Combine(_environment.ContentRootPath, storedPath);
+        var fullPath = AppDataPaths.ResolveStoragePath(_environment, storedPath);
         var directory = Path.GetDirectoryName(fullPath);
         if (!string.IsNullOrWhiteSpace(directory))
         {

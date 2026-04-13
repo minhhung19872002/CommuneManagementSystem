@@ -416,7 +416,7 @@ public class PersonsController : ControllerBase
         var originalFileName = Path.GetFileName(file.FileName);
         var storedFileName = $"{Guid.NewGuid():N}{Path.GetExtension(originalFileName)}";
         var relativeDirectory = Path.Combine("Storage", "person-documents", person.Id.ToString());
-        var physicalDirectory = Path.Combine(_environment.ContentRootPath, relativeDirectory);
+        var physicalDirectory = AppDataPaths.ResolveStoragePath(_environment, relativeDirectory);
         Directory.CreateDirectory(physicalDirectory);
 
         var physicalPath = Path.Combine(physicalDirectory, storedFileName);
@@ -468,7 +468,7 @@ public class PersonsController : ControllerBase
             return NotFound();
         }
 
-        var physicalPath = Path.Combine(_environment.ContentRootPath, document.StoredPath);
+        var physicalPath = AppDataPaths.ResolveStoragePath(_environment, document.StoredPath);
         if (!System.IO.File.Exists(physicalPath))
         {
             return NotFound("Không tìm thấy tệp đã tải lên.");
@@ -487,7 +487,7 @@ public class PersonsController : ControllerBase
             return NotFound();
         }
 
-        var physicalPath = Path.Combine(_environment.ContentRootPath, document.StoredPath);
+        var physicalPath = AppDataPaths.ResolveStoragePath(_environment, document.StoredPath);
         if (System.IO.File.Exists(physicalPath))
         {
             System.IO.File.Delete(physicalPath);

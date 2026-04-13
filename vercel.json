@@ -6,6 +6,10 @@
   "outputDirectory": "CommuneManagementSystem.ReactClient/dist",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://commune-management-api-bp-260413.azurewebsites.net/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

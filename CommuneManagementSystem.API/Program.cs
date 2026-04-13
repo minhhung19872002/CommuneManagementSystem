@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using CommuneManagementSystem.API.Data;
+using CommuneManagementSystem.API.Infrastructure;
 using CommuneManagementSystem.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+var databasePath = AppDataPaths.ResolveDatabasePath(builder.Environment);
 
 // Add services
 builder.Services.AddControllers();
@@ -11,7 +13,7 @@ builder.Services.AddScoped<ISystemLogService, SystemLogService>();
 
 // SQLite + InMemory mock
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=commune.db"));
+    options.UseSqlite($"Data Source={databasePath}"));
 
 // CORS
 builder.Services.AddCors(options =>
@@ -41,6 +43,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReact");
+app.MapGet("/api/health", () => Results.Ok(new
+{
+    status = "ok",
+    databasePath,
+    dataRoot = AppDataPaths.ResolveDataRoot(app.Environment),
+}));
 app.MapControllers();
 
 app.Run();
